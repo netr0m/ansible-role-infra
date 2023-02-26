@@ -1,0 +1,47 @@
+---
+name: 'Lint'
+on:
+  workflow_dispatch:
+    inputs:
+      dirname:
+        description: 'Name of the directory to checkout to'
+        default: 'netr0m.template'
+        required: false
+        type: string
+  workflow_call:
+    inputs:
+      dirname:
+        description: 'Name of the directory to checkout to'
+        default: 'netr0m.template'
+        required: false
+        type: string
+
+jobs:
+  lint:
+    name: 'Run linting'
+    runs-on: 'ubuntu-latest'
+    strategy:
+      matrix:
+        linter:
+          - 'yamllint'
+          - 'ansible-lint'
+    steps:
+      - name: 'Check out the codebase'
+        uses: 'actions/checkout@master'
+        with:
+          path: ${{ inputs.dirname }}
+
+      - name: 'Set up Python 3.10'
+        uses: 'actions/setup-python@v4'
+        with:
+          python-version: '3.10'
+
+      - name: 'Install dependencies'
+        run: pip3 install ${{ matrix.linter }}
+
+      - name: 'Lint code'
+        run: |
+          cd ${{ inputs.dirname }}
+          ${{ matrix.linter }} -c .${{ matrix.linter }} .
+
+...

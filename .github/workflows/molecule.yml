@@ -1,0 +1,52 @@
+---
+name: 'Molecule'
+on:
+  workflow_dispatch:
+    inputs:
+      dirname:
+        description: 'Name of the directory to checkout to'
+        default: 'netr0m.template'
+        required: false
+        type: string
+  workflow_call:
+    inputs:
+      dirname:
+        description: 'Name of the directory to checkout to'
+        default: 'netr0m.template'
+        required: false
+        type: string
+
+env:
+  PY_COLORS: 1
+  ANSIBLE_FORCE_COLOR: 1
+
+jobs:
+  molecule:
+    name: 'Run molecule'
+    runs-on: 'ubuntu-latest'
+    strategy:
+      matrix:
+        distro:
+          - debian11
+          - ubuntu2204
+    steps:
+      - name: 'Check out the codebase'
+        uses: 'actions/checkout@master'
+        with:
+          path: ${{ inputs.dirname }}
+
+      - name: 'Set up Python 3.10'
+        uses: 'actions/setup-python@v4'
+        with:
+          python-version: '3.10'
+
+      - name: 'Install dependencies'
+        run: pip3 install ansible molecule-docker docker
+
+      - name: 'Run molecule tests'
+        run: |
+          cd ${{ inputs.dirname }}
+          molecule test
+        env:
+          MOLECULE_DISTRO: ${{ matrix.distro }}
+...

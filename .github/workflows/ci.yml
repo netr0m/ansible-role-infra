@@ -1,0 +1,24 @@
+---
+name: 'CI'
+on:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '**'
+
+defaults:
+  run:
+    working-directory: 'netr0m.template'
+
+jobs:
+  lint:
+    uses: ./.github/workflows/lint.yml
+    with:
+      dirname: 'netr0m.template'
+  molecule:
+    uses: ./.github/workflows/molecule.yml
+    with:
+      dirname: 'netr0m.template'
+...

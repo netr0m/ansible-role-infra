@@ -1,0 +1,9 @@
+---
+- name: Example Playbook
+  hosts: all
+  become: true
+  gather_facts: true
+
+  roles:
+    - ../ansible-role-template
+...

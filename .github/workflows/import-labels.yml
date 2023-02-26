@@ -1,0 +1,21 @@
+---
+name: 'Github Label Importer'
+on:
+  workflow_dispatch: {}
+
+jobs:
+  labeler:
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: 'Check out the codebase'
+        uses: 'actions/checkout@master'
+
+      - name: 'Run labeler'
+        if: success()
+        uses: 'crazy-max/ghaction-github-labeler@v3'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          yaml-file: .github/labels.yml
+          skip-delete: false
+          dry-run: false
+...

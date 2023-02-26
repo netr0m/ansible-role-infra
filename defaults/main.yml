@@ -1,0 +1,9 @@
+---
+### All ###
+# Example variable
+example_var: 'some string'
+# Example list variable
+example_list:
+  - 'something'
+  - 'something else'
+...

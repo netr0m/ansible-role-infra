@@ -1,0 +1,23 @@
+---
+repos:
+  - repo: local
+    hooks:
+      - id: encryption-check
+        name: Ansible Vault Encryption Check
+        description: Ensure that all vault files are encrypted
+        entry: scripts/encryption-check.sh
+        files: ((?:^|\/)vault|vault\.ya?ml$|\.vault$)
+        language: script
+
+      - id: yamllint
+        name: YAML Lint
+        description: Run yamllint
+        entry: sh -c "../.venv/bin/yamllint -c .yamllint ."
+        language: system
+
+      - id: ansible-lint
+        name: Ansible Lint
+        description: Run ansible-lint
+        entry: sh -c "../.venv/bin/ansible-lint -c .ansible-lint ."
+        language: system
+...

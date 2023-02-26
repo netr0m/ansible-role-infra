@@ -5,14 +5,14 @@ on:
     inputs:
       dirname:
         description: 'Name of the directory to checkout to'
-        default: 'netr0m.template'
+        default: 'netr0m.infra'
         required: false
         type: string
   workflow_call:
     inputs:
       dirname:
         description: 'Name of the directory to checkout to'
-        default: 'netr0m.template'
+        default: 'netr0m.infra'
         required: false
         type: string
 

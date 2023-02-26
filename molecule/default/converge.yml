@@ -31,4 +31,4 @@
       failed_when: systemctl_status.rc > 1
 
   roles:
-    - netr0m.template
+    - netr0m.infra

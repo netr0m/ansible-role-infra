@@ -5,5 +5,5 @@
   gather_facts: true
 
   roles:
-    - ../ansible-role-template
+    - ../ansible-role-infra
 ...

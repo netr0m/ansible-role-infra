@@ -10,15 +10,15 @@ on:
 
 defaults:
   run:
-    working-directory: 'netr0m.template'
+    working-directory: 'netr0m.infra'
 
 jobs:
   lint:
     uses: ./.github/workflows/lint.yml
     with:
-      dirname: 'netr0m.template'
+      dirname: 'netr0m.infra'
   molecule:
     uses: ./.github/workflows/molecule.yml
     with:
-      dirname: 'netr0m.template'
+      dirname: 'netr0m.infra'
 ...

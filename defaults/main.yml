@@ -1,9 +1,77 @@
 ---
-### All ###
-# Example variable
-example_var: 'some string'
-# Example list variable
-example_list:
-  - 'something'
-  - 'something else'
+# Environment
+infra_env: "{{ lookup('env', 'ENVIRONMENT') | default('production') }}"
+# Username of the user owning the files
+infra_user_name: 'butler'
+# Group name of the group that should own the files
+infra_group_name: 'butlers'
+# Optionally provide the UID of the user. If absent, the UID will be looked up
+infra_user_uid: undefined
+# Optionally provide the GID of the group. If absent, the GID will be looked up
+infra_group_gid: undefined
+# Timezone
+infra_tz: Etc/UTC
+# Domain name
+infra_domain: local
+
+### Directories ###
+# Manage directories
+infra_manage_directories: true
+# Directory to store service data
+infra_directory:
+  path: '/opt/infra'
+  # Default permissions
+  owner: "{{ infra_user_name }}"
+  group: "{{ infra_group_name }}"
+  mode: 740
+# Subdirectories
+infra_subdirectories:
+  cfg:
+    path: "{{ infra_directory.path }}/cfg"
+  log:
+    path: "{{ infra_directory.path }}/log"
+  data:
+    path: "{{ infra_directory.path }}/data"
+
+### Services ###
+# Default restart policy
+infra_restart_policy: 'always'
+# Configure Unifi Controller
+infra_use_unifi: true
+# Configure PiHole
+infra_use_pihole: true
+
+### Unifi ###
+# Directories for Unifi
+infra_unifi_directories:
+  log:
+    path: "{{ infra_subdirectories.log.path }}/unifi"
+  data:
+    path: "{{ infra_subdirectories.data.path }}/unifi"
+
+# Environment variables for the Unifi container
+infra_unifi_env_vars:
+  PUID: "{{ infra_user_uid }}"
+  PGID: "{{ infra_group_gid }}"
+  TZ: "{{ infra_tz | default('Etc/UTC') }}"
+
+# Unifi container settings
+infra_unifi_container:
+  hostname: unifi
+  image: linuxserver/unifi-controller:latest
+  restart_policy: always
+  env_vars: "{{ infra_unifi_env_vars }}"
+  ports:
+    # tcp
+    admin: 8443
+    device_comms: 8080
+    guest_portal_https: 8843
+    # guest_portal_http: 8880
+    throughput: 6789
+    # udp
+    stun: 3478
+    discovery: 10001
+    l2_discovery: 1900
+    syslog: 5514
+  memory: 4g
 ...

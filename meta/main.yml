@@ -1,5 +1,6 @@
 ---
-dependencies: []
+dependencies: 
+  - role: ../ansible-role-svc
 
 galaxy_info:
   role_name: infra

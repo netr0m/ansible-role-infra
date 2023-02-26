@@ -1,0 +1,25 @@
+---
+- name: Get UID of 'infra_user_name'
+  block:
+    - name: Get 'infra_user_name' passwd entry
+      ansible.builtin.getent:
+        database: passwd
+        key: "{{ infra_user_name }}"
+
+    - name: Set infra_user_uid fact
+      ansible.builtin.set_fact:
+        infra_user_uid: "{{ getent_passwd[infra_user_name][1] }}"
+  when: infra_user_uid == 'undefined'
+
+- name: Get GID of 'infra_group_name'
+  block:
+    - name: Get 'infra_group_name' group entry
+      ansible.builtin.getent:
+        database: group
+        key: "{{ infra_group_name }}"
+
+    - name: Set infra_group_gid fact
+      ansible.builtin.set_fact:
+        infra_group_gid: "{{ getent_group[infra_group_name][1] }}"
+  when: infra_group_gid == 'undefined'
+...

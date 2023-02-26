@@ -9,4 +9,19 @@
         - 'main.yml'
       paths:
         - 'vars'
+
+# Gather user facts
+- name: Include 'user_facts' tasks
+  ansible.builtin.import_tasks: user_facts.yml
+
+# Manage directories
+- name: Include 'directories' tasks
+  ansible.builtin.import_tasks: directories.yml
+  when: infra_manage_directories
+
+# Manage unifi deployment
+- name: Include 'unifi' tasks
+  ansible.builtin.import_tasks: deploy_unifi.yml
+  when: infra_use_unifi
+
 ...

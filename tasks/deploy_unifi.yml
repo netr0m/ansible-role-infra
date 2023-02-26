@@ -24,6 +24,9 @@
     volumes:
       - "{{ infra_unifi_directories.log.path }}:/config/logs"
       - "{{ infra_unifi_directories.data.path }}:/config/data"
+    networks:
+      - name: svc_hostnet
+      - name: svc_net
     ports:
       - "{{ infra_unifi_container.ports.admin | default('8443') }}:8443"
       - "{{ infra_unifi_container.ports.device_comms | default('8080') }}:8080"

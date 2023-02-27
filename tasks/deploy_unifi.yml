@@ -24,9 +24,7 @@
     volumes:
       - "{{ infra_unifi_directories.log.path }}:/config/logs"
       - "{{ infra_unifi_directories.data.path }}:/config/data"
-    networks:
-      - name: svc_hostnet
-      - name: svc_net
+    network_mode: host
     ports:
       - "{{ infra_unifi_container.ports.admin | default('8443') }}:8443"
       - "{{ infra_unifi_container.ports.device_comms | default('8080') }}:8080"
@@ -36,15 +34,6 @@
       - "{{ infra_unifi_container.ports.discovery | default('10001') }}:10001/udp"
       - "{{ infra_unifi_container.ports.l2_discovery | default('1900') }}:1900/udp"
       - "{{ infra_unifi_container.ports.syslog | default('5514') }}:5514/udp"
-    labels:
-      traefik.enable: 'true'
-      traefik.http.routers.unifi-rtr.rule: "Host(\"{{ infra_unifi_container.hostname }}.{{ svc_domain }}\")"
-      traefik.http.routers.unifi-rtr.tls.certresolver: "{{ svc_traefik_dns_challenge_provider | default('cloudflare') }}"
-      traefik.http.routers.unifi-rtr.entrypoints: webSecure
-      traefik.http.services.unifi-svc.loadbalancer.server.scheme: https
-      traefik.http.services.unifi-svc.loadbalancer.server.port: "{{ infra_unifi_container.ports.admin | default('8443') }}"
-      traefik.http.middlewares.unifi-headers-mwr.headers.customrequestheaders.X-Forwarded-Proto: https
-      traefik.http.middlewares.unifi-headers-mwr.headers.customrequestheaders.Authorization: ''
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:{{ infra_unifi_container.ports.device_comms }}"]
       interval: 30s

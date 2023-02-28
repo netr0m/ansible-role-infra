@@ -1,5 +1,5 @@
 ---
-dependencies: 
+dependencies:
   - role: ../ansible-role-svc
 
 galaxy_info:

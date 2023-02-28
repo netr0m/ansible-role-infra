@@ -13,6 +13,8 @@ infra_group_gid: undefined
 infra_tz: Etc/UTC
 # Domain name
 infra_domain: local
+# Password for Pihole web UI
+infra_pihole_password:
 
 ### Directories ###
 # Manage directories
@@ -73,5 +75,38 @@ infra_unifi_container:
     discovery: 10001
     l2_discovery: 1900
     syslog: 5514
+  memory: 4g
+
+### Pihole ###
+# Directories for Pihole
+infra_pihole_directories:
+  log:
+    path: "{{ infra_subdirectories.log.path }}/pihole"
+  data:
+    path: "{{ infra_subdirectories.data.path }}/pihole"
+
+# Environment variables for the Pihole container
+infra_pihole_env_vars:
+  PUID: "{{ infra_user_uid }}"
+  PGID: "{{ infra_group_gid }}"
+  TZ: "{{ infra_tz | default('Etc/UTC') }}"
+  WEBPASSWORD: "{{ infra_pihole_password | default(omit) }}"
+  VIRTUAL_HOST: "pihole.{{ infra_domain }}"
+  DNSMASQ_LISTENING: 'all'
+
+# Extra hosts for Pihole
+infra_pihole_extra_hosts: {}
+  # service.domain.tld: <IP_ADDR>
+  # service1.domain.tld: <IP_ADDR>
+
+# Pihole container settings
+infra_pihole_container:
+  hostname: pihole
+  image: pihole/pihole:latest
+  restart_policy: always
+  env_vars: "{{ infra_pihole_env_vars }}"
+  ports:
+    ui: 8053
+    dns: 53
   memory: 4g
 ...

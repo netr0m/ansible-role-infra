@@ -42,5 +42,4 @@
       start_period: 30s
     env: "{{ infra_unifi_container.env_vars }}"
     memory: "{{ infra_unifi_container.memory | default('2g') }}"
-    recreate: true
 ...

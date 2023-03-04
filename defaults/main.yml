@@ -38,10 +38,12 @@ infra_subdirectories:
 ### Services ###
 # Default restart policy
 infra_restart_policy: 'always'
-# Configure Unifi Controller
-infra_use_unifi: true
 # Configure PiHole
 infra_use_pihole: true
+# Configure Unifi Controller
+infra_use_unifi: true
+# Configure Vaultwarden
+infra_use_vaultwarden: true
 
 ### Unifi ###
 # Directories for Unifi
@@ -109,4 +111,35 @@ infra_pihole_container:
     ui: 8053
     dns: 53
   memory: 4g
+
+### Vaultwarden ###
+# Directories for Vaultwarden
+infra_vaultwarden_directories:
+  log:
+    path: "{{ infra_subdirectories.log.path }}/vaultwarden"
+  data:
+    path: "{{ infra_subdirectories.data.path }}/vaultwarden"
+
+# Environment variables for the Vaultwarden container
+infra_vaultwarden_env_vars:
+  WEBSOCKET_ENABLED: 'true'
+  DOMAIN: "https://{{ infra_vaultwarden_container.hostname }}.{{ svc_domain }}"
+  EXTENDED_LOGGING: 'true'
+  LOG_FILE: /data/logs/vaultwarden.log
+  LOG_LEVEL: WARN
+  SIGNUPS_ALLOWED: 'false'
+  SIGNUPS_DOMAINS_WHITELIST: ''
+  INVITATIONS_ALLOWED: 'false'
+  DISABLE_ADMIN_TOKEN: 'false'
+  PASSWORD_ITERATIONS: '350000'
+  PASSWORD_HINTS_ALLOWED: 'false'
+  SHOW_PASSWORD_HINT: 'false'
+
+
+# Vaultwarden container settings
+infra_vaultwarden_container:
+  hostname: vault
+  image: vaultwarden/server:1.27.0
+  restart_policy: always
+  memory: 2g
 ...

@@ -11,8 +11,10 @@ infra_user_uid: undefined
 infra_group_gid: undefined
 # Timezone
 infra_tz: Etc/UTC
-# Domain name
+# Domain name, internal
 infra_domain: local
+# Domain name, external
+infra_domain_ext: example.com
 # Password for Pihole web UI
 infra_pihole_password:
 
@@ -42,6 +44,8 @@ infra_restart_policy: 'always'
 infra_use_pihole: true
 # Configure Unifi Controller
 infra_use_unifi: true
+# Configure wireguard
+infra_use_wireguard: true
 # Configure Vaultwarden
 infra_use_vaultwarden: true
 
@@ -111,6 +115,44 @@ infra_pihole_container:
     ui: 8053
     dns: 53
   memory: 4g
+
+### Wireguard ###
+# Directories for Wireguard
+infra_wireguard_directories:
+  log:
+    path: "{{ infra_subdirectories.log.path }}/wireguard"
+  cfg:
+    path: "{{ infra_subdirectories.cfg.path }}/wireguard"
+
+# Environment variables for the Wireguard container. See https://github.com/linuxserver/docker-wireguard#parameters
+infra_wireguard_env_vars:
+  PUID: "{{ infra_user_uid }}"
+  PGID: "{{ infra_group_gid }}"
+  TZ: "{{ infra_tz | default('Etc/UTC') }}"
+  SERVERURL: "{{ infra_wireguard_container.hostname }}.{{ infra_domain_ext | default(infra_domain) }}"
+  SERVERPORT: "{{ infra_wireguard_container.ports.vpn }}"
+  PEERS: "{{ infra_wireguard_peers | join(',') }}"
+  PEERDNS: auto
+  PERSISTENTKEEPALIVE_PEERS: all
+  INTERNAL_SUBNET: '10.13.13.0'
+  ALLOWEDIPS: '0.0.0.0/0'
+  LOG_CONFS: 'false'
+
+# Peers to create. See https://github.com/linuxserver/docker-wireguard#parameters
+infra_wireguard_peers: []
+  # - laptop
+  # - desktop
+  # - phone
+
+# Wireguard container settings
+infra_wireguard_container:
+  hostname: wg
+  image: linuxserver/wireguard:latest
+  restart_policy: always
+  ports:
+    # udp
+    vpn: 51820
+  memory: 1g
 
 ### Vaultwarden ###
 # Directories for Vaultwarden

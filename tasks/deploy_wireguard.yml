@@ -1,0 +1,37 @@
+---
+- name: Ensure wireguard log directory is present
+  ansible.builtin.file:
+    path: "{{ infra_wireguard_directories.log.path }}"
+    state: directory
+    owner: "{{ infra_wireguard_directories.log.owner | default(infra_subdirectories.log.owner) | default(infra_directory.owner) }}"
+    group: "{{ infra_wireguard_directories.log.group | default(infra_subdirectories.log.group) | default(infra_directory.group) }}"
+    mode: "{{ infra_wireguard_directories.log.mode | default(infra_subdirectories.log.mode) | default(infra_directory.mode) }}"
+
+- name: Ensure wireguard config directory is present
+  ansible.builtin.file:
+    path: "{{ infra_wireguard_directories.cfg.path }}"
+    state: directory
+    owner: "{{ infra_wireguard_directories.cfg.owner | default(infra_subdirectories.cfg.owner) | default(infra_directory.owner) }}"
+    group: "{{ infra_wireguard_directories.cfg.group | default(infra_subdirectories.cfg.group) | default(infra_directory.group) }}"
+    mode: "{{ infra_wireguard_directories.cfg.mode | default(infra_subdirectories.cfg.mode) | default(infra_directory.mode) }}"
+
+- name: Deploy wireguard service
+  community.docker.docker_container:
+    image: "{{ infra_wireguard_container.image }}"
+    name: "{{ infra_wireguard_container.hostname }}"
+    hostname: "{{ infra_wireguard_container.hostname }}"
+    restart_policy: "{{ infra_wireguard_container.restart_policy | default(infra_restart_policy) }}"
+    volumes:
+      - "{{ infra_wireguard_directories.log.path }}:/var/log"
+      - "{{ infra_wireguard_directories.cfg.path }}:/config"
+      - /lib/modules:/lib/modules
+    ports:
+      - "{{ infra_wireguard_container.ports.vpn | default('51820') }}:51820/udp"
+    env: "{{ infra_wireguard_env_vars }}"
+    memory: "{{ infra_wireguard_container.memory | default('2g') }}"
+    log_driver: "{{ svc_log_driver }}"
+    log_options: "{{ svc_log_options }}"
+    capabilities:
+      - NET_ADMIN
+      - SYS_MODULE
+...

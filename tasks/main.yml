@@ -29,6 +29,11 @@
   ansible.builtin.import_tasks: deploy_unifi.yml
   when: infra_use_unifi
 
+# Manage wireguard deployment
+- name: Include 'wireguard' tasks
+  ansible.builtin.import_tasks: deploy_wireguard.yml
+  when: infra_use_wireguard
+
 # Manage vaultwarden deployment
 - name: Include 'vaultwarden' tasks
   ansible.builtin.import_tasks: deploy_vaultwarden.yml

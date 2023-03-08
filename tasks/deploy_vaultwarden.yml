@@ -54,4 +54,6 @@
       traefik.http.routers.vaultwarden-ui-ws-rtr.middlewares: redirect-https-mwr
     env: "{{ infra_vaultwarden_env_vars }}"
     memory: "{{ infra_vaultwarden_container.memory | default('2g') }}"
+    log_driver: "{{ svc_log_driver }}"
+    log_options: "{{ svc_log_options }}"
 ...

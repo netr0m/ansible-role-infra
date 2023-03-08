@@ -55,5 +55,7 @@
       - 1.1.1.1
     env: "{{ infra_pihole_container.env_vars }}"
     memory: "{{ infra_pihole_container.memory | default('2g') }}"
+    log_driver: "{{ svc_log_driver }}"
+    log_options: "{{ svc_log_options }}"
     etc_hosts: "{{ infra_pihole_extra_hosts }}"
 ...

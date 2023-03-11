@@ -46,6 +46,7 @@
       traefik.tcp.routers.pihole-dns-tcp-rtr.rule: "HostSNI(\"{{ infra_pihole_container.hostname }}.{{ svc_domain }}\")"
       traefik.tcp.routers.pihole-dns-tcp-rtr.entrypoints: dns
       traefik.tcp.routers.pihole-dns-tcp-rtr.service: pihole-dns-tcp-svc
+      traefik.tcp.routers.pihole-dns-tcp-rtr.tls.certresolver: "{{ svc_traefik_dns_challenge_provider | default('cloudflare') }}"
       # DNS/udp
       traefik.udp.routers.pihole-dns-udp-rtr.entrypoints: dnsUdp
       traefik.udp.services.pihole-dns-udp-svc.loadbalancer.server.port: "53"

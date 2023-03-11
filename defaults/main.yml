@@ -135,7 +135,7 @@ infra_wireguard_env_vars:
   PEERDNS: auto
   PERSISTENTKEEPALIVE_PEERS: all
   INTERNAL_SUBNET: '10.13.13.0'
-  ALLOWEDIPS: '0.0.0.0/0'
+  ALLOWEDIPS: '0.0.0.0/0, ::0/0'
   LOG_CONFS: 'false'
 
 # Peers to create. See https://github.com/linuxserver/docker-wireguard#parameters

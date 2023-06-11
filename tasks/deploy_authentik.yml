@@ -1,0 +1,107 @@
+---
+- name: Ensure authentik log directory is present
+  ansible.builtin.file:
+    path: "{{ infra_authentik_directories.log.path }}"
+    state: directory
+    owner: "{{ infra_authentik_directories.log.owner | default(infra_subdirectories.log.owner) | default(infra_directory.owner) }}"
+    group: "{{ infra_authentik_directories.log.group | default(infra_subdirectories.log.group) | default(infra_directory.group) }}"
+    mode: "{{ infra_authentik_directories.log.mode | default(infra_subdirectories.log.mode) | default(infra_directory.mode) }}"
+
+- name: Ensure authentik data directory is present
+  ansible.builtin.file:
+    path: "{{ infra_authentik_directories.data.path }}"
+    state: directory
+    owner: "{{ infra_authentik_directories.data.owner | default(infra_subdirectories.data.owner) | default(infra_directory.owner) }}"
+    group: "{{ infra_authentik_directories.data.group | default(infra_subdirectories.data.group) | default(infra_directory.group) }}"
+    mode: "{{ infra_authentik_directories.data.mode | default(infra_subdirectories.data.mode) | default(infra_directory.mode) }}"
+
+- name: Deploy authentik databases
+  block:
+    - name: Deploy authentik postgresql
+      community.docker.docker_container:
+        image: "{{ infra_authentik_container_postgresql_image }}"
+        name: "{{ infra_authentik_container_hostname }}-db"
+        hostname: "{{ infra_authentik_container_hostname }}-db"
+        restart_policy: "{{ infra_authentik_container_restart_policy | default(infra_restart_policy) }}"
+        volumes:
+          - "{{ infra_authentik_directories.data.path }}/postgresql:/var/lib/postgresql/data"
+        env: "{{ infra_authentik_env_vars_shared | combine(infra_authentik_env_vars_db) }}"
+        memory: "{{ infra_authentik_container_memory_postgresql | default('1g') }}"
+        log_driver: "{{ svc_log_driver }}"
+        log_options: "{{ svc_log_options }}"
+        healthcheck:
+          test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+          start_period: 20s
+          interval: 30s
+          retries: 5
+          timeout: 5s
+
+    - name: Deploy authentik redis
+      community.docker.docker_container:
+        image: "{{ infra_authentik_container_redis_image }}"
+        name: "{{ infra_authentik_container_hostname }}-redis"
+        hostname: "{{ infra_authentik_container_hostname }}-redis"
+        restart_policy: "{{ infra_authentik_container_restart_policy | default(infra_restart_policy) }}"
+        memory: "{{ infra_authentik_container_memory_redis | default('2g') }}"
+        log_driver: "{{ svc_log_driver }}"
+        log_options: "{{ svc_log_options }}"
+        command: "--save 60 1 --loglevel warning"
+        healthcheck:
+          test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+          start_period: 20s
+          interval: 30s
+          retries: 5
+          timeout: 3s
+        recreate: true
+
+- name: Deploy authentik service
+  block:
+    - name: Deploy authentik server
+      community.docker.docker_container:
+        image: "{{ infra_authentik_container_image }}"
+        name: "{{ infra_authentik_container_hostname }}-server"
+        hostname: "{{ infra_authentik_container_hostname }}-server"
+        restart_policy: "{{ infra_authentik_container_restart_policy | default(infra_restart_policy) }}"
+        volumes:
+          - "{{ infra_authentik_directories.data.path }}/media:/media"
+          - "{{ infra_authentik_directories.data.path }}/templates:/templates"
+        exposed_ports:
+          - 9443
+        labels:
+          traefik.enable: 'true'
+          traefik.http.routers.authentik-rtr.rule: "Host(\"{{ infra_authentik_container_hostname }}.{{ svc_domain }}\")"
+          traefik.http.routers.authentik-rtr.entrypoints: webSecure
+          traefik.http.services.authentik-svc.loadbalancer.server.port: "9443"
+          traefik.http.services.authentik-svc.loadbalancer.server.scheme: https
+          traefik.http.routers.authentik-rtr.service: authentik-svc
+          # ForwardAuth regex
+          traefik.http.routers.authentik-rtr-outpost.rule: "HostRegexp(`{subdomain:[a-z0-9-]+}.{{ svc_domain }}`) && PathPrefix(`/outpost.goauthentik.io/`)"
+          traefik.http.routers.authentik-rtr-outpost.entrypoints: webSecure
+        env: "{{ infra_authentik_env_vars_shared | combine(infra_authentik_env_vars_server) | combine(infra_authentik_env_vars_authentik) }}"
+        memory: "{{ infra_authentik_container_memory_server | default('2g') }}"
+        log_driver: "{{ svc_log_driver }}"
+        log_options: "{{ svc_log_options }}"
+        command: server
+        links:
+          - "{{ infra_authentik_container_hostname }}-db"
+          - "{{ infra_authentik_container_hostname }}-redis"
+
+    - name: Deploy authentik worker
+      community.docker.docker_container:
+        image: "{{ infra_authentik_container_image }}"
+        name: "{{ infra_authentik_container_hostname }}-worker"
+        hostname: "{{ infra_authentik_container_hostname }}-worker"
+        restart_policy: "{{ infra_authentik_container_restart_policy | default(infra_restart_policy) }}"
+        volumes:
+          - "{{ infra_authentik_directories.data.path }}/media:/media"
+          - "{{ infra_authentik_directories.data.path }}/templates:/templates"
+          - "{{ infra_authentik_directories.data.path }}/certs:/certs"
+        env: "{{ infra_authentik_env_vars_shared | combine(infra_authentik_env_vars_server) | combine(infra_authentik_env_vars_authentik) }}"
+        memory: "{{ infra_authentik_container_memory_worker | default('2g') }}"
+        log_driver: "{{ svc_log_driver }}"
+        log_options: "{{ svc_log_options }}"
+        command: worker
+        links:
+          - "{{ infra_authentik_container_hostname }}-db"
+          - "{{ infra_authentik_container_hostname }}-redis"
+...

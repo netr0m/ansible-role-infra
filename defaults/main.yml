@@ -48,6 +48,8 @@ infra_use_unifi: true
 infra_use_wireguard: true
 # Configure Vaultwarden
 infra_use_vaultwarden: true
+# Configure Authentik
+infra_use_authentik: true
 
 ### Unifi ###
 # Directories for Unifi
@@ -184,4 +186,66 @@ infra_vaultwarden_container:
   image: vaultwarden/server:1.27.0
   restart_policy: always
   memory: 2g
+
+### Authentik ###
+# Directories for Authentik
+infra_authentik_directories:
+  log:
+    path: "{{ infra_subdirectories.log.path }}/authentik"
+  data:
+    path: "{{ infra_subdirectories.data.path }}/authentik"
+
+# Secret key used for Authentik cookie signing
+infra_authentik_secret_key: ""
+# Database user
+infra_authentik_db_user: "authentik"
+# Database password
+infra_authentik_db_password: ""
+# Database name
+infra_authentik_db_name: "authentik"
+
+# Environment variables for the Authentik config
+infra_authentik_env_vars_authentik:
+  AUTHENTIK_COOKIE_DOMAIN: "{{ svc_domain }}"
+  AUTHENTIK_LOG_LEVEL: 'INFO'
+  AUTHENTIK_GEOIP: /geoip/GeoLite2-City.mmdb
+  AUTHENTIK_DISABLE_UPDATE_CHECK: 'false'
+  AUTHENTIK_ERROR_REPORTING__ENABLED: 'false'
+  AUTHENTIK_ERROR_REPORTING__SENTRY_DSN: ""
+  AUTHENTIK_ERROR_REPORTING__ENVIRONMENT: customer
+  AUTHENTIK_ERROR_REPORTING__SEND_PII: 'false'
+  AUTHENTIK_AVATARS: initials
+  AUTHENTIK_DEFAULT_USER_CHANGE_NAME: 'true'
+  AUTHENTIK_DEFAULT_USER_CHANGE_EMAIL: 'false'
+  AUTHENTIK_DEFAULT_USER_CHANGE_USERNAME: 'false'
+  AUTHENTIK_GDPR_COMPLIANCE: 'true'
+  AUTHENTIK_DEFAULT_TOKEN_LENGTH: '60'
+  AUTHENTIK_IMPERSONATION: 'false'
+  AUTHENTIK_EMAIL__HOST: 'localhost'
+  AUTHENTIK_EMAIL__PORT: '25'
+  AUTHENTIK_EMAIL__USERNAME: ""
+  AUTHENTIK_EMAIL__PASSWORD: ""
+  AUTHENTIK_EMAIL__USE_TLS: 'false'
+  AUTHENTIK_EMAIL__USE_SSL: 'false'
+  AUTHENTIK_EMAIL__TIMEOUT: '10'
+  AUTHENTIK_EMAIL__FROM: "authentik@{{ svc_domain }}"
+
+# Authentik container hostname
+infra_authentik_container_hostname: authentik
+# Authentik container image
+infra_authentik_container_image: ghcr.io/goauthentik/server:2023.5.3
+# Authentik container restart policy
+infra_authentik_container_restart_policy: always
+# Authentik server container memory
+infra_authentik_container_memory_server: 2g
+# Authentik worker container memory
+infra_authentik_container_memory_worker: 2g
+# Authentik Redis container image
+infra_authentik_container_redis_image: docker.io/library/redis:alpine
+# Authentik redis container memory
+infra_authentik_container_memory_redis: 2g
+# Authentik postgres container image
+infra_authentik_container_postgresql_image: docker.io/library/postgres:12-alpine
+# Authentik postgres container memory
+infra_authentik_container_memory_postgresql: 1g
 ...

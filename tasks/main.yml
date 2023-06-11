@@ -38,4 +38,9 @@
 - name: Include 'vaultwarden' tasks
   ansible.builtin.import_tasks: deploy_vaultwarden.yml
   when: infra_use_vaultwarden
+
+# Manage authentik deployment
+- name: Include 'authentik' tasks
+  ansible.builtin.import_tasks: deploy_authentik.yml
+  when: infra_use_authentik
 ...

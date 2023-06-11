@@ -1,2 +1,23 @@
 ---
+# Shared environment variables for the Authentik containers
+infra_authentik_env_vars_shared:
+  PUID: "{{ infra_user_uid }}"
+  PGID: "{{ infra_group_gid }}"
+
+# Environment variables for the Authentik DB container
+infra_authentik_env_vars_db:
+  POSTGRES_DB: "{{ infra_authentik_db_name }}"
+  POSTGRES_USER: "{{ infra_authentik_db_user }}"
+  POSTGRES_PASSWORD: "{{ infra_authentik_db_password }}"
+
+# Environment variables for the Authentik server
+infra_authentik_env_vars_server:
+  AUTHENTIK_SECRET_KEY: "{{ infra_authentik_secret_key }}"
+  AUTHENTIK_REDIS__HOST: "{{ infra_authentik_container_hostname }}-redis"
+  AUTHENTIK_POSTGRESQL__HOST: "{{ infra_authentik_container_hostname }}-db"
+  AUTHENTIK_POSTGRESQL__NAME: "{{ infra_authentik_db_name }}"
+  AUTHENTIK_POSTGRESQL__USER: "{{ infra_authentik_db_user }}"
+  AUTHENTIK_POSTGRESQL__PASSWORD: "{{ infra_authentik_db_password }}"
+
+svc_traefik_middlewares_extra: {}
 ...

@@ -15,6 +15,9 @@ on:
         default: 'netr0m.infra'
         required: false
         type: string
+    secrets:
+      ANSIBLE_ROLE_SVC_SSH_KEY:
+        required: true
 
 env:
   PY_COLORS: 1
@@ -34,6 +37,14 @@ jobs:
         uses: 'actions/checkout@master'
         with:
           path: ${{ inputs.dirname }}
+
+      - name: 'Check out the dependency codebase'
+        uses: actions/checkout@v3
+        with:
+          repository: netr0m/ansible-role-svc
+          path: netr0m.svc
+          ref: main
+          ssh-key: ${{ secrets.ANSIBLE_ROLE_SVC_SSH_KEY }}
 
       - name: 'Set up Python 3.10'
         uses: 'actions/setup-python@v4'

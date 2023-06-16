@@ -17,8 +17,12 @@ jobs:
     uses: ./.github/workflows/lint.yml
     with:
       dirname: 'netr0m.infra'
+    secrets:
+      ANSIBLE_ROLE_SVC_SSH_KEY: ${{ secrets.ANSIBLE_ROLE_SVC_SSH_KEY }}
   molecule:
     uses: ./.github/workflows/molecule.yml
     with:
       dirname: 'netr0m.infra'
+    secrets:
+      ANSIBLE_ROLE_SVC_SSH_KEY: ${{ secrets.ANSIBLE_ROLE_SVC_SSH_KEY }}
 ...

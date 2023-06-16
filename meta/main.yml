@@ -1,6 +1,6 @@
 ---
 dependencies:
-  - role: ../ansible-role-svc
+  - role: netr0m.svc
 
 galaxy_info:
   role_name: infra

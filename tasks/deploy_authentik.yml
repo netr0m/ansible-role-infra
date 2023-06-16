@@ -82,6 +82,7 @@
         log_driver: "{{ svc_log_driver }}"
         log_options: "{{ svc_log_options }}"
         command: server
+        recreate: true
         links:
           - "{{ infra_authentik_container_hostname }}-db"
           - "{{ infra_authentik_container_hostname }}-redis"
@@ -101,6 +102,7 @@
         log_driver: "{{ svc_log_driver }}"
         log_options: "{{ svc_log_options }}"
         command: worker
+        recreate: true
         links:
           - "{{ infra_authentik_container_hostname }}-db"
           - "{{ infra_authentik_container_hostname }}-redis"

@@ -34,7 +34,6 @@
       traefik.http.routers.pihole-ui-rtr.entrypoints: webSecure
       traefik.http.services.pihole-ui-svc.loadbalancer.server.port: "80"
       traefik.http.routers.pihole-ui-rtr.service: pihole-ui-svc
-      traefik.http.routers.pihole-ui-rtr.tls.certresolver: "{{ svc_traefik_dns_challenge_provider | default('cloudflare') }}"
       # DNS/tcp shared router
       traefik.tcp.services.pihole-dns-tcp-svc.loadbalancer.server.port: "53"
       # DNS-TLS/tcp

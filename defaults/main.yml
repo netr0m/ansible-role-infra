@@ -22,20 +22,19 @@ infra_pihole_password:
 # Manage directories
 infra_manage_directories: true
 # Directory to store service data
-infra_directory:
-  path: '/opt/infra'
-  # Default permissions
-  owner: "{{ infra_user_name }}"
-  group: "{{ infra_group_name }}"
-  mode: 740
+infra_directory_path: '/opt/infra'
+# Default permissions
+infra_directory_owner: "{{ infra_user_name }}"
+infra_directory_group: "{{ infra_group_name }}"
+infra_directory_mode: 740
 # Subdirectories
 infra_subdirectories:
   cfg:
-    path: "{{ infra_directory.path }}/cfg"
+    path: "{{ infra_directory_path }}/cfg"
   log:
-    path: "{{ infra_directory.path }}/log"
+    path: "{{ infra_directory_path }}/log"
   data:
-    path: "{{ infra_directory.path }}/data"
+    path: "{{ infra_directory_path }}/data"
 
 ### Services ###
 # Default restart policy

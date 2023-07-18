@@ -3,17 +3,17 @@
   ansible.builtin.file:
     path: "{{ infra_unifi_directories.log.path }}"
     state: directory
-    owner: "{{ infra_unifi_directories.log.owner | default(infra_subdirectories.log.owner) | default(infra_directory.owner) }}"
-    group: "{{ infra_unifi_directories.log.group | default(infra_subdirectories.log.group) | default(infra_directory.group) }}"
-    mode: "{{ infra_unifi_directories.log.mode | default(infra_subdirectories.log.mode) | default(infra_directory.mode) }}"
+    owner: "{{ infra_unifi_directories.log.owner | default(infra_subdirectories.log.owner) | default(infra_directory_owner) }}"
+    group: "{{ infra_unifi_directories.log.group | default(infra_subdirectories.log.group) | default(infra_directory_group) }}"
+    mode: "{{ infra_unifi_directories.log.mode | default(infra_subdirectories.log.mode) | default(infra_directory_mode) }}"
 
 - name: Ensure unifi data directory is present
   ansible.builtin.file:
     path: "{{ infra_unifi_directories.data.path }}"
     state: directory
-    owner: "{{ infra_unifi_directories.data.owner | default(infra_subdirectories.data.owner) | default(infra_directory.owner) }}"
-    group: "{{ infra_unifi_directories.data.group | default(infra_subdirectories.data.group) | default(infra_directory.group) }}"
-    mode: "{{ infra_unifi_directories.data.mode | default(infra_subdirectories.data.mode) | default(infra_directory.mode) }}"
+    owner: "{{ infra_unifi_directories.data.owner | default(infra_subdirectories.data.owner) | default(infra_directory_owner) }}"
+    group: "{{ infra_unifi_directories.data.group | default(infra_subdirectories.data.group) | default(infra_directory_group) }}"
+    mode: "{{ infra_unifi_directories.data.mode | default(infra_subdirectories.data.mode) | default(infra_directory_mode) }}"
 
 - name: Deploy unifi service
   community.docker.docker_container:

@@ -19,5 +19,40 @@ infra_authentik_env_vars_server:
   AUTHENTIK_POSTGRESQL__USER: "{{ infra_authentik_db_user }}"
   AUTHENTIK_POSTGRESQL__PASSWORD: "{{ infra_authentik_db_password }}"
 
+# Shared environment variables for the Graylog containers
+infra_graylog_env_vars_shared:
+  PUID: "{{ infra_user_uid }}"
+  PGID: "{{ infra_group_gid }}"
+
+# Environment variables for the Graylog server
+infra_graylog_env_vars_server:
+  GRAYLOG_NODE_ID_FILE: "/usr/share/graylog/data/config/node-id"
+  GRAYLOG_PASSWORD_SECRET: "{{ infra_graylog_password_secret }}"
+  GRAYLOG_ROOT_PASSWORD_SHA2: "{{ infra_graylog_password_sha2 }}"
+  GRAYLOG_HTTP_BIND_ADDRESS: "0.0.0.0:{{ infra_graylog_container_server_ports.http | default('9000') }}"
+  GRAYLOG_HTTP_EXTERNAL_URI: "https://{{ infra_graylog_container_hostname }}.{{ infra_domain }}/"
+  GRAYLOG_HTTP_PUBLISH_URI: "https://{{ infra_graylog_container_hostname }}.{{ infra_domain }}/"
+  GRAYLOG_ELASTICSEARCH_HOSTS: "http://{{ infra_graylog_container_hostname }}-opensearch:9200"
+  GRAYLOG_MONGODB_URI: "mongodb://{{ infra_graylog_container_hostname }}-db:27017/graylog"
+
+# Environment variables for the Graylog DB container
+infra_graylog_env_vars_db: {}
+# Environment variables for the Graylog Opensearch container
+infra_graylog_env_vars_opensearch:
+  OPENSEARCH_JAVA_OPTS: '-Xms1g -Xmx1g'
+  bootstrap.memory_lock: 'true'
+  discovery.type: single-node
+  action.auto_create_index: 'false'
+  plugins.security.ssl.http.enabled: 'false'
+  plugins.security.disabled: 'true'
+
+infra_graylog_node_id_path: "{{ infra_graylog_directories.data.path }}/server/node-id"
+infra_graylog_container_graylog_permissions:
+  owner: 1100
+  group: 1100
+infra_graylog_container_opensearch_permissions:
+  owner: 1000
+  group: 1000
+
 svc_traefik_middlewares_extra: {}
 ...

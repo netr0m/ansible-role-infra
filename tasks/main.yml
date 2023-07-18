@@ -19,6 +19,11 @@
   ansible.builtin.import_tasks: directories.yml
   when: infra_manage_directories
 
+# Manage graylog deployment
+- name: Include 'graylog' tasks
+  ansible.builtin.import_tasks: deploy_graylog.yml
+  when: infra_use_graylog
+
 # Manage pihole deployment
 - name: Include 'pihole' tasks
   ansible.builtin.import_tasks: deploy_pihole.yml

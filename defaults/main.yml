@@ -40,6 +40,8 @@ infra_subdirectories:
 ### Services ###
 # Default restart policy
 infra_restart_policy: 'always'
+# Configure Graylog
+infra_use_graylog: true
 # Configure PiHole
 infra_use_pihole: true
 # Configure Unifi Controller
@@ -248,4 +250,49 @@ infra_authentik_container_memory_redis: 2g
 infra_authentik_container_postgresql_image: docker.io/library/postgres:12-alpine
 # Authentik postgres container memory
 infra_authentik_container_memory_postgresql: 1g
+
+### Graylog ###
+# Directories for Graylog
+infra_graylog_directories:
+  log:
+    path: "{{ infra_subdirectories.log.path }}/graylog"
+  data:
+    path: "{{ infra_subdirectories.data.path }}/graylog"
+
+# Secret used to 'pepper' the passwords - make sure to change this BEFORE deploying.
+infra_graylog_password_secret: "vSQBO0P8JLC//sWG0V1JkvRycKkDXZ6WQN4eOrrALy/JYc8nWsvxMSg29Eel1fscVUfbmpxlNmJEzYf6I3pcK1iXXpdzAhoSiV18I89N7+0QzpcI1ygANBwmRYWLd4Hp"
+# Hash of the password used for the root user [run `echo -n yourpassword | shasum -a 256`]
+infra_graylog_password_sha2: "f5dcec9289c446e7099d483f2ed447c990b3868a2fab4ff4a39436c63589c70e"
+
+# Environment variables for the Graylog config
+infra_graylog_env_vars_graylog: {}
+
+# Graylog container hostname
+infra_graylog_container_hostname: graylog
+# graylog version
+media_graylog_version: "5.1"
+# Graylog container image
+infra_graylog_container_server_image: "graylog/graylog:{{ media_graylog_version }}"
+# Graylog container restart policy
+infra_graylog_container_restart_policy: always
+# Graylog server container memory
+infra_graylog_container_memory_server: 2g
+# Graylog mongodb container image
+infra_graylog_container_mongodb_image: mongo:5.0
+# Graylog mongodb container memory
+infra_graylog_container_memory_mongodb: 2g
+# Graylog opensearch container image
+infra_graylog_container_opensearch_image: opensearchproject/opensearch:2.4.0
+# Graylog opensearch container memory
+infra_graylog_container_memory_opensearch: 2g
+
+# Ports for the Graylog server
+infra_graylog_container_server_ports:
+  beats: 5044
+  syslog: 5140
+  raw: 5555
+  http: 9000
+  gelf: 12201
+  forwarder_data: 13301
+  forwarder_cfg: 13302
 ...

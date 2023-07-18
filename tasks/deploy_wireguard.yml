@@ -3,17 +3,17 @@
   ansible.builtin.file:
     path: "{{ infra_wireguard_directories.log.path }}"
     state: directory
-    owner: "{{ infra_wireguard_directories.log.owner | default(infra_subdirectories.log.owner) | default(infra_directory.owner) }}"
-    group: "{{ infra_wireguard_directories.log.group | default(infra_subdirectories.log.group) | default(infra_directory.group) }}"
-    mode: "{{ infra_wireguard_directories.log.mode | default(infra_subdirectories.log.mode) | default(infra_directory.mode) }}"
+    owner: "{{ infra_wireguard_directories.log.owner | default(infra_subdirectories.log.owner) | default(infra_directory_owner) }}"
+    group: "{{ infra_wireguard_directories.log.group | default(infra_subdirectories.log.group) | default(infra_directory_group) }}"
+    mode: "{{ infra_wireguard_directories.log.mode | default(infra_subdirectories.log.mode) | default(infra_directory_mode) }}"
 
 - name: Ensure wireguard config directory is present
   ansible.builtin.file:
     path: "{{ infra_wireguard_directories.cfg.path }}"
     state: directory
-    owner: "{{ infra_wireguard_directories.cfg.owner | default(infra_subdirectories.cfg.owner) | default(infra_directory.owner) }}"
-    group: "{{ infra_wireguard_directories.cfg.group | default(infra_subdirectories.cfg.group) | default(infra_directory.group) }}"
-    mode: "{{ infra_wireguard_directories.cfg.mode | default(infra_subdirectories.cfg.mode) | default(infra_directory.mode) }}"
+    owner: "{{ infra_wireguard_directories.cfg.owner | default(infra_subdirectories.cfg.owner) | default(infra_directory_owner) }}"
+    group: "{{ infra_wireguard_directories.cfg.group | default(infra_subdirectories.cfg.group) | default(infra_directory_group) }}"
+    mode: "{{ infra_wireguard_directories.cfg.mode | default(infra_subdirectories.cfg.mode) | default(infra_directory_mode) }}"
 
 - name: Deploy wireguard service
   community.docker.docker_container:

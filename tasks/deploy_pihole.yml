@@ -9,9 +9,9 @@
   ansible.builtin.file:
     path: "{{ infra_pihole_directories.data.path }}"
     state: directory
-    owner: "{{ infra_pihole_directories.data.owner | default(infra_subdirectories.data.owner) | default(infra_directory.owner) }}"
-    group: "{{ infra_pihole_directories.data.group | default(infra_subdirectories.data.group) | default(infra_directory.group) }}"
-    mode: "{{ infra_pihole_directories.data.mode | default(infra_subdirectories.data.mode) | default(infra_directory.mode) }}"
+    owner: "{{ infra_pihole_directories.data.owner | default(infra_subdirectories.data.owner) | default(infra_directory_owner) }}"
+    group: "{{ infra_pihole_directories.data.group | default(infra_subdirectories.data.group) | default(infra_directory_group) }}"
+    mode: "{{ infra_pihole_directories.data.mode | default(infra_subdirectories.data.mode) | default(infra_directory_mode) }}"
 
 - name: Deploy pihole service
   community.docker.docker_container:

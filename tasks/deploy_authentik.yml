@@ -3,17 +3,17 @@
   ansible.builtin.file:
     path: "{{ infra_authentik_directories.log.path }}"
     state: directory
-    owner: "{{ infra_authentik_directories.log.owner | default(infra_subdirectories.log.owner) | default(infra_directory.owner) }}"
-    group: "{{ infra_authentik_directories.log.group | default(infra_subdirectories.log.group) | default(infra_directory.group) }}"
-    mode: "{{ infra_authentik_directories.log.mode | default(infra_subdirectories.log.mode) | default(infra_directory.mode) }}"
+    owner: "{{ infra_authentik_directories.log.owner | default(infra_subdirectories.log.owner) | default(infra_directory_owner) }}"
+    group: "{{ infra_authentik_directories.log.group | default(infra_subdirectories.log.group) | default(infra_directory_group) }}"
+    mode: "{{ infra_authentik_directories.log.mode | default(infra_subdirectories.log.mode) | default(infra_directory_mode) }}"
 
 - name: Ensure authentik data directory is present
   ansible.builtin.file:
     path: "{{ infra_authentik_directories.data.path }}"
     state: directory
-    owner: "{{ infra_authentik_directories.data.owner | default(infra_subdirectories.data.owner) | default(infra_directory.owner) }}"
-    group: "{{ infra_authentik_directories.data.group | default(infra_subdirectories.data.group) | default(infra_directory.group) }}"
-    mode: "{{ infra_authentik_directories.data.mode | default(infra_subdirectories.data.mode) | default(infra_directory.mode) }}"
+    owner: "{{ infra_authentik_directories.data.owner | default(infra_subdirectories.data.owner) | default(infra_directory_owner) }}"
+    group: "{{ infra_authentik_directories.data.group | default(infra_subdirectories.data.group) | default(infra_directory_group) }}"
+    mode: "{{ infra_authentik_directories.data.mode | default(infra_subdirectories.data.mode) | default(infra_directory_mode) }}"
 
 - name: Deploy authentik databases
   block:

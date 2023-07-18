@@ -1,18 +1,18 @@
 ---
 - name: Ensure infra_directory is present
   ansible.builtin.file:
-    path: "{{ infra_directory.path }}"
+    path: "{{ infra_directory_path }}"
     state: directory
-    owner: "{{ infra_directory.owner }}"
-    group: "{{ infra_directory.group }}"
-    mode: "{{ infra_directory.mode }}"
+    owner: "{{ infra_directory_owner }}"
+    group: "{{ infra_directory_group }}"
+    mode: "{{ infra_directory_mode }}"
 
 - name: Ensure infra_directory subdirectories are present
   ansible.builtin.file:
     path: "{{ item.value.path }}"
     state: directory
-    owner: "{{ item.value.owner | default(infra_directory.owner) }}"
-    group: "{{ item.value.group | default(infra_directory.group) }}"
-    mode: "{{ item.value.mode | default(infra_directory.mode) }}"
+    owner: "{{ item.value.owner | default(infra_directory_owner) }}"
+    group: "{{ item.value.group | default(infra_directory_group) }}"
+    mode: "{{ item.value.mode | default(infra_directory_mode) }}"
   with_dict: "{{ infra_subdirectories }}"
 ...

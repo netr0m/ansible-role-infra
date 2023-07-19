@@ -287,11 +287,17 @@ infra_graylog_container_memory_opensearch: 2g
 
 # Ports for the Graylog server
 infra_graylog_container_server_ports:
-  beats: 5044
-  syslog: 5140
-  raw: 5555
-  http: 9000
-  gelf: 12201
-  forwarder_data: 13301
-  forwarder_cfg: 13302
+  beats: 5044 # tcp
+  syslog: 5140  # tcp,udp
+  raw: 5555 # tcp,udp
+  http: 9000  # tcp
+  gelf: 12201 # tcp,udp
+  forwarder_data: 13301 # tcp
+  forwarder_cfg: 13302  # tcp
+
+infra_graylog_log_driver: local
+infra_graylog_log_options:
+  max-size: 20m
+  max-file: '5'
+  compress: 'true'
 ...

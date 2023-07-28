@@ -122,4 +122,5 @@
           - "{{ infra_graylog_container_hostname }}-opensearch:9200"
           - "--"
           - "/docker-entrypoint.sh"
+        healthcheck: {}
 ...

@@ -1,20 +1,48 @@
 ---
+# Environment variables for the Unifi container
+infra_unifi_env_vars:
+  PUID: "{{ infra_user_uid }}"
+  PGID: "{{ infra_group_gid }}"
+  TZ: "{{ infra_tz | default('Etc/UTC') }}"
+
+# Environment variables for the Pihole container
+infra_pihole_env_vars:
+  PUID: "{{ infra_user_uid }}"
+  PGID: "{{ infra_group_gid }}"
+  TZ: "{{ infra_tz | default('Etc/UTC') }}"
+  WEBPASSWORD: "{{ infra_pihole_password | default(omit) }}"
+  VIRTUAL_HOST: "{{ infra_pihole_container_hostname }}.{{ infra_domain }}"
+  DNSMASQ_LISTENING: "{{ infra_pihole_dnsmasq_listening }}"
+
+# Environment variables for the Wireguard container.
+infra_wireguard_env_vars:
+  PUID: "{{ infra_user_uid }}"
+  PGID: "{{ infra_group_gid }}"
+  TZ: "{{ infra_tz | default('Etc/UTC') }}"
+  SERVERURL: "{{ infra_wireguard_container_hostname }}.{{ infra_domain_ext | default(infra_domain) }}"
+  SERVERPORT: "{{ infra_wireguard_container_ports.vpn }}"
+
+# Environment variables for the Vaultwarden container
+infra_vaultwarden_env_vars:
+  WEBSOCKET_ENABLED: 'true'
+  DOMAIN: "https://{{ infra_vaultwarden_container_hostname }}.{{ infra_domain }}"
+
 # Shared environment variables for the Authentik containers
 infra_authentik_env_vars_shared:
   PUID: "{{ infra_user_uid }}"
   PGID: "{{ infra_group_gid }}"
 
 # Environment variables for the Authentik DB container
-infra_authentik_env_vars_db:
+infra_authentik_db_env_vars:
   POSTGRES_DB: "{{ infra_authentik_db_name }}"
   POSTGRES_USER: "{{ infra_authentik_db_user }}"
   POSTGRES_PASSWORD: "{{ infra_authentik_db_password }}"
 
 # Environment variables for the Authentik server
-infra_authentik_env_vars_server:
+infra_authentik_server_env_vars:
   AUTHENTIK_SECRET_KEY: "{{ infra_authentik_secret_key }}"
-  AUTHENTIK_REDIS__HOST: "{{ infra_authentik_container_hostname }}-redis"
-  AUTHENTIK_POSTGRESQL__HOST: "{{ infra_authentik_container_hostname }}-db"
+  AUTHENTIK_REDIS__HOST: "{{ infra_authentik_redis_container_hostname }}"
+  AUTHENTIK_POSTGRESQL__HOST: "{{ infra_authentik_db_container_hostname }}"
   AUTHENTIK_POSTGRESQL__NAME: "{{ infra_authentik_db_name }}"
   AUTHENTIK_POSTGRESQL__USER: "{{ infra_authentik_db_user }}"
   AUTHENTIK_POSTGRESQL__PASSWORD: "{{ infra_authentik_db_password }}"
@@ -58,5 +86,15 @@ infra_graylog_opensearch_container_permissions:
   owner: 1000
   group: 1000
 
-svc_traefik_middlewares_extra: {}
+# Additional middlewares to include in the traefik config
+svc_traefik_extra_middlewares: {}
+
+# Additional entrypoints to include in the traefik config
+svc_traefik_extra_entrypoints:
+  - name: dns
+    port: 53
+  - name: dnsUdp
+    port: 53/udp
+  - name: dnsTls
+    port: 853
 ...

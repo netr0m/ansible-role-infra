@@ -15,34 +15,35 @@
 
 - name: Deploy pihole service
   community.docker.docker_container:
-    image: "{{ infra_pihole_container.image }}"
-    name: "{{ infra_pihole_container.hostname }}"
-    hostname: "{{ infra_pihole_container.hostname }}"
-    restart_policy: "{{ infra_pihole_container.restart_policy | default(infra_restart_policy) }}"
+    image: "{{ infra_pihole_container_image }}"
+    pull: "{{ infra_force_pull or infra_pihole_version == 'latest' }}"
+    name: "{{ infra_pihole_container_hostname }}"
+    hostname: "{{ infra_pihole_container_hostname }}"
+    restart_policy: "{{ infra_pihole_restart_policy | default(infra_restart_policy) }}"
     volumes:
       - "{{ infra_pihole_directories.data.path }}/pihole:/etc/pihole"
       - "{{ infra_pihole_directories.data.path }}/dnsmasq.d:/etc/dnsmasq.d"
       - "{{ infra_pihole_directories.log.path }}:/var/log/pihole"
     ports:
-      - "{{ infra_pihole_container.ports.dns | default('53') }}:53/tcp"
-      - "{{ infra_pihole_container.ports.dns | default('53') }}:53/udp"
-      - "{{ infra_pihole_container.ports.ui | default('8053') }}:80/tcp"
+      - "{{ infra_pihole_container_ports.dns | default('53') }}:53/tcp"
+      - "{{ infra_pihole_container_ports.dns | default('53') }}:53/udp"
+      - "{{ infra_pihole_container_ports.ui | default('8053') }}:80/tcp"
     labels:
       traefik.enable: 'true'
       # Web UI
-      traefik.http.routers.pihole-ui-rtr.rule: "Host(\"{{ infra_pihole_container.hostname }}.{{ svc_domain }}\")"
+      traefik.http.routers.pihole-ui-rtr.rule: "Host(\"{{ infra_pihole_container_hostname }}.{{ infra_domain }}\")"
       traefik.http.routers.pihole-ui-rtr.entrypoints: webSecure
       traefik.http.services.pihole-ui-svc.loadbalancer.server.port: "80"
       traefik.http.routers.pihole-ui-rtr.service: pihole-ui-svc
       # DNS/tcp shared router
       traefik.tcp.services.pihole-dns-tcp-svc.loadbalancer.server.port: "53"
       # DNS-TLS/tcp
-      traefik.tcp.routers.pihole-dns-tls-tcp-rtr.rule: "HostSNI(\"{{ infra_pihole_container.hostname }}.{{ svc_domain }}\")"
+      traefik.tcp.routers.pihole-dns-tls-tcp-rtr.rule: "HostSNI(\"{{ infra_pihole_container_hostname }}.{{ infra_domain }}\")"
       traefik.tcp.routers.pihole-dns-tls-tcp-rtr.entrypoints: dnsTls
       traefik.tcp.routers.pihole-dns-tls-tcp-rtr.service: pihole-dns-tcp-svc
       traefik.tcp.routers.pihole-dns-tls-tcp-rtr.tls.certresolver: "{{ svc_traefik_dns_challenge_provider | default('cloudflare') }}"
       # DNS/tcp
-      traefik.tcp.routers.pihole-dns-tcp-rtr.rule: "HostSNI(\"{{ infra_pihole_container.hostname }}.{{ svc_domain }}\")"
+      traefik.tcp.routers.pihole-dns-tcp-rtr.rule: "HostSNI(\"{{ infra_pihole_container_hostname }}.{{ infra_domain }}\")"
       traefik.tcp.routers.pihole-dns-tcp-rtr.entrypoints: dns
       traefik.tcp.routers.pihole-dns-tcp-rtr.service: pihole-dns-tcp-svc
       traefik.tcp.routers.pihole-dns-tcp-rtr.tls.certresolver: "{{ svc_traefik_dns_challenge_provider | default('cloudflare') }}"
@@ -53,8 +54,8 @@
     dns_servers:
       - 127.0.0.1
       - 1.1.1.1
-    env: "{{ infra_pihole_container.env_vars }}"
-    memory: "{{ infra_pihole_container.memory | default('2g') }}"
+    env: "{{ infra_pihole_env_vars }}"
+    memory: "{{ infra_pihole_container_memory | default('2g') }}"
     log_driver: "{{ svc_log_driver }}"
     log_options: "{{ svc_log_options }}"
     etc_hosts: "{{ infra_pihole_extra_hosts }}"

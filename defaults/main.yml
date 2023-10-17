@@ -12,11 +12,9 @@ infra_group_gid: undefined
 # Timezone
 infra_tz: Etc/UTC
 # Domain name, internal
-infra_domain: local
+infra_domain: "{{ svc_domain }}"
 # Domain name, external
-infra_domain_ext: example.com
-# Password for Pihole web UI
-infra_pihole_password:
+infra_domain_ext: ~
 
 ### Directories ###
 # Manage directories
@@ -62,31 +60,25 @@ infra_unifi_directories:
   data:
     path: "{{ infra_subdirectories.data.path }}/unifi"
 
-# Environment variables for the Unifi container
-infra_unifi_env_vars:
-  PUID: "{{ infra_user_uid }}"
-  PGID: "{{ infra_group_gid }}"
-  TZ: "{{ infra_tz | default('Etc/UTC') }}"
-
-# Unifi container settings
-infra_unifi_container:
-  hostname: unifi
-  image: linuxserver/unifi-controller:latest
-  restart_policy: always
-  env_vars: "{{ infra_unifi_env_vars }}"
-  ports:
-    # tcp
-    admin: 8443
-    device_comms: 8080
-    guest_portal_https: 8843
-    # guest_portal_http: 8880
-    throughput: 6789
-    # udp
-    stun: 3478
-    discovery: 10001
-    l2_discovery: 1900
-    syslog: 5514
-  memory: 4g
+# unifi container hostname
+infra_unifi_container_hostname: unifi
+# unifi version
+infra_unifi_version: latest
+# unifi container image
+infra_unifi_container_image: "ghcr.io/linuxserver/unifi-controller:{{ infra_unifi_version }}"
+# unifi container memory
+infra_unifi_container_memory: 4g
+# unifi container ports
+infra_unifi_container_ports:
+  admin: 8443
+  device_comms: 8080
+  guest_portal_https: 8843
+  guest_portal_http: 8880
+  throughput: 6789
+  stun: 3478
+  discovery: 10001
+  l2_discovery: 1900
+  syslog: 5514
 
 ### Pihole ###
 # Directories for Pihole
@@ -96,30 +88,27 @@ infra_pihole_directories:
   data:
     path: "{{ infra_subdirectories.data.path }}/pihole"
 
-# Environment variables for the Pihole container
-infra_pihole_env_vars:
-  PUID: "{{ infra_user_uid }}"
-  PGID: "{{ infra_group_gid }}"
-  TZ: "{{ infra_tz | default('Etc/UTC') }}"
-  WEBPASSWORD: "{{ infra_pihole_password | default(omit) }}"
-  VIRTUAL_HOST: "pihole.{{ infra_domain }}"
-  DNSMASQ_LISTENING: 'all'
+# pihole container hostname
+infra_pihole_container_hostname: pihole
+# pihole version
+infra_pihole_version: latest
+# pihole container image
+infra_pihole_container_image: "ghcr.io/pi-hole/pihole:{{ infra_pihole_version }}"
+# pihole container memory
+infra_pihole_container_memory: 2g
+# pihole container ports
+infra_pihole_container_ports:
+  ui: 8053
+  dns: 53
 
+# Password for Pihole web UI
+infra_pihole_password: ~
 # Extra hosts for Pihole
 infra_pihole_extra_hosts: {}
   # service.domain.tld: <IP_ADDR>
   # service1.domain.tld: <IP_ADDR>
-
-# Pihole container settings
-infra_pihole_container:
-  hostname: pihole
-  image: pihole/pihole:latest
-  restart_policy: always
-  env_vars: "{{ infra_pihole_env_vars }}"
-  ports:
-    ui: 8053
-    dns: 53
-  memory: 4g
+# Dnsmasq.d listening setting for pihole
+infra_pihole_dnsmasq_listening: all
 
 ### Wireguard ###
 # Directories for Wireguard
@@ -129,19 +118,16 @@ infra_wireguard_directories:
   cfg:
     path: "{{ infra_subdirectories.cfg.path }}/wireguard"
 
-# Environment variables for the Wireguard container. See https://github.com/linuxserver/docker-wireguard#parameters
-infra_wireguard_env_vars:
-  PUID: "{{ infra_user_uid }}"
-  PGID: "{{ infra_group_gid }}"
-  TZ: "{{ infra_tz | default('Etc/UTC') }}"
-  SERVERURL: "{{ infra_wireguard_container.hostname }}.{{ infra_domain_ext | default(infra_domain) }}"
-  SERVERPORT: "{{ infra_wireguard_container.ports.vpn }}"
-  PEERS: "{{ infra_wireguard_peers | join(',') }}"
-  PEERDNS: auto
-  PERSISTENTKEEPALIVE_PEERS: all
-  INTERNAL_SUBNET: '10.13.13.0'
-  ALLOWEDIPS: '0.0.0.0/0, ::0/0'
-  LOG_CONFS: 'false'
+# wireguard container hostname
+infra_wireguard_container_hostname: wg
+# wireguard version
+infra_wireguard_version: latest
+# wireguard container image
+infra_wireguard_container_image: "ghcr.io/linuxserver/wireguard:{{ infra_wireguard_version }}"
+# wireguard container memory
+infra_wireguard_container_memory: 1g
+infra_wireguard_container_ports:
+  vpn: 51820
 
 # Peers to create. See https://github.com/linuxserver/docker-wireguard#parameters
 infra_wireguard_peers: []
@@ -149,15 +135,14 @@ infra_wireguard_peers: []
   # - desktop
   # - phone
 
-# Wireguard container settings
-infra_wireguard_container:
-  hostname: wg
-  image: linuxserver/wireguard:latest
-  restart_policy: always
-  ports:
-    # udp
-    vpn: 51820
-  memory: 1g
+# Settings for the wireguard container. See https://github.com/linuxserver/docker-wireguard#parameters
+infra_wireguard_settings:
+  PEERS: "{{ infra_wireguard_peers | join(',') }}"
+  PEERDNS: auto
+  PERSISTENTKEEPALIVE_PEERS: all
+  INTERNAL_SUBNET: '10.13.13.0'
+  ALLOWEDIPS: '0.0.0.0/0, ::0/0'
+  LOG_CONFS: 'false'
 
 ### Vaultwarden ###
 # Directories for Vaultwarden
@@ -167,13 +152,20 @@ infra_vaultwarden_directories:
   data:
     path: "{{ infra_subdirectories.data.path }}/vaultwarden"
 
-# Environment variables for the Vaultwarden container
-infra_vaultwarden_env_vars:
-  WEBSOCKET_ENABLED: 'true'
-  DOMAIN: "https://{{ infra_vaultwarden_container.hostname }}.{{ svc_domain }}"
+# vaultwarden container hostname
+infra_vaultwarden_container_hostname: vault
+# vaultwarden version
+infra_vaultwarden_version: "1.29.2"
+# vaultwarden container image
+infra_vaultwarden_container_image: "ghcr.io/dani-garcia/vaultwarden:{{ infra_vaultwarden_version }}"
+# vaultwarden container memory
+infra_vaultwarden_container_memory: 1g
+
+# Settings for the vaultwarden container. See https://github.com/dani-garcia/vaultwarden/wiki
+infra_vaultwarden_settings:
   EXTENDED_LOGGING: 'true'
   LOG_FILE: /data/logs/vaultwarden.log
-  LOG_LEVEL: WARN
+  LOG_LEVEL: INFO
   SIGNUPS_ALLOWED: 'false'
   SIGNUPS_DOMAINS_WHITELIST: ''
   INVITATIONS_ALLOWED: 'false'
@@ -182,14 +174,6 @@ infra_vaultwarden_env_vars:
   PASSWORD_HINTS_ALLOWED: 'false'
   SHOW_PASSWORD_HINT: 'false'
 
-
-# Vaultwarden container settings
-infra_vaultwarden_container:
-  hostname: vault
-  image: vaultwarden/server:1.27.0
-  restart_policy: always
-  memory: 2g
-
 ### Authentik ###
 # Directories for Authentik
 infra_authentik_directories:
@@ -197,6 +181,42 @@ infra_authentik_directories:
     path: "{{ infra_subdirectories.log.path }}/authentik"
   data:
     path: "{{ infra_subdirectories.data.path }}/authentik"
+
+# authentik container hostname
+infra_authentik_container_hostname: authentik
+# authentik version
+infra_authentik_version: "2023.5.3"
+# authentik container image
+infra_authentik_server_container_image: "ghcr.io/goauthentik/server:{{ infra_authentik_version }}"
+
+# authentik server container hostname
+infra_authentik_server_container_hostname: "{{ infra_authentik_container_hostname }}-server"
+# authentik server container memory
+infra_authentik_server_container_memory: 2g
+
+# authentik worker container hostname
+infra_authentik_worker_container_hostname: "{{ infra_authentik_container_hostname }}-worker"
+# authentik worker container memory
+infra_authentik_worker_container_memory: 2g
+
+# authentik redis container hostname
+infra_authentik_redis_container_hostname: "{{ infra_authentik_container_hostname }}-redis"
+# authentik redis version
+infra_authentik_redis_version: alpine
+# authentik redis container image
+infra_authentik_redis_container_image: "docker.io/library/redis:{{ infra_authentik_redis_version }}"
+# authentik redis container memory
+infra_authentik_redis_container_memory: 1g
+
+# authentik redis container hostname
+infra_authentik_db_container_hostname: "{{ infra_authentik_container_hostname }}-db"
+# authentik db version
+infra_authentik_db_version: 12-alpine
+# authentik postgres container image
+infra_authentik_db_container_image: "docker.io/library/postgres:{{ infra_authentik_db_version }}"
+# authentik postgres container memory
+infra_authentik_db_container_memory: 1g
+
 
 # Secret key used for Authentik cookie signing
 infra_authentik_secret_key: ""
@@ -207,9 +227,9 @@ infra_authentik_db_password: ""
 # Database name
 infra_authentik_db_name: "authentik"
 
-# Environment variables for the Authentik config
-infra_authentik_env_vars_authentik:
-  AUTHENTIK_COOKIE_DOMAIN: "{{ svc_domain }}"
+# Settings for the authentik container
+infra_authentik_settings:
+  AUTHENTIK_COOKIE_DOMAIN: "{{ infra_domain }}"
   AUTHENTIK_LOG_LEVEL: 'INFO'
   AUTHENTIK_GEOIP: /geoip/GeoLite2-City.mmdb
   AUTHENTIK_DISABLE_UPDATE_CHECK: 'false'
@@ -231,26 +251,7 @@ infra_authentik_env_vars_authentik:
   AUTHENTIK_EMAIL__USE_TLS: 'false'
   AUTHENTIK_EMAIL__USE_SSL: 'false'
   AUTHENTIK_EMAIL__TIMEOUT: '10'
-  AUTHENTIK_EMAIL__FROM: "authentik@{{ svc_domain }}"
-
-# Authentik container hostname
-infra_authentik_container_hostname: authentik
-# Authentik container image
-infra_authentik_container_image: ghcr.io/goauthentik/server:2023.5.3
-# Authentik container restart policy
-infra_authentik_container_restart_policy: always
-# Authentik server container memory
-infra_authentik_container_memory_server: 2g
-# Authentik worker container memory
-infra_authentik_container_memory_worker: 2g
-# Authentik Redis container image
-infra_authentik_container_redis_image: docker.io/library/redis:alpine
-# Authentik redis container memory
-infra_authentik_container_memory_redis: 2g
-# Authentik postgres container image
-infra_authentik_container_postgresql_image: docker.io/library/postgres:12-alpine
-# Authentik postgres container memory
-infra_authentik_container_memory_postgresql: 1g
+  AUTHENTIK_EMAIL__FROM: "authentik@{{ infra_domain }}"
 
 ### Graylog ###
 # Directories for Graylog
@@ -289,13 +290,13 @@ infra_graylog_opensearch_container_memory: 6g
 
 # Ports for the Graylog server
 infra_graylog_server_container_ports:
-  beats: 5044 # tcp
-  syslog: 5140  # tcp,udp
-  raw: 5555 # tcp,udp
-  http: 9000  # tcp
-  gelf: 12201 # tcp,udp
-  forwarder_data: 13301 # tcp
-  forwarder_cfg: 13302  # tcp
+  beats: 5044
+  syslog: 5140
+  raw: 5555
+  http: 9000
+  gelf: 12201
+  forwarder_data: 13301
+  forwarder_cfg: 13302
 
 # Log driver for the graylog containers
 infra_graylog_log_driver: local

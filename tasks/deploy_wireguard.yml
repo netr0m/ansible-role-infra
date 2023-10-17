@@ -17,18 +17,19 @@
 
 - name: Deploy wireguard service
   community.docker.docker_container:
-    image: "{{ infra_wireguard_container.image }}"
-    name: "{{ infra_wireguard_container.hostname }}"
-    hostname: "{{ infra_wireguard_container.hostname }}"
-    restart_policy: "{{ infra_wireguard_container.restart_policy | default(infra_restart_policy) }}"
+    image: "{{ infra_wireguard_container_image }}"
+    pull: "{{ infra_force_pull or infra_wireguard_version == 'latest' }}"
+    name: "{{ infra_wireguard_container_hostname }}"
+    hostname: "{{ infra_wireguard_container_hostname }}"
+    restart_policy: "{{ infra_wireguard_restart_policy | default(infra_restart_policy) }}"
     volumes:
       - "{{ infra_wireguard_directories.log.path }}:/var/log"
       - "{{ infra_wireguard_directories.cfg.path }}:/config"
       - /lib/modules:/lib/modules
     ports:
-      - "{{ infra_wireguard_container.ports.vpn | default('51820') }}:51820/udp"
-    env: "{{ infra_wireguard_env_vars }}"
-    memory: "{{ infra_wireguard_container.memory | default('2g') }}"
+      - "{{ infra_wireguard_container_ports.vpn | default('51820') }}:51820/udp"
+    env: "{{ infra_wireguard_settings | combine(infra_wireguard_env_vars) }}"
+    memory: "{{ infra_wireguard_container_memory | default('1g') }}"
     log_driver: "{{ svc_log_driver }}"
     log_options: "{{ svc_log_options }}"
     capabilities:

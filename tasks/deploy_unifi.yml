@@ -17,31 +17,32 @@
 
 - name: Deploy unifi service
   community.docker.docker_container:
-    image: "{{ infra_unifi_container.image }}"
-    name: "{{ infra_unifi_container.hostname }}"
-    hostname: "{{ infra_unifi_container.hostname }}"
-    restart_policy: "{{ infra_unifi_container.restart_policy | default(infra_restart_policy) }}"
+    image: "{{ infra_unifi_container_image }}"
+    pull: "{{ infra_force_pull or infra_unifi_version == 'latest' }}"
+    name: "{{ infra_unifi_container_hostname }}"
+    hostname: "{{ infra_unifi_container_hostname }}"
+    restart_policy: "{{ infra_unifi_restart_policy | default(infra_restart_policy) }}"
     volumes:
       - "{{ infra_unifi_directories.log.path }}:/config/logs"
       - "{{ infra_unifi_directories.data.path }}:/config/data"
     network_mode: host
     ports:
-      - "{{ infra_unifi_container.ports.admin | default('8443') }}:8443"
-      - "{{ infra_unifi_container.ports.device_comms | default('8080') }}:8080"
-      - "{{ infra_unifi_container.ports.guest_portal_https | default('8843') }}:8843"
-      - "{{ infra_unifi_container.ports.throughput | default('6789') }}:6789"
-      - "{{ infra_unifi_container.ports.stun | default('3478') }}:3478/udp"
-      - "{{ infra_unifi_container.ports.discovery | default('10001') }}:10001/udp"
-      - "{{ infra_unifi_container.ports.l2_discovery | default('1900') }}:1900/udp"
-      - "{{ infra_unifi_container.ports.syslog | default('5514') }}:5514/udp"
+      - "{{ infra_unifi_container_ports.admin | default('8443') }}:8443"
+      - "{{ infra_unifi_container_ports.device_comms | default('8080') }}:8080"
+      - "{{ infra_unifi_container_ports.guest_portal_https | default('8843') }}:8843"
+      - "{{ infra_unifi_container_ports.throughput | default('6789') }}:6789"
+      - "{{ infra_unifi_container_ports.stun | default('3478') }}:3478/udp"
+      - "{{ infra_unifi_container_ports.discovery | default('10001') }}:10001/udp"
+      - "{{ infra_unifi_container_ports.l2_discovery | default('1900') }}:1900/udp"
+      - "{{ infra_unifi_container_ports.syslog | default('5514') }}:5514/udp"
     healthcheck:
-      test: ["CMD", "curl", "--fail", "http://localhost:{{ infra_unifi_container.ports.device_comms }}"]
+      test: ["CMD", "curl", "--fail", "http://localhost:{{ infra_unifi_container_ports.device_comms }}"]
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 30s
-    env: "{{ infra_unifi_container.env_vars }}"
-    memory: "{{ infra_unifi_container.memory | default('2g') }}"
+    env: "{{ infra_unifi_env_vars }}"
+    memory: "{{ infra_unifi_container_memory | default('2g') }}"
     log_driver: "{{ svc_log_driver }}"
     log_options: "{{ svc_log_options }}"
 ...

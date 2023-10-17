@@ -17,10 +17,11 @@
 
 - name: Deploy vaultwarden service
   community.docker.docker_container:
-    image: "{{ infra_vaultwarden_container.image }}"
-    name: "{{ infra_vaultwarden_container.hostname }}"
-    hostname: "{{ infra_vaultwarden_container.hostname }}"
-    restart_policy: "{{ infra_vaultwarden_container.restart_policy | default(infra_restart_policy) }}"
+    image: "{{ infra_vaultwarden_container_image }}"
+    pull: "{{ infra_force_pull or infra_vaultwarden_version == 'latest' }}"
+    name: "{{ infra_vaultwarden_container_hostname }}"
+    hostname: "{{ infra_vaultwarden_container_hostname }}"
+    restart_policy: "{{ infra_vaultwarden_restart_policy | default(infra_restart_policy) }}"
     volumes:
       - "{{ infra_vaultwarden_directories.log.path }}:/data/logs"
       - "{{ infra_vaultwarden_directories.data.path }}:/data"
@@ -33,25 +34,25 @@
       traefik.http.services.vaultwarden-ui-http-svc.loadbalancer.server.port: "80"
       traefik.http.services.vaultwarden-ui-ws-svc.loadbalancer.server.port: "3012"
       # HTTPS
-      traefik.http.routers.vaultwarden-ui-https-rtr.rule: "Host(\"{{ infra_vaultwarden_container.hostname }}.{{ svc_domain }}\")"
+      traefik.http.routers.vaultwarden-ui-https-rtr.rule: "Host(\"{{ infra_vaultwarden_container_hostname }}.{{ infra_domain }}\")"
       traefik.http.routers.vaultwarden-ui-https-rtr.entrypoints: webSecure
       traefik.http.routers.vaultwarden-ui-https-rtr.service: vaultwarden-ui-http-svc
       # HTTP
-      traefik.http.routers.vaultwarden-ui-http-rtr.rule: "Host(\"{{ infra_vaultwarden_container.hostname }}.{{ svc_domain }}\")"
+      traefik.http.routers.vaultwarden-ui-http-rtr.rule: "Host(\"{{ infra_vaultwarden_container_hostname }}.{{ infra_domain }}\")"
       traefik.http.routers.vaultwarden-ui-http-rtr.entrypoints: web
       traefik.http.routers.vaultwarden-ui-http-rtr.service: vaultwarden-ui-http-svc
       traefik.http.routers.vaultwarden-ui-http-rtr.middlewares: redirect-https-mwr
       # WSS
-      traefik.http.routers.vaultwarden-ui-wss-rtr.rule: "Host(\"{{ infra_vaultwarden_container.hostname }}.{{ svc_domain }}\") && Path(\"/notifications/hub\")"
+      traefik.http.routers.vaultwarden-ui-wss-rtr.rule: "Host(\"{{ infra_vaultwarden_container_hostname }}.{{ infra_domain }}\") && Path(\"/notifications/hub\")"
       traefik.http.routers.vaultwarden-ui-wss-rtr.entrypoints: webSecure
       traefik.http.routers.vaultwarden-ui-wss-rtr.service: vaultwarden-ui-ws-svc
       # WS
-      traefik.http.routers.vaultwarden-ui-ws-rtr.rule: "Host(\"{{ infra_vaultwarden_container.hostname }}.{{ svc_domain }}\") && Path(\"/notifications/hub\")"
+      traefik.http.routers.vaultwarden-ui-ws-rtr.rule: "Host(\"{{ infra_vaultwarden_container_hostname }}.{{ infra_domain }}\") && Path(\"/notifications/hub\")"
       traefik.http.routers.vaultwarden-ui-ws-rtr.entrypoints: web
       traefik.http.routers.vaultwarden-ui-ws-rtr.service: vaultwarden-ui-ws-svc
       traefik.http.routers.vaultwarden-ui-ws-rtr.middlewares: redirect-https-mwr
-    env: "{{ infra_vaultwarden_env_vars }}"
-    memory: "{{ infra_vaultwarden_container.memory | default('2g') }}"
+    env: "{{ infra_vaultwarden_settings | combine(infra_vaultwarden_env_vars) }}"
+    memory: "{{ infra_vaultwarden_container_memory | default('1g') }}"
     log_driver: "{{ svc_log_driver }}"
     log_options: "{{ svc_log_options }}"
 ...

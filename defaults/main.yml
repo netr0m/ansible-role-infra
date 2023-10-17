@@ -39,6 +39,8 @@ infra_subdirectories:
 ### Services ###
 # Default restart policy
 infra_restart_policy: 'always'
+# Whether to force pull container images
+infra_force_pull: false
 # Configure Graylog
 infra_use_graylog: true
 # Configure PiHole
@@ -258,35 +260,35 @@ infra_graylog_directories:
   data:
     path: "{{ infra_subdirectories.data.path }}/graylog"
 
-# Secret used to 'pepper' the passwords - make sure to change this BEFORE deploying.
-infra_graylog_password_secret: "vSQBO0P8JLC//sWG0V1JkvRycKkDXZ6WQN4eOrrALy/JYc8nWsvxMSg29Eel1fscVUfbmpxlNmJEzYf6I3pcK1iXXpdzAhoSiV18I89N7+0QzpcI1ygANBwmRYWLd4Hp"
-# Hash of the password used for the root user [run `echo -n yourpassword | shasum -a 256`]
-infra_graylog_password_sha2: "f5dcec9289c446e7099d483f2ed447c990b3868a2fab4ff4a39436c63589c70e"
-
-# Environment variables for the Graylog config
-infra_graylog_env_vars_graylog: {}
-
-# Graylog container hostname
+# graylog container hostname
 infra_graylog_container_hostname: graylog
 # graylog version
-media_graylog_version: "5.1"
+infra_graylog_version: "5.1.7"
 # Graylog container image
-infra_graylog_container_server_image: "graylog/graylog:{{ media_graylog_version }}"
-# Graylog container restart policy
-infra_graylog_container_restart_policy: always
+infra_graylog_server_container_image: "graylog/graylog:{{ infra_graylog_version }}"
 # Graylog server container memory
-infra_graylog_container_memory_server: 2g
-# Graylog mongodb container image
-infra_graylog_container_mongodb_image: mongo:5.0
-# Graylog mongodb container memory
-infra_graylog_container_memory_mongodb: 2g
-# Graylog opensearch container image
-infra_graylog_container_opensearch_image: opensearchproject/opensearch:2.4.0
-# Graylog opensearch container memory
-infra_graylog_container_memory_opensearch: 2g
+infra_graylog_server_container_memory: 4g
+
+# graylog mongodb container hostname
+infra_graylog_db_container_hostname: "{{ infra_graylog_container_hostname }}-db"
+# graylog mongodb version
+infra_graylog_db_version: "5.0"
+# graylog mongodb container image
+infra_graylog_db_container_image: "mongo:{{ infra_graylog_db_version }}"
+# graylog mongodb container memory
+infra_graylog_db_container_memory: 2g
+
+# graylog opensearch container hostname
+infra_graylog_opensearch_container_hostname: "{{ infra_graylog_container_hostname }}-opensearch"
+# graylog opensearch version
+infra_graylog_opensearch_version: "2.4.0"
+# graylog opensearch container image
+infra_graylog_opensearch_container_image: "opensearchproject/opensearch:{{ infra_graylog_opensearch_version }}"
+# graylog opensearch container memory
+infra_graylog_opensearch_container_memory: 6g
 
 # Ports for the Graylog server
-infra_graylog_container_server_ports:
+infra_graylog_server_container_ports:
   beats: 5044 # tcp
   syslog: 5140  # tcp,udp
   raw: 5555 # tcp,udp
@@ -295,9 +297,18 @@ infra_graylog_container_server_ports:
   forwarder_data: 13301 # tcp
   forwarder_cfg: 13302  # tcp
 
+# Log driver for the graylog containers
 infra_graylog_log_driver: local
 infra_graylog_log_options:
   max-size: 20m
   max-file: '5'
   compress: 'true'
+
+# Secret used to 'pepper' the passwords - make sure to change this BEFORE deploying.
+infra_graylog_password_secret: "vSQBO0P8JLC//sWG0V1JkvRycKkDXZ6WQN4eOrrALy/JYc8nWsvxMSg29Eel1fscVUfbmpxlNmJEzYf6I3pcK1iXXpdzAhoSiV18I89N7+0QzpcI1ygANBwmRYWLd4Hp"
+# Hash of the password used for the root user [run `echo -n yourpassword | shasum -a 256`]
+infra_graylog_password_sha2: "f5dcec9289c446e7099d483f2ed447c990b3868a2fab4ff4a39436c63589c70e"
+
+# Settingsfor the Graylog config
+infra_graylog_settings: {}
 ...

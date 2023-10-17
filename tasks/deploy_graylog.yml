@@ -20,8 +20,8 @@
   ansible.builtin.file:
     path: "{{ infra_graylog_directories.data.path }}/server/data"
     state: directory
-    owner: "{{ infra_graylog_container_graylog_permissions.owner | default(infra_graylog_directories.data.owner) | default(infra_subdirectories.data.owner) | default(infra_directory_owner) }}"
-    group: "{{ infra_graylog_container_graylog_permissions.group | default(infra_graylog_directories.data.group) | default(infra_subdirectories.data.group) | default(infra_directory_group) }}"
+    owner: "{{ infra_graylog_server_container_permissions.owner | default(infra_graylog_directories.data.owner) | default(infra_subdirectories.data.owner) | default(infra_directory_owner) }}"
+    group: "{{ infra_graylog_server_container_permissions.group | default(infra_graylog_directories.data.group) | default(infra_subdirectories.data.group) | default(infra_directory_group) }}"
     mode: "{{ infra_graylog_directories.data.mode | default(infra_subdirectories.data.mode) | default(infra_directory_mode) }}"
     recurse: true
 
@@ -29,8 +29,8 @@
   ansible.builtin.file:
     path: "{{ infra_graylog_directories.data.path }}/server/journal"
     state: directory
-    owner: "{{ infra_graylog_container_graylog_permissions.owner | default(infra_graylog_directories.data.owner) | default(infra_subdirectories.data.owner) | default(infra_directory_owner) }}"
-    group: "{{ infra_graylog_container_graylog_permissions.group | default(infra_graylog_directories.data.group) | default(infra_subdirectories.data.group) | default(infra_directory_group) }}"
+    owner: "{{ infra_graylog_server_container_permissions.owner | default(infra_graylog_directories.data.owner) | default(infra_subdirectories.data.owner) | default(infra_directory_owner) }}"
+    group: "{{ infra_graylog_server_container_permissions.group | default(infra_graylog_directories.data.group) | default(infra_subdirectories.data.group) | default(infra_directory_group) }}"
     mode: "{{ infra_graylog_directories.data.mode | default(infra_subdirectories.data.mode) | default(infra_directory_mode) }}"
     recurse: true
 
@@ -38,8 +38,8 @@
   ansible.builtin.file:
     path: "{{ infra_graylog_directories.data.path }}/opensearch"
     state: directory
-    owner: "{{ infra_graylog_container_opensearch_permissions.owner }}"
-    group: "{{ infra_graylog_container_opensearch_permissions.group }}"
+    owner: "{{ infra_graylog_opensearch_container_permissions.owner }}"
+    group: "{{ infra_graylog_opensearch_container_permissions.group }}"
     mode: "{{ infra_graylog_directories.data.mode | default(infra_subdirectories.data.mode) | default(infra_directory_mode) }}"
     recurse: true
 
@@ -47,36 +47,38 @@
   ansible.builtin.file:
     path: "{{ infra_graylog_node_id_path }}"
     state: touch
-    owner: "{{ infra_graylog_container_graylog_permissions.owner | default(infra_graylog_directories.data.owner) | default(infra_subdirectories.data.owner) | default(infra_directory_owner) }}"
-    group: "{{ infra_graylog_container_graylog_permissions.group | default(infra_graylog_directories.data.group) | default(infra_subdirectories.data.group) | default(infra_directory_group) }}"
+    owner: "{{ infra_graylog_server_container_permissions.owner | default(infra_graylog_directories.data.owner) | default(infra_subdirectories.data.owner) | default(infra_directory_owner) }}"
+    group: "{{ infra_graylog_server_container_permissions.group | default(infra_graylog_directories.data.group) | default(infra_subdirectories.data.group) | default(infra_directory_group) }}"
     mode: 0740
 
 - name: Deploy graylog services
   block:
     - name: Deploy graylog mongodb
       community.docker.docker_container:
-        image: "{{ infra_graylog_container_mongodb_image }}"
-        name: "{{ infra_graylog_container_hostname }}-db"
-        hostname: "{{ infra_graylog_container_hostname }}-db"
-        restart_policy: "{{ infra_graylog_container_restart_policy | default(infra_restart_policy) }}"
+        image: "{{ infra_graylog_db_container_image }}"
+        pull: "{{ infra_force_pull or infra_graylog_db_version == 'latest' }}"
+        name: "{{ infra_graylog_db_container_hostname }}"
+        hostname: "{{ infra_graylog_db_container_hostname }}"
+        restart_policy: "{{ infra_graylog_restart_policy | default(infra_restart_policy) }}"
         volumes:
           - "{{ infra_graylog_directories.data.path }}/mongodb:/data/db"
-        env: "{{ infra_graylog_env_vars_shared | combine(infra_graylog_env_vars_db) }}"
-        memory: "{{ infra_graylog_container_memory_mongodb | default('2g') }}"
+        env: "{{ infra_graylog_env_vars_shared | combine(infra_graylog_db_env_vars) }}"
+        memory: "{{ infra_graylog_db_container_memory | default('2g') }}"
         log_driver: "{{ infra_graylog_log_driver }}"
         log_options: "{{ infra_graylog_log_options }}"
       register: __graylog_db_res
 
     - name: Deploy graylog opensearch
       community.docker.docker_container:
-        image: "{{ infra_graylog_container_opensearch_image }}"
-        name: "{{ infra_graylog_container_hostname }}-opensearch"
-        hostname: "{{ infra_graylog_container_hostname }}-opensearch"
+        image: "{{ infra_graylog_opensearch_container_image }}"
+        pull: "{{ infra_force_pull or infra_graylog_opensearch_version == 'latest' }}"
+        name: "{{ infra_graylog_opensearch_container_hostname }}"
+        hostname: "{{ infra_graylog_opensearch_container_hostname }}"
         restart_policy: "{{ infra_graylog_restart_policy | default(infra_restart_policy) }}"
         volumes:
           - "{{ infra_graylog_directories.data.path }}/opensearch:/usr/share/opensearch/data"
-        env: "{{ infra_graylog_env_vars_shared | combine(infra_graylog_env_vars_opensearch) }}"
-        memory: "{{ infra_graylog_container_memory_opensearch | default('2g') }}"
+        env: "{{ infra_graylog_env_vars_shared | combine(infra_graylog_opensearch_env_vars) }}"
+        memory: "{{ infra_graylog_opensearch_container_memory | default('4g') }}"
         log_driver: "{{ infra_graylog_log_driver }}"
         log_options: "{{ infra_graylog_log_options }}"
         ulimits:
@@ -87,7 +89,8 @@
 
     - name: Deploy graylog server
       community.docker.docker_container:
-        image: "{{ infra_graylog_container_server_image }}"
+        image: "{{ infra_graylog_server_container_image }}"
+        pull: "{{ infra_force_pull or infra_graylog_version == 'latest' }}"
         name: "{{ infra_graylog_container_hostname }}"
         hostname: "{{ infra_graylog_container_hostname }}"
         restart_policy: "{{ infra_graylog_restart_policy | default(infra_restart_policy) }}"
@@ -96,10 +99,10 @@
           - "{{ infra_graylog_directories.data.path }}/server/journal:/usr/share/graylog/data/journal"
           - "{{ infra_graylog_node_id_path }}:/usr/share/graylog/data/config/node-id"
         ports:
-          - "{{ infra_graylog_container_server_ports.syslog }}:5140/udp"
-          - "{{ infra_graylog_container_server_ports.syslog }}:5140/tcp"
-          - "{{ infra_graylog_container_server_ports.gelf }}:12201/tcp"
-          - "{{ infra_graylog_container_server_ports.gelf }}:12201/udp"
+          - "514:5140/udp"
+          - "{{ infra_graylog_server_container_ports.syslog }}:5140/udp"
+          - "{{ infra_graylog_server_container_ports.gelf }}:12201/tcp"
+          - "{{ infra_graylog_server_container_ports.gelf }}:12201/udp"
         labels:
           traefik.enable: 'true'
           traefik.http.routers.graylog-rtr.rule: "Host(\"{{ infra_graylog_container_hostname }}.{{ infra_domain }}\")"
@@ -108,18 +111,18 @@
           traefik.http.services.graylog-svc.loadbalancer.server.scheme: http
           traefik.http.routers.graylog-rtr.service: graylog-svc
         recreate: "{{ true if (__graylog_db_res.changed or __graylog_opensearch_res.changed) else false }}"
-        env: "{{ infra_graylog_env_vars_shared | combine(infra_graylog_env_vars_server) | combine(infra_graylog_env_vars_graylog) }}"
-        memory: "{{ infra_graylog_container_memory_server | default('2g') }}"
+        env: "{{ infra_graylog_env_vars_shared | combine(infra_graylog_server_env_vars) | combine(infra_graylog_settings) }}"
+        memory: "{{ infra_graylog_server_container_memory | default('4g') }}"
         log_driver: "{{ infra_graylog_log_driver }}"
         log_options: "{{ infra_graylog_log_options }}"
         links:
-          - "{{ infra_graylog_container_hostname }}-db"
-          - "{{ infra_graylog_container_hostname }}-opensearch"
+          - "{{ infra_graylog_db_container_hostname }}"
+          - "{{ infra_graylog_opensearch_container_hostname }}"
         entrypoint:
           - "/usr/bin/tini"
           - "--"
           - "wait-for-it"
-          - "{{ infra_graylog_container_hostname }}-opensearch:9200"
+          - "{{ infra_graylog_opensearch_container_hostname }}:9200"
           - "--"
           - "/docker-entrypoint.sh"
         healthcheck: {}

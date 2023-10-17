@@ -25,32 +25,36 @@ infra_graylog_env_vars_shared:
   PGID: "{{ infra_group_gid }}"
 
 # Environment variables for the Graylog server
-infra_graylog_env_vars_server:
+infra_graylog_server_env_vars:
   GRAYLOG_NODE_ID_FILE: "/usr/share/graylog/data/config/node-id"
   GRAYLOG_PASSWORD_SECRET: "{{ infra_graylog_password_secret }}"
   GRAYLOG_ROOT_PASSWORD_SHA2: "{{ infra_graylog_password_sha2 }}"
-  GRAYLOG_HTTP_BIND_ADDRESS: "0.0.0.0:{{ infra_graylog_container_server_ports.http | default('9000') }}"
+  GRAYLOG_HTTP_BIND_ADDRESS: "0.0.0.0:{{ infra_graylog_server_container_ports.http | default('9000') }}"
   GRAYLOG_HTTP_EXTERNAL_URI: "https://{{ infra_graylog_container_hostname }}.{{ infra_domain }}/"
   GRAYLOG_HTTP_PUBLISH_URI: "https://{{ infra_graylog_container_hostname }}.{{ infra_domain }}/"
-  GRAYLOG_ELASTICSEARCH_HOSTS: "http://{{ infra_graylog_container_hostname }}-opensearch:9200"
-  GRAYLOG_MONGODB_URI: "mongodb://{{ infra_graylog_container_hostname }}-db:27017/graylog"
+  GRAYLOG_ELASTICSEARCH_HOSTS: "http://{{ infra_graylog_opensearch_container_hostname }}:9200"
+  GRAYLOG_MONGODB_URI: "mongodb://{{ infra_graylog_db_container_hostname }}:27017/graylog"
 
 # Environment variables for the Graylog DB container
-infra_graylog_env_vars_db: {}
+infra_graylog_db_env_vars: {}
+
 # Environment variables for the Graylog Opensearch container
-infra_graylog_env_vars_opensearch:
-  OPENSEARCH_JAVA_OPTS: '-Xms1g -Xmx1g'
+infra_graylog_opensearch_env_vars:
+  OPENSEARCH_JAVA_OPTS: '-Xms1g -Xmx2g'
   bootstrap.memory_lock: 'true'
   discovery.type: single-node
   action.auto_create_index: 'false'
   plugins.security.ssl.http.enabled: 'false'
   plugins.security.disabled: 'true'
 
+# Path to the 'node-id' file for the graylog server node
 infra_graylog_node_id_path: "{{ infra_graylog_directories.data.path }}/server/node-id"
-infra_graylog_container_graylog_permissions:
+# File ownership for the graylog server files
+infra_graylog_server_container_permissions:
   owner: 1100
   group: 1100
-infra_graylog_container_opensearch_permissions:
+# File ownership for the graylog opensearch files
+infra_graylog_opensearch_container_permissions:
   owner: 1000
   group: 1000
 

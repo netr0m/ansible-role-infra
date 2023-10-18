@@ -48,4 +48,9 @@
 - name: Include 'authentik' tasks
   ansible.builtin.import_tasks: deploy_authentik.yml
   when: infra_use_authentik
+
+# Manage godns deployment
+- name: Include 'godns' tasks
+  ansible.builtin.import_tasks: deploy_godns.yml
+  when: infra_use_godns
 ...

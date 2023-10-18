@@ -1,0 +1,33 @@
+---
+- name: Ensure godns config directory is present
+  ansible.builtin.file:
+    path: "{{ infra_godns_directories.cfg.path }}"
+    state: directory
+    owner: "{{ infra_godns_directories.cfg.owner | default(infra_subdirectories.cfg.owner) | default(infra_directory_owner) }}"
+    group: "{{ infra_godns_directories.cfg.group | default(infra_subdirectories.cfg.group) | default(infra_directory_group) }}"
+    mode: "{{ infra_godns_directories.cfg.mode | default(infra_subdirectories.cfg.mode) | default(infra_directory_mode) }}"
+
+- name: Copy godns config into place
+  ansible.builtin.template:
+    src: godns.yml.j2
+    dest: "{{ svc_godns_config_filepath }}"
+    owner: "{{ infra_godns_directories.cfg.owner | default(infra_subdirectories.cfg.owner) | default(infra_directory_owner) }}"
+    group: "{{ infra_godns_directories.cfg.group | default(infra_subdirectories.cfg.group) | default(infra_directory_group) }}"
+    mode: "{{ infra_godns_directories.cfg.mode | default(infra_subdirectories.cfg.mode) | default(infra_directory_mode) }}"
+    backup: true
+  register: copy_godns_config_result
+
+- name: Deploy godns service
+  community.docker.docker_container:
+    image: "{{ infra_godns_container_image }}"
+    pull: "{{ infra_force_pull or infra_godns_version == 'latest' }}"
+    name: "{{ infra_godns_container_hostname }}"
+    hostname: "{{ infra_godns_container_hostname }}"
+    restart_policy: "{{ infra_godns_restart_policy | default(infra_restart_policy) }}"
+    volumes:
+      - "{{ svc_godns_config_filepath }}:{{ svc_godns_config_filepath_container }}"
+    env: "{{ infra_godns_env_vars }}"
+    memory: "{{ infra_godns_container_memory | default('1g') }}"
+    log_driver: "{{ svc_log_driver }}"
+    log_options: "{{ svc_log_options }}"
+...

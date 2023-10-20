@@ -53,6 +53,8 @@ infra_use_vaultwarden: true
 infra_use_authentik: true
 # Configure godns
 infra_use_godns: false
+# Configure uptime-kuma
+infra_use_uptimekuma: true
 
 ### Unifi ###
 # Directories for Unifi
@@ -374,4 +376,23 @@ infra_graylog_password_sha2: "f5dcec9289c446e7099d483f2ed447c990b3868a2fab4ff4a3
 
 # Settingsfor the Graylog config
 infra_graylog_settings: {}
+
+### Uptime-Kuma ###
+# Directories for uptime-kuma
+infra_uptimekuma_directories:
+  log:
+    path: "{{ infra_subdirectories.log.path }}/uptimekuma"
+  data:
+    path: "{{ infra_subdirectories.cfg.path }}/uptimekuma"
+
+# uptimekuma container hostname
+infra_uptimekuma_container_hostname: uptime
+# uptimekuma version
+infra_uptimekuma_version: "1.23.1-alpine"
+# uptimekuma container image
+infra_uptimekuma_container_image: "louislam/uptime-kuma:{{ infra_uptimekuma_version }}"
+# uptimekuma container memory
+infra_uptimekuma_container_memory: 1g
+# uptimekuma extra settings (env vars). See https://github.com/louislam/uptime-kuma/wiki/Environment-Variables
+infra_uptimekuma_settings: {}
 ...

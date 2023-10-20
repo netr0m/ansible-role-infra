@@ -53,4 +53,9 @@
 - name: Include 'godns' tasks
   ansible.builtin.import_tasks: deploy_godns.yml
   when: infra_use_godns
+
+# Manage uptimekuma deployment
+- name: Include 'uptimekuma' tasks
+  ansible.builtin.import_tasks: deploy_uptimekuma.yml
+  when: infra_use_uptimekuma
 ...

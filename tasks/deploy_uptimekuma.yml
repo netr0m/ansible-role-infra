@@ -1,0 +1,39 @@
+---
+- name: Ensure uptime-kuma log directory is present
+  ansible.builtin.file:
+    path: "{{ infra_uptimekuma_directories.log.path }}"
+    state: directory
+    owner: "{{ infra_uptimekuma_directories.log.owner | default(infra_subdirectories.log.owner) | default(infra_directory_owner) }}"
+    group: "{{ infra_uptimekuma_directories.log.group | default(infra_subdirectories.log.group) | default(infra_directory_group) }}"
+    mode: "{{ infra_uptimekuma_directories.log.mode | default(infra_subdirectories.log.mode) | default(infra_directory_mode) }}"
+
+- name: Ensure uptime-kuma data directory is present
+  ansible.builtin.file:
+    path: "{{ infra_uptimekuma_directories.data.path }}"
+    state: directory
+    owner: "{{ infra_uptimekuma_directories.data.owner | default(infra_subdirectories.data.owner) | default(infra_directory_owner) }}"
+    group: "{{ infra_uptimekuma_directories.data.group | default(infra_subdirectories.data.group) | default(infra_directory_group) }}"
+    mode: "{{ infra_uptimekuma_directories.data.mode | default(infra_subdirectories.data.mode) | default(infra_directory_mode) }}"
+
+- name: Deploy uptime-kuma service
+  community.docker.docker_container:
+    image: "{{ infra_uptimekuma_container_image }}"
+    pull: "{{ infra_force_pull or infra_uptimekuma_version == 'latest' }}"
+    name: "{{ infra_uptimekuma_container_hostname }}"
+    hostname: "{{ infra_uptimekuma_container_hostname }}"
+    restart_policy: "{{ infra_uptimekuma_restart_policy | default(infra_restart_policy) }}"
+    volumes:
+      - "{{ infra_uptimekuma_directories.log.path }}:/var/log"
+      - "{{ infra_uptimekuma_directories.data.path }}:/app/data"
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.uptimekuma-rtr.rule: "Host(\"{{ infra_uptimekuma_container_hostname }}.{{ infra_domain }}\")"
+      traefik.http.routers.uptimekuma-rtr.entrypoints: webSecure
+      traefik.http.services.uptimekuma-svc.loadbalancer.server.port: "3001"
+      traefik.http.services.uptimekuma-svc.loadbalancer.server.scheme: http
+      traefik.http.routers.uptimekuma-rtr.service: uptimekuma-svc
+    env: "{{ infra_uptimekuma_settings | combine(infra_uptimekuma_env_vars) }}"
+    memory: "{{ infra_uptimekuma_container_memory | default('1g') }}"
+    log_driver: "{{ svc_log_driver }}"
+    log_options: "{{ svc_log_options }}"
+...

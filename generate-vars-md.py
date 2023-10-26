@@ -15,10 +15,13 @@ DRY_RUN: bool = False
 
 IGNORE: list[str] = ["---", "..."]
 GROUPS: dict[str, str] = {
-    "start": r"^###\s{1}.{1,}\s{1}###$",
+    "start": r"^#{3}\s{1}.{1,}\s{1}#{3}$",
     "desc": r"^#\s{1}.{1,}$",
     "list_start": r".{1,}:$",
-    "list_item": r"\s{1,}(-)?.{1,}",
+    "list_item": r"\s{1,}(-)?\s{1}.{1,}",
+    "dict_item": r"\s{1,}.{1,}",
+    "empty_list_or_dict": r".{1,}: (\[\]|\{\})$",
+    "example": r"^\s{1,12}#\s{1}.{1,}$",
 }
 
 
@@ -35,41 +38,57 @@ def read_file(filepath: str) -> list[str]:
 
 
 def has_start(lines: list[str]) -> bool:
-    lines = "".join(lines)
-    return re.match(GROUPS.get("start"), lines)
+    _lines = "".join(lines)
+    return re.match(GROUPS["start"], _lines) != None
 
 
 def is_start(line: str) -> bool:
-    return re.match(GROUPS.get("start"), line)
+    return re.match(GROUPS["start"], line) != None
 
 
 def is_desc(line: str) -> bool:
-    return re.match(GROUPS.get("desc"), line)
+    return re.match(GROUPS["desc"], line) != None
 
 
 def is_list_start(line: str) -> bool:
-    return re.match(GROUPS.get("list_start"), line)
+    return re.match(GROUPS["list_start"], line) != None
 
 
 def is_list_item(line: str) -> bool:
-    return re.match(GROUPS.get("list_item"), line)
+    if is_example(line):
+        return False
+    return re.match(GROUPS["list_item"], line) != None
+
+
+def is_empty_list_or_dict(line: str) -> bool:
+    if is_example(line):
+        return False
+    return re.match(GROUPS["empty_list_or_dict"], line) != None
+
+
+def is_dict_item(line: str) -> bool:
+    return re.match(GROUPS["dict_item"], line) != None
+
+
+def is_example(line: str) -> bool:
+    return re.match(GROUPS["example"], line) != None
 
 
 def parse_defaults(defaults: list[str]) -> dict[str, list[dict[str, str]]]:
     parsed: dict[str, list] = {}
-    defaults: list[str] = [line.replace("\n", "") for line in defaults if line.replace("\n", "") not in IGNORE]
+    _defaults: list[str] = [line.replace("\n", "") for line in defaults if line.replace("\n", "") not in IGNORE]
     _group: str | None = None
     _var: dict = {}
 
-    if not has_start(defaults):
+    if not has_start(_defaults):
         debug(f"No groups are defined. Using default group '{DEFAULT_GROUP}'")
         _group = DEFAULT_GROUP
         parsed[_group] = []
 
-    for i, line in enumerate(defaults):
+    for i, line in enumerate(_defaults):
         has_parsed_var: bool = False
         try:
-            next_line = defaults[i + 1]
+            next_line = _defaults[i + 1]
         except IndexError:
             next_line = False
 
@@ -82,15 +101,32 @@ def parse_defaults(defaults: list[str]) -> dict[str, list[dict[str, str]]]:
         elif is_desc(line):
             desc = line.replace("#", "").strip()
             debug(f"\tGot desc '{desc}'")
-            _var["desc"] = desc
+            if "desc" in _var:
+                _var["desc"] += f"\n{desc}"
+            else:
+                _var["desc"] = desc
         else:
             if is_list_start(line):
                 debug(f"\tGot var '{line}' (list def)'")
-                _var["var"] = line
+                if "var" in _var:
+                    _var["var"] += f"\n{line}"
+                else:
+                    _var["var"] = line
             elif is_list_item(line):
                 debug(f"\t\tGot var '{line}' (list item)")
                 _var["var"] += f"\n{line}"
-                if (next_line and not is_list_item(next_line)) or not next_line:
+                if not next_line or is_desc(next_line):
+                # if (next_line and not (is_list_item(next_line) or is_example(next_line))) or not next_line:
+                    has_parsed_var = True
+            elif is_empty_list_or_dict(line):
+                debug(f"\tGot var '{line}' (empty list/dict)")
+                _var["var"] = line
+                if (next_line and not is_example(next_line)) or not next_line:
+                    has_parsed_var = True
+            elif is_example(line):
+                debug(f"\t\tGot example '{line}'")
+                _var["var"] += f"\n{line}"
+                if not next_line or is_desc(next_line):
                     has_parsed_var = True
             elif line == "":
                 continue
@@ -99,7 +135,7 @@ def parse_defaults(defaults: list[str]) -> dict[str, list[dict[str, str]]]:
                 has_parsed_var = True
                 debug(f"\tGot var '{line}'")
 
-            if has_parsed_var:
+            if has_parsed_var and _group != None:
                 debug(f"\t{'*'*16}")
                 parsed[_group].append(_var)
                 _var = {}

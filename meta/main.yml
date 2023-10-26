@@ -1,6 +1,7 @@
 ---
 dependencies:
   - role: netr0m.svc
+    src: git+https://github.com/netr0m/ansible-role-svc.git
 
 galaxy_info:
   role_name: infra

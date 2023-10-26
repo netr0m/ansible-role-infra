@@ -3,6 +3,16 @@
   hosts: all
   become: true
 
+  vars:
+    svc_user_name: 1000
+    svc_group_name: 1000
+    svc_user_uid: 1000
+    svc_group_gid: 1000
+    svc_traefik_automatic_https: false
+    infra_use_graylog: false  # skip testing due to GH actions space constraint
+    infra_use_authentik: false  # skip testing due to GH actions space constraint
+    infra_use_unifi: true
+
   pre_tasks:
     - name: Update package repository cache
       block:
@@ -30,5 +40,11 @@
       changed_when: false
       failed_when: systemctl_status.rc > 1
 
+    - name: Install Python dependencies
+      ansible.builtin.pip:
+        name: requests
+
   roles:
-    - netr0m.infra
+    - role: geerlingguy.docker
+    - role: netr0m.svc
+    - role: netr0m.infra

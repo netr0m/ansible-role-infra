@@ -19,20 +19,20 @@ infra_unifi_container_ports:
 
 # Environment variables for the Pihole container
 infra_pihole_env_vars:
-  PUID: "{{ infra_user_uid }}"
-  PGID: "{{ infra_group_gid }}"
-  TZ: "{{ infra_tz | default('Etc/UTC') }}"
+  PUID: "{{ infra_user_uid | string }}"
+  PGID: "{{ infra_group_gid | string }}"
+  TZ: "{{ infra_tz | default('Etc/UTC') | string }}"
   WEBPASSWORD: "{{ infra_pihole_password | default(omit) }}"
   VIRTUAL_HOST: "{{ infra_pihole_container_hostname }}.{{ infra_domain }}"
   DNSMASQ_LISTENING: "{{ infra_pihole_dnsmasq_listening }}"
 
 # Environment variables for the Wireguard container.
 infra_wireguard_env_vars:
-  PUID: "{{ infra_user_uid }}"
-  PGID: "{{ infra_group_gid }}"
-  TZ: "{{ infra_tz | default('Etc/UTC') }}"
+  PUID: "{{ infra_user_uid | string }}"
+  PGID: "{{ infra_group_gid | string }}"
+  TZ: "{{ infra_tz | default('Etc/UTC') | string }}"
   SERVERURL: "{{ infra_wireguard_container_hostname }}.{{ infra_domain_ext | default(infra_domain) }}"
-  SERVERPORT: "{{ infra_wireguard_container_ports.vpn }}"
+  SERVERPORT: "{{ infra_wireguard_container_ports.vpn | string }}"
 
 # Filename of the godns config
 svc_godns_config_filename: config.yml
@@ -45,7 +45,7 @@ svc_godns_config_filepath_container: "/config/{{ svc_godns_config_filename }}"
 
 # Environment variables for the Wireguard container.
 infra_godns_env_vars:
-  CONFIG: "{{ svc_godns_config_filepath_container }}"
+  CONFIG: "{{ svc_godns_config_filepath_container | string }}"
 
 # Environment variables for the Vaultwarden container
 infra_vaultwarden_env_vars:
@@ -54,34 +54,34 @@ infra_vaultwarden_env_vars:
 
 # Shared environment variables for the Authentik containers
 infra_authentik_env_vars_shared:
-  PUID: "{{ infra_user_uid }}"
-  PGID: "{{ infra_group_gid }}"
+  PUID: "{{ infra_user_uid | string }}"
+  PGID: "{{ infra_group_gid | string }}"
 
 # Environment variables for the Authentik DB container
 infra_authentik_db_env_vars:
-  POSTGRES_DB: "{{ infra_authentik_db_name }}"
-  POSTGRES_USER: "{{ infra_authentik_db_user }}"
-  POSTGRES_PASSWORD: "{{ infra_authentik_db_password }}"
+  POSTGRES_DB: "{{ infra_authentik_db_name | string }}"
+  POSTGRES_USER: "{{ infra_authentik_db_user | string }}"
+  POSTGRES_PASSWORD: "{{ infra_authentik_db_password | string }}"
 
 # Environment variables for the Authentik server
 infra_authentik_server_env_vars:
-  AUTHENTIK_SECRET_KEY: "{{ infra_authentik_secret_key }}"
-  AUTHENTIK_REDIS__HOST: "{{ infra_authentik_redis_container_hostname }}"
-  AUTHENTIK_POSTGRESQL__HOST: "{{ infra_authentik_db_container_hostname }}"
-  AUTHENTIK_POSTGRESQL__NAME: "{{ infra_authentik_db_name }}"
-  AUTHENTIK_POSTGRESQL__USER: "{{ infra_authentik_db_user }}"
-  AUTHENTIK_POSTGRESQL__PASSWORD: "{{ infra_authentik_db_password }}"
+  AUTHENTIK_SECRET_KEY: "{{ infra_authentik_secret_key | string }}"
+  AUTHENTIK_REDIS__HOST: "{{ infra_authentik_redis_container_hostname | string }}"
+  AUTHENTIK_POSTGRESQL__HOST: "{{ infra_authentik_db_container_hostname | string }}"
+  AUTHENTIK_POSTGRESQL__NAME: "{{ infra_authentik_db_name | string }}"
+  AUTHENTIK_POSTGRESQL__USER: "{{ infra_authentik_db_user | string }}"
+  AUTHENTIK_POSTGRESQL__PASSWORD: "{{ infra_authentik_db_password | string }}"
 
 # Shared environment variables for the Graylog containers
 infra_graylog_env_vars_shared:
-  PUID: "{{ infra_user_uid }}"
-  PGID: "{{ infra_group_gid }}"
+  PUID: "{{ infra_user_uid | string }}"
+  PGID: "{{ infra_group_gid | string }}"
 
 # Environment variables for the Graylog server
 infra_graylog_server_env_vars:
   GRAYLOG_NODE_ID_FILE: "/usr/share/graylog/data/config/node-id"
-  GRAYLOG_PASSWORD_SECRET: "{{ infra_graylog_password_secret }}"
-  GRAYLOG_ROOT_PASSWORD_SHA2: "{{ infra_graylog_password_sha2 }}"
+  GRAYLOG_PASSWORD_SECRET: "{{ infra_graylog_password_secret | string }}"
+  GRAYLOG_ROOT_PASSWORD_SHA2: "{{ infra_graylog_password_sha2 | string }}"
   GRAYLOG_HTTP_BIND_ADDRESS: "0.0.0.0:{{ infra_graylog_server_container_ports.http | default('9000') }}"
   GRAYLOG_HTTP_EXTERNAL_URI: "https://{{ infra_graylog_container_hostname }}.{{ infra_domain }}/"
   GRAYLOG_HTTP_PUBLISH_URI: "https://{{ infra_graylog_container_hostname }}.{{ infra_domain }}/"
@@ -113,8 +113,8 @@ infra_graylog_opensearch_container_permissions:
 
 # Environment variables for the uptime-kuma container
 infra_uptimekuma_env_vars:
-  PUID: "{{ infra_user_uid }}"
-  PGID: "{{ infra_group_gid }}"
+  PUID: "{{ infra_user_uid | string }}"
+  PGID: "{{ infra_group_gid | string }}"
 
 # Additional middlewares to include in the traefik config
 svc_traefik_extra_middlewares: {}

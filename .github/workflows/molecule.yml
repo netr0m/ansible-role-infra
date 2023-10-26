@@ -33,6 +33,9 @@ jobs:
           - debian11
           - ubuntu2204
     steps:
+      - name: Delete unnecessary tools folder (disk space constraint)
+        run: rm -rf /opt/hostedtoolcache
+
       - name: 'Check out the codebase'
         uses: 'actions/checkout@master'
         with:

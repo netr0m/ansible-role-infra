@@ -1,0 +1,4 @@
+---
+- src: geerlingguy.docker
+- name: netr0m.svc
+  src: https://github.com/netr0m/ansible-role-svc.git

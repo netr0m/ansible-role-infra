@@ -55,6 +55,7 @@
           retries: 5
           timeout: 3s
         recreate: true
+      changed_when: false
 
 - name: Deploy authentik service
   block:
@@ -89,6 +90,7 @@
         links:
           - "{{ infra_authentik_db_container_hostname }}"
           - "{{ infra_authentik_redis_container_hostname }}"
+      changed_when: false
 
     - name: Deploy authentik worker
       community.docker.docker_container:
@@ -110,4 +112,5 @@
         links:
           - "{{ infra_authentik_db_container_hostname }}"
           - "{{ infra_authentik_redis_container_hostname }}"
+      changed_when: false
 ...

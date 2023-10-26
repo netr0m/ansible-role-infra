@@ -26,15 +26,6 @@
       - "{{ infra_unifi_directories.log.path }}:/config/logs"
       - "{{ infra_unifi_directories.data.path }}:/config/data"
     network_mode: host
-    ports:
-      - "{{ infra_unifi_container_ports.admin | default('8443') }}:8443"
-      - "{{ infra_unifi_container_ports.device_comms | default('8080') }}:8080"
-      - "{{ infra_unifi_container_ports.guest_portal_https | default('8843') }}:8843"
-      - "{{ infra_unifi_container_ports.throughput | default('6789') }}:6789"
-      - "{{ infra_unifi_container_ports.stun | default('3478') }}:3478/udp"
-      - "{{ infra_unifi_container_ports.discovery | default('10001') }}:10001/udp"
-      - "{{ infra_unifi_container_ports.l2_discovery | default('1900') }}:1900/udp"
-      - "{{ infra_unifi_container_ports.syslog | default('5514') }}:5514/udp"
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:{{ infra_unifi_container_ports.device_comms }}"]
       interval: 30s

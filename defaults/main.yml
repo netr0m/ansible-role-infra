@@ -44,7 +44,7 @@ infra_use_graylog: true
 # Configure PiHole
 infra_use_pihole: true
 # Configure Unifi Controller
-infra_use_unifi: true
+infra_use_unifi: false
 # Configure wireguard
 infra_use_wireguard: true
 # Configure Vaultwarden
@@ -72,17 +72,22 @@ infra_unifi_version: latest
 infra_unifi_container_image: "ghcr.io/linuxserver/unifi-controller:{{ infra_unifi_version }}"
 # unifi container memory
 infra_unifi_container_memory: 4g
-# unifi container ports
-infra_unifi_container_ports:
-  admin: 8443
-  device_comms: 8080
-  guest_portal_https: 8843
-  guest_portal_http: 8880
-  throughput: 6789
-  stun: 3478
-  discovery: 10001
-  l2_discovery: 1900
-  syslog: 5514
+# Middleware for the Unifi container
+svc_traefik_extra_middlewares:
+  unifi-headers-mwr:
+    headers:
+      customRequestHeaders:
+        Authorization: ''
+        X-Forwarded-Proto: 'https'
+# Add a route to the Unifi admin portal (due to network_mode: host on the container)
+svc_traefik_extra_hosts:
+  - name: unifi
+    subdomain: "{{ infra_unifi_container_hostname }}"
+    shortname: "unifi"
+    middlewares: [unifi-headers-mwr, lan-mwr]
+    protocol: https
+    ip_addr: "{{ ansible_default_ipv4.address }}"
+    port: "{{ infra_unifi_container_ports.admin }}"
 
 ### Pihole ###
 # Directories for Pihole

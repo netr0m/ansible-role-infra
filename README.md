@@ -1,6 +1,6 @@
 # Ansible Role: infra
 
-[![CI](https://github.com/netr0m/ansible-role-infra/workflows/CI/badge.svg?event=push)](https://github.com/netr0m/ansible-role-infra/actions?query=workflow%3ACI)
+[![CI](https://github.com/netr0m/ansible-role-infra/actions/workflows/ci.yml/badge.svg)](https://github.com/netr0m/ansible-role-infra/actions/workflows/ci.yml)
 
 An Ansible role for infrastructure components as Docker containers. Handles tasks for deploying various services relating to self-hosting *infrastructure*.
 | Service | Purpose | Enabled by default |

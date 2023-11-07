@@ -254,7 +254,7 @@ infra_authentik_directories:
 # authentik container hostname
 infra_authentik_container_hostname: authentik
 # authentik version
-infra_authentik_version: "2023.5.3"
+infra_authentik_version: "2023.10.2"
 # authentik container image
 infra_authentik_server_container_image: "ghcr.io/goauthentik/server:{{ infra_authentik_version }}"
 

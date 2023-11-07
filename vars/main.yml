@@ -117,7 +117,7 @@ infra_uptimekuma_env_vars:
   PGID: "{{ infra_group_gid | string }}"
 
 # Additional middlewares to include in the traefik config
-svc_traefik_extra_middlewares: {}
+svc_traefik_extra_middlewares_infra: {}
 
 # Additional entrypoints to include in the traefik config
 svc_traefik_extra_entrypoints:

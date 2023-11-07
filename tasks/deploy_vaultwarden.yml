@@ -27,30 +27,10 @@
       - "{{ infra_vaultwarden_directories.data.path }}:/data"
     labels:
       traefik.enable: 'true'
-      # HTTP => HTTPS redirect
-      traefik.http.middlewares.redirect-https-mwr.redirectScheme.scheme: https
-      traefik.http.middlewares.redirect-https-mwr.redirectScheme.permanent: 'true'
-      # Web UI
-      traefik.http.services.vaultwarden-ui-http-svc.loadbalancer.server.port: "80"
-      traefik.http.services.vaultwarden-ui-ws-svc.loadbalancer.server.port: "3012"
-      # HTTPS
-      traefik.http.routers.vaultwarden-ui-https-rtr.rule: "Host(\"{{ infra_vaultwarden_container_hostname }}.{{ infra_domain }}\")"
-      traefik.http.routers.vaultwarden-ui-https-rtr.entrypoints: webSecure
-      traefik.http.routers.vaultwarden-ui-https-rtr.service: vaultwarden-ui-http-svc
-      # HTTP
-      traefik.http.routers.vaultwarden-ui-http-rtr.rule: "Host(\"{{ infra_vaultwarden_container_hostname }}.{{ infra_domain }}\")"
-      traefik.http.routers.vaultwarden-ui-http-rtr.entrypoints: web
-      traefik.http.routers.vaultwarden-ui-http-rtr.service: vaultwarden-ui-http-svc
-      traefik.http.routers.vaultwarden-ui-http-rtr.middlewares: redirect-https-mwr
-      # WSS
-      traefik.http.routers.vaultwarden-ui-wss-rtr.rule: "Host(\"{{ infra_vaultwarden_container_hostname }}.{{ infra_domain }}\") && Path(\"/notifications/hub\")"
-      traefik.http.routers.vaultwarden-ui-wss-rtr.entrypoints: webSecure
-      traefik.http.routers.vaultwarden-ui-wss-rtr.service: vaultwarden-ui-ws-svc
-      # WS
-      traefik.http.routers.vaultwarden-ui-ws-rtr.rule: "Host(\"{{ infra_vaultwarden_container_hostname }}.{{ infra_domain }}\") && Path(\"/notifications/hub\")"
-      traefik.http.routers.vaultwarden-ui-ws-rtr.entrypoints: web
-      traefik.http.routers.vaultwarden-ui-ws-rtr.service: vaultwarden-ui-ws-svc
-      traefik.http.routers.vaultwarden-ui-ws-rtr.middlewares: redirect-https-mwr
+      traefik.http.routers.vaultwarden-web-rtr.rule: "Host(\"{{ infra_vaultwarden_container_hostname }}.{{ infra_domain }}\")"
+      traefik.http.routers.vaultwarden-web-rtr.entrypoints: webSecure
+      traefik.http.services.vaultwarden-web-svc.loadbalancer.server.port: "80"
+      traefik.http.services.vaultwarden-web-svc.loadbalancer.server.scheme: http
     env: "{{ infra_vaultwarden_settings | combine(infra_vaultwarden_env_vars) }}"
     memory: "{{ infra_vaultwarden_container_memory | default('1g') }}"
     log_driver: "{{ svc_log_driver }}"

@@ -224,7 +224,7 @@ infra_vaultwarden_directories:
 # vaultwarden container hostname
 infra_vaultwarden_container_hostname: vault
 # vaultwarden version
-infra_vaultwarden_version: "1.29.2"
+infra_vaultwarden_version: "1.30.0"
 # vaultwarden container image
 infra_vaultwarden_container_image: "ghcr.io/dani-garcia/vaultwarden:{{ infra_vaultwarden_version }}"
 # vaultwarden container memory

@@ -38,4 +38,30 @@
     sysctls:
       net.ipv4.ip_forward: '1'
     dns_servers: "{{ infra_wireguard_container_dns_servers }}"
+
+- name: Deploy wireguard-ui service
+  community.docker.docker_container:
+    image: "{{ infra_wireguard_ui_container_image }}"
+    pull: "{{ infra_force_pull or infra_wireguard_ui_version == 'latest' }}"
+    name: "{{ infra_wireguard_ui_container_hostname }}"
+    restart_policy: "{{ infra_wireguard_ui_restart_policy | default(infra_restart_policy) }}"
+    volumes:
+      - "{{ infra_wireguard_ui_directories.data.path }}:/app/db"
+      - "{{ infra_wireguard_directories.cfg.path }}:/etc/wireguard"
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.wireguard-ui-rtr.rule: "Host(\"{{ infra_wireguard_ui_container_hostname }}.{{ infra_domain }}\")"
+      traefik.http.routers.wireguard-ui-rtr.entrypoints: webSecure
+      traefik.http.services.wireguard-ui-svc.loadbalancer.server.port: "5000"
+      traefik.http.services.wireguard-ui-svc.loadbalancer.server.scheme: http
+      traefik.http.routers.wireguard-ui-rtr.service: wireguard-ui-svc
+      traefik.http.routers.wireguard-ui-rtr.middlewares: lan-mwr@file
+    env: "{{ infra_wireguard_ui_settings | combine(infra_wireguard_ui_env_vars) }}"
+    memory: "{{ infra_wireguard_ui_container_memory | default('1g') }}"
+    log_driver: "{{ svc_log_driver }}"
+    log_options: "{{ svc_log_options }}"
+    capabilities:
+      - NET_ADMIN
+    network_mode: "container:{{ infra_wireguard_container_hostname }}"
+  when: infra_use_wireguard_ui
 ...

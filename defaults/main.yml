@@ -472,7 +472,7 @@ infra_uptimekuma_directories:
 # uptimekuma container hostname
 infra_uptimekuma_container_hostname: uptime
 # uptimekuma version
-infra_uptimekuma_version: "1.23.1-alpine"
+infra_uptimekuma_version: "1.23.11-alpine"
 # uptimekuma container image
 infra_uptimekuma_container_image: "louislam/uptime-kuma:{{ infra_uptimekuma_version }}"
 # uptimekuma container memory

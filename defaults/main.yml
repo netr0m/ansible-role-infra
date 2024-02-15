@@ -43,6 +43,8 @@ infra_force_pull: false
 infra_use_graylog: true
 # Configure PiHole
 infra_use_pihole: true
+# Configure unbound as a recursive DNS resolver for pihole
+infra_use_unbound: true
 # Configure Unifi Controller
 infra_use_unifi: false
 # Configure wireguard
@@ -120,6 +122,55 @@ infra_pihole_extra_hosts: {}
   # service1.domain.tld: <IP_ADDR>
 # Dnsmasq.d listening setting for pihole
 infra_pihole_dnsmasq_listening: all
+
+### Unbound ###
+# Directories for Unbound
+infra_unbound_directories:
+  cfg:
+    path: "{{ infra_subdirectories.cfg.path }}/unbound"
+    mode: 744
+
+# unbound container hostname
+infra_unbound_container_hostname: unbound
+# unbound version
+infra_unbound_version: 1.18.0
+# unbound container image
+infra_unbound_container_image: "mvance/unbound:{{ infra_unbound_version }}"
+# unbound container memory
+infra_unbound_container_memory: 2g
+
+## Unbound config settings - see https://manpages.ubuntu.com/manpages/noble/en/man5/unbound.conf.5.html
+# unbound verbosity level
+infra_unbound_verbosity: 0
+# unbound listening interface
+infra_unbound_listening_iface: 0.0.0.0
+# unbound listening port
+infra_unbound_listening_port: 5353
+# whether to answer ipv4 queries
+infra_unbound_ipv4: 'yes'
+# whether to answer ipv6 queries
+infra_unbound_ipv6: 'no'
+# whether to answer udp queries
+infra_unbound_udp: 'yes'
+# whether to answer tcp queries
+infra_unbound_tcp: 'yes'
+# whether to prefer ipv6 queries
+infra_unbound_prefer_ipv6: 'no'
+# trust glue only if it is within the server's authority
+infra_unbound_harden_glue: 'yes'
+# require DNSSEC data for trust-anchored zones
+infra_unbound_harden_dnssec_stripped: 'yes'
+# number of bytes size to advertise as the EDNS reassembly buffer size
+infra_unbound_edns_buffer_size: 1232
+# perform prefetching of (frequently visited) close to expired message cache entries
+infra_unbound_prefetch: 'yes'
+# whether to restrict access to unbound using the 'access-control' directive
+infra_unbound_restrict_access: true
+# list of subnets to allow access to, in addition to the '_svc_network_subnet'
+infra_unbound_access_control_allowed_subnets: []
+  # - 10.0.0.0/8
+  # - 192.168.0.1/24
+
 
 ### Wireguard ###
 # Directories for Wireguard

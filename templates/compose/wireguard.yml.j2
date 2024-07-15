@@ -1,0 +1,69 @@
+# {{ ansible_managed }}
+services:
+  {{ infra_wireguard_service_name }}:
+    image: {{ infra_wireguard_container_image }}
+    container_name: {{ infra_wireguard_container_hostname }}
+    restart: {{ infra_wireguard_restart_policy | default(infra_restart_policy) }}
+    logging:
+      driver: {{ svc_log_driver }}
+      options: {{ svc_log_options }}
+    env_file: {{ infra_wireguard_env_file_path }}
+    volumes:
+      - {{ infra_wireguard_volume_name_config }}:/config
+      - /lib/modules:/lib/modules
+    mem_limit: {{ infra_wireguard_container_memory }}
+    ports:
+      - {{ infra_wireguard_container_port_vpn }}:51820/udp
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      net.ipv4.ip_forward: '1'
+    dns: {{ infra_wireguard_container_dns_servers }}
+
+{% if infra_use_wireguard_ui %}
+  {{ infra_wireguard_ui_service_name }}:
+    image: {{ infra_wireguard_ui_container_image }}
+    container_name: {{ infra_wireguard_ui_container_hostname }}
+    restart: {{ infra_wireguard_ui_restart_policy | default(infra_restart_policy) }}
+    logging:
+      driver: {{ svc_log_driver }}
+      options: {{ svc_log_options }}
+    env_file: {{ infra_wireguard_ui_env_file_path }}
+    secrets:
+      - {{ infra_wireguard_ui_session_secret_name }}
+      - {{ infra_wireguard_ui_password_name }}
+    volumes:
+      - {{ infra_wireguard_ui_volume_name_data }}:/app/db
+      - {{ infra_wireguard_volume_name_config }}:/etc/wireguard
+    mem_limit: {{ infra_wireguard_ui_container_memory }}
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.{{ infra_wireguard_ui_service_name }}-rtr.rule: "Host(\"{{ infra_wireguard_ui_fqdn }}\")"
+      traefik.http.routers.{{ infra_wireguard_ui_service_name }}-rtr.entrypoints: webSecure
+      traefik.http.services.{{ infra_wireguard_ui_service_name }}-svc.loadbalancer.server.port: 5000
+      traefik.http.services.{{ infra_wireguard_ui_service_name }}-svc.loadbalancer.server.scheme: http
+      traefik.http.routers.{{ infra_wireguard_ui_service_name }}-rtr.service: {{ infra_wireguard_ui_service_name }}-svc
+      traefik.http.routers.{{ infra_wireguard_ui_service_name }}-rtr.middlewares: lan-mwr@file
+    network_mode: service:{{ infra_wireguard_service_name }}
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - {{ infra_wireguard_service_name }}
+{% endif %}
+
+volumes:
+  {{ infra_wireguard_volume_name_config }}:
+    name: {{ infra_wireguard_volume_name_config }}
+    labels: {{ infra_wireguard_volume_labels | combine(infra_docker_volume_shared_labels) }}
+{% if infra_use_wireguard_ui %}
+  {{ infra_wireguard_ui_volume_name_data }}:
+    name: {{ infra_wireguard_ui_volume_name_data }}
+    labels: {{ infra_wireguard_volume_labels | combine(infra_docker_volume_shared_labels) }}
+{% endif %}
+
+secrets:
+  {{ infra_wireguard_ui_session_secret_name }}:
+    file: {{ infra_wireguard_ui_session_secret_file_path }}
+  {{ infra_wireguard_ui_password_name }}:
+    file: {{ infra_wireguard_ui_admin_password_file_path }}

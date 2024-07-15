@@ -34,9 +34,13 @@ infra_subdirectories:
   data:
     path: "{{ infra_directory_path }}/data"
 
-### Services ###
+### Docker ###
 # Default restart policy
-infra_restart_policy: 'always'
+infra_restart_policy: always
+# Max. wait time for compose deployment
+infra_compose_wait_timeout: 60
+
+### Services ###
 # Whether to force pull container images
 infra_force_pull: false
 # Configure Graylog

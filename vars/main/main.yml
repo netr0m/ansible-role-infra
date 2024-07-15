@@ -1,4 +1,9 @@
 ---
+### Docker ###
+# Shared labels for the Docker volumes
+infra_docker_volume_shared_labels:
+  netr0m.ansible-role: infra
+
 # Environment variables for the Unifi container
 infra_unifi_env_vars:
   PUID: "{{ infra_user_uid | string }}"

@@ -25,14 +25,6 @@ infra_directory_path: '/opt/infra'
 infra_directory_owner: "{{ infra_user_name }}"
 infra_directory_group: "{{ infra_group_name }}"
 infra_directory_mode: 740
-# Subdirectories
-infra_subdirectories:
-  cfg:
-    path: "{{ infra_directory_path }}/cfg"
-  log:
-    path: "{{ infra_directory_path }}/log"
-  data:
-    path: "{{ infra_directory_path }}/data"
 
 ### Docker ###
 # Default restart policy

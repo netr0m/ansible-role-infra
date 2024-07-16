@@ -3,7 +3,7 @@
 # godns config file path (on the host)
 infra_godns_config_file_path: "{{ infra_godns_directory_path }}/{{ infra_godns_config_file_name }}"
 # godns config file path (inside the container)
-infra_godns_config_file_path_container: "/config/{{ svc_godns_config_filename }}"
+infra_godns_config_file_path_container: "/config/{{ infra_godns_config_file_name }}"
 
 ## Docker service configs
 # Environment variables for the godns container

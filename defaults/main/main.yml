@@ -25,18 +25,14 @@ infra_directory_path: '/opt/infra'
 infra_directory_owner: "{{ infra_user_name }}"
 infra_directory_group: "{{ infra_group_name }}"
 infra_directory_mode: 740
-# Subdirectories
-infra_subdirectories:
-  cfg:
-    path: "{{ infra_directory_path }}/cfg"
-  log:
-    path: "{{ infra_directory_path }}/log"
-  data:
-    path: "{{ infra_directory_path }}/data"
+
+### Docker ###
+# Default restart policy
+infra_restart_policy: always
+# Max. wait time for compose deployment
+infra_compose_wait_timeout: 60
 
 ### Services ###
-# Default restart policy
-infra_restart_policy: 'always'
 # Whether to force pull container images
 infra_force_pull: false
 # Configure Graylog

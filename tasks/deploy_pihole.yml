@@ -36,7 +36,7 @@
       community.docker.docker_network_info:
         name: "{{ svc_docker_network_name }}"
       register: _svc_net_res
-    
+
     - name: Set svc_network_subnet fact
       ansible.builtin.set_fact:
         _svc_network_subnet: "{{ _svc_net_res.network.IPAM.Config[0].Subnet }}"
@@ -82,10 +82,10 @@
     - name: Set DNS environment variable setting for pihole
       ansible.builtin.set_fact:
         infra_pihole_env_vars_dns: {
-          'PIHOLE_DNS_': "{{ 
-            _infra_unbound_container_deployment.container.NetworkSettings.Networks[svc_docker_network_name].IPAddress + 
-            '#' + (infra_unbound_listening_port | string) 
-            if infra_use_unbound else '' 
+          'PIHOLE_DNS_': "{{
+            _infra_unbound_container_deployment.container.NetworkSettings.Networks[svc_docker_network_name].IPAddress +
+            '#' + (infra_unbound_listening_port | string)
+            if infra_use_unbound else ''
           }}"
         }
       when:

@@ -49,19 +49,6 @@ infra_unbound_config_d_dir_path: "{{ infra_unbound_directories.cfg.path }}/unbou
 # Filepath of the unbound config on the host
 infra_unbound_config_filepath: "{{ infra_unbound_directories.cfg.path }}/{{ infra_unbound_config_filename }}"
 
-# Filename of the godns config
-svc_godns_config_filename: config.yml
-
-# Filepath of the godns config on the host
-svc_godns_config_filepath: "{{ infra_godns_directories.cfg.path }}/{{ svc_godns_config_filename }}"
-
-# Filepath of the godns config inside the container
-svc_godns_config_filepath_container: "/config/{{ svc_godns_config_filename }}"
-
-# Environment variables for the Wireguard container.
-infra_godns_env_vars:
-  CONFIG: "{{ svc_godns_config_filepath_container | string }}"
-
 # Environment variables for the Vaultwarden container
 infra_vaultwarden_env_vars:
   WEBSOCKET_ENABLED: 'true'

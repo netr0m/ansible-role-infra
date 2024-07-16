@@ -1,0 +1,75 @@
+---
+### godns ###
+# Version of the godns Docker image to use (see 'infra_godns_container_image')
+infra_godns_version: latest
+
+# Settings for the godns container. See https://github.com/TimothyYe/godns#configuration-properties
+# DNS provider to use
+infra_godns_provider: Cloudflare
+# Email address for the DNS provider account
+infra_godns_email: ~
+# Password/Global API key (cloudflare) for the DNS provider account
+infra_godns_password: ~
+# Token for the DNS provider account
+infra_godns_token: ~
+# List of domains and subdomains to update
+infra_godns_domains: []
+  # - domain_name: "{{ infra_domain_ext }}"
+  #   sub_domains:
+  #     - "{{ infra_godns_container_hostname }}"
+# Whether to use IPv4 or IPv6 (IPv4|IPv6)
+infra_godns_ip_type: IPv4
+# How often (in seconds) the public IP should be updated
+infra_godns_interval: 300
+# URLs to use for checking public IPv4 address
+infra_godns_ip4_urls:
+  - https://api.ipify.org
+  - https://api.ip.sb/ip
+# URLs to use for checking public IPv6 address
+infra_godns_ip6_urls:
+  - https://ipify.org
+# Address of a public DNS server to use
+infra_godns_resolver: 1.1.1.1
+# User-Agent header to use when requesting the public IP address
+infra_godns_user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36"
+# SOCKS5 proxy to use
+infra_godns_socks5_proxy: ~
+# Whether to use a proxy
+infra_godns_use_proxy: false
+# Enable debugging
+infra_godns_debug_info: false
+
+## Directories
+# Directory path
+infra_godns_directory_path: "{{ infra_directory_path }}/godns"
+# Directory user ownership
+infra_godns_directory_owner: "{{ infra_directory_owner }}"
+# Directory group ownership
+infra_godns_directory_group: "{{ infra_directory_group }}"
+# Directory mode
+infra_godns_directory_mode: "{{ infra_directory_mode }}"
+
+## File paths
+# godns compose file path
+infra_godns_compose_path: "{{ infra_godns_directory_path }}/compose.yml"
+# godns env file path
+infra_godns_env_file_path: "{{ infra_godns_directory_path }}/godns.env"
+# godns config file name
+infra_godns_config_file_name: config.yml
+# Permissions (mode) for the env file (as an octal)
+infra_godns_env_file_mode: "0600"
+
+## Docker service configs
+# Name of the godns Docker service
+infra_godns_service_name: godns
+# Container image to use for the godns service
+infra_godns_container_image: "ghcr.io/timothyye/godns:{{ infra_godns_version }}"
+# Hostname of the godns Docker container
+infra_godns_container_hostname: "{{ infra_godns_service_name }}"
+# FQDN of the godns Docker container
+infra_godns_fqdn: "{{ infra_godns_container_hostname }}.{{ infra_domain }}"
+# Restart policy for the godns Docker container
+infra_godns_restart_policy: "{{ infra_restart_policy }}"
+# Memory limit for the godns container
+infra_godns_container_memory: 1g
+...

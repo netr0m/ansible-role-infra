@@ -1,0 +1,6 @@
+---
+# Environment variables for the Vaultwarden container
+infra_vaultwarden_env_vars:
+  WEBSOCKET_ENABLED: 'true'
+  DOMAIN: "https://{{ infra_vaultwarden_fqdn }}"
+...

@@ -168,36 +168,6 @@ infra_unbound_access_control_allowed_subnets: []
   # - 192.168.0.1/24
 
 
-### Vaultwarden ###
-# Directories for Vaultwarden
-infra_vaultwarden_directories:
-  log:
-    path: "{{ infra_subdirectories.log.path }}/vaultwarden"
-  data:
-    path: "{{ infra_subdirectories.data.path }}/vaultwarden"
-
-# vaultwarden container hostname
-infra_vaultwarden_container_hostname: vault
-# vaultwarden version
-infra_vaultwarden_version: "1.30.3"
-# vaultwarden container image
-infra_vaultwarden_container_image: "ghcr.io/dani-garcia/vaultwarden:{{ infra_vaultwarden_version }}"
-# vaultwarden container memory
-infra_vaultwarden_container_memory: 1g
-
-# Settings for the vaultwarden container. See https://github.com/dani-garcia/vaultwarden/wiki
-infra_vaultwarden_settings:
-  EXTENDED_LOGGING: 'true'
-  LOG_FILE: /data/logs/vaultwarden.log
-  LOG_LEVEL: INFO
-  SIGNUPS_ALLOWED: 'false'
-  SIGNUPS_DOMAINS_WHITELIST: ''
-  INVITATIONS_ALLOWED: 'false'
-  DISABLE_ADMIN_TOKEN: 'false'
-  PASSWORD_ITERATIONS: '350000'
-  PASSWORD_HINTS_ALLOWED: 'false'
-  SHOW_PASSWORD_HINT: 'false'
-
 ### Authentik ###
 # Directories for Authentik
 infra_authentik_directories:

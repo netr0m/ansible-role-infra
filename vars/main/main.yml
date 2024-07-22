@@ -4,24 +4,6 @@
 infra_docker_volume_shared_labels:
   netr0m.ansible-role: infra
 
-# Environment variables for the Unifi container
-infra_unifi_env_vars:
-  PUID: "{{ infra_user_uid | string }}"
-  PGID: "{{ infra_group_gid | string }}"
-  TZ: "{{ infra_tz | default('Etc/UTC') | string }}"
-
-# unifi container ports
-infra_unifi_container_ports:
-  admin: 8443
-  device_comms: 8080
-  guest_portal_https: 8843
-  guest_portal_http: 8880
-  throughput: 6789
-  stun: 3478
-  discovery: 10001
-  l2_discovery: 1900
-  syslog: 5514
-
 # Environment variables for the Pihole container
 infra_pihole_env_vars:
   PUID: "{{ infra_user_uid | string }}"

@@ -1,0 +1,2 @@
+db.getSiblingDB("{{ infra_unifi_db_name }}").createUser({user: "{{ infra_unifi_db_user }}", pwd: "{{ infra_unifi_db_password }}", roles: [{role: "dbOwner", db: "{{ infra_unifi_db_name }}"}]});
+db.getSiblingDB("{{ infra_unifi_db_name }}_stat").createUser({user: "{{ infra_unifi_db_user }}", pwd: "{{ infra_unifi_db_password }}", roles: [{role: "dbOwner", db: "{{ infra_unifi_db_name }}_stat"}]});

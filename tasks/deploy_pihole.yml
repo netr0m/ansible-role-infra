@@ -1,150 +1,153 @@
 ---
+- name: Ensure pihole directory is present
+  ansible.builtin.file:
+    path: "{{ infra_pihole_directory_path }}"
+    state: directory
+    owner: "{{ infra_pihole_directory_owner }}"
+    group: "{{ infra_pihole_directory_group }}"
+    mode: "{{ infra_pihole_directory_mode }}"
+
+- name: Ensure unbound directory is present
+  ansible.builtin.file:
+    path: "{{ infra_unbound_directory_path }}"
+    state: directory
+    owner: "{{ infra_unbound_directory_owner }}"
+    group: "{{ infra_unbound_directory_group }}"
+    mode: "{{ infra_unbound_directory_mode }}"
+  when: infra_use_unbound
+
+- name: Manage unbound configuration
+  when: infra_use_unbound
+  block:
+    - name: Ensure unbound.conf.d subdirectory is present
+      ansible.builtin.file:
+        path: "{{ infra_unbound_conf_d_directory_path }}"
+        state: directory
+        owner: "{{ infra_unbound_directory_owner }}"
+        group: "{{ infra_unbound_directory_group }}"
+        mode: "{{ infra_unbound_conf_d_directory_mode }}"
+
+    - name: Write unbound config to file
+      ansible.builtin.template:
+        src: etc/unbound/unbound.conf.j2
+        dest: "{{ infra_unbound_conf_file_path }}"
+        owner: "{{ infra_unbound_directory_owner }}"
+        group: "{{ infra_unbound_directory_group }}"
+        mode: "{{ infra_unbound_file_mode }}"
+        backup: true
+      register: unbound_config_file_output
+
+    - name: Write unbound pi-hole.conf to file
+      ansible.builtin.template:
+        src: etc/unbound/unbound.conf.d/pi-hole.conf.j2
+        dest: "{{ infra_unbound_pihole_conf_file_path }}"
+        owner: "{{ infra_unbound_directory_owner }}"
+        group: "{{ infra_unbound_directory_group }}"
+        mode: "{{ infra_unbound_file_mode }}"
+        backup: true
+      register: unbound_pihole_conf_file_output
+
+    - name: Set DNS environment variable setting for pihole
+      ansible.builtin.set_fact:
+        infra_pihole_env_vars_dns:
+          PIHOLE_DNS_: "{{ infra_unbound_docker_network_ip_address }}#{{ infra_unbound_listening_port }}"
+
+- name: Manage service files
+  block:
+    - name: Write pihole password secret to file
+      ansible.builtin.template:
+        src: secret.j2
+        dest: "{{ infra_pihole_password_file_path }}"
+        owner: "{{ infra_pihole_directory_owner }}"
+        group: "{{ infra_pihole_directory_group }}"
+        mode: "{{ infra_pihole_secret_file_mode }}"
+        backup: true
+      vars:
+        _secret: "{{ infra_pihole_password }}"
+      register: pihole_password_file_output
+
+    - name: Write pihole environment variables to file
+      ansible.builtin.template:
+        src: template.env.j2
+        dest: "{{ infra_pihole_env_file_path }}"
+        owner: "{{ infra_pihole_directory_owner }}"
+        group: "{{ infra_pihole_directory_group }}"
+        mode: "{{ infra_pihole_env_file_mode }}"
+        backup: true
+      vars:
+        _env_vars: "{{ infra_pihole_settings | combine(infra_pihole_env_vars) | combine(infra_pihole_env_vars_dns) }}"
+      register: pihole_env_file_output
+
+    - name: Write unbound environment variables to file
+      when: infra_use_unbound
+      ansible.builtin.template:
+        src: template.env.j2
+        dest: "{{ infra_unbound_env_file_path }}"
+        owner: "{{ infra_unbound_directory_owner }}"
+        group: "{{ infra_unbound_directory_group }}"
+        mode: "{{ infra_unbound_env_file_mode }}"
+        backup: true
+      vars:
+        _env_vars: "{{ infra_unbound_env_vars }}"
+      register: unbound_env_file_output
+
+    - name: Copy compose services file into place
+      ansible.builtin.template:
+        src: compose/pihole.yml.j2
+        dest: "{{ infra_pihole_compose_path }}"
+        owner: "{{ infra_pihole_directory_owner }}"
+        group: "{{ infra_pihole_directory_group }}"
+        mode: "{{ infra_pihole_file_mode }}"
+        backup: true
+        validate: docker compose -f %s config -q
+      register: compose_file_output
+
+- name: Take down services due to changed compose file
+  community.docker.docker_compose_v2:
+    project_src: "{{ infra_pihole_directory_path }}"
+    files: "{{ compose_file_output.backup_file }}"
+    state: absent
+    remove_orphans: true
+  when: compose_file_output.backup_file is defined
+
+- name: Pull container images
+  community.docker.docker_image:
+    name: "{{ item }}"
+    source: pull
+  with_items:
+    - "{{ infra_unbound_container_image }}"
+    - "{{ infra_pihole_container_image }}"
+
 - name: Ensure systemd-resolved service is stopped
   ansible.builtin.systemd:
     name: systemd-resolved
     state: stopped
     enabled: false
 
-- name: Ensure pihole data directory is present
-  ansible.builtin.file:
-    path: "{{ infra_pihole_directories.data.path }}"
-    state: directory
-    owner: "{{ infra_pihole_directories.data.owner | default(infra_subdirectories.data.owner) | default(infra_directory_owner) }}"
-    group: "{{ infra_pihole_directories.data.group | default(infra_subdirectories.data.group) | default(infra_directory_group) }}"
-    mode: "{{ infra_pihole_directories.data.mode | default(infra_subdirectories.data.mode) | default(infra_directory_mode) }}"
+- name: Deploy pihole services
+  community.docker.docker_compose_v2:
+    project_src: "{{ infra_pihole_directory_path }}"
+    state: "{{ 'present' if infra_use_pihole else 'absent' }}"
+    wait: true
+    wait_timeout: "{{ infra_pihole_compose_wait_timeout | default(infra_compose_wait_timeout) }}"
+  register: deploy_pihole_services_output
 
-- name: Configure unbound
-  when: infra_use_unbound
+- name: Manage pi-hole dnsmasq configuration
   block:
-    - name: Ensure unbound config directory is present
-      ansible.builtin.file:
-        path: "{{ infra_unbound_directories.cfg.path }}"
-        state: directory
-        owner: "{{ infra_unbound_directories.cfg.owner | default(infra_subdirectories.cfg.owner) | default(infra_directory_owner) }}"
-        group: "{{ infra_unbound_directories.cfg.group | default(infra_subdirectories.cfg.group) | default(infra_directory_group) }}"
-        mode: "{{ infra_unbound_directories.cfg.mode | default(infra_subdirectories.cfg.mode) | default(infra_directory_mode) }}"
-
-    - name: Ensure unbound.config.d directory is present
-      ansible.builtin.file:
-        path: "{{ infra_unbound_config_d_dir_path }}"
-        state: directory
-        owner: "{{ infra_unbound_directories.cfg.owner | default(infra_subdirectories.cfg.owner) | default(infra_directory_owner) }}"
-        group: "{{ infra_unbound_directories.cfg.group | default(infra_subdirectories.cfg.group) | default(infra_directory_group) }}"
-        mode: "755"
-
-    - name: Query for docker network details of '{{ svc_docker_network_name }}'
-      community.docker.docker_network_info:
-        name: "{{ svc_docker_network_name }}"
-      register: _svc_net_res
-
-    - name: Set svc_network_subnet fact
-      ansible.builtin.set_fact:
-        _svc_network_subnet: "{{ _svc_net_res.network.IPAM.Config[0].Subnet }}"
-
-    - name: Copy unbound config into place
+    - name: Write dnsmasq.d edns config to file
+      when: infra_use_unbound
       ansible.builtin.template:
-        src: etc/unbound/unbound.conf.j2
-        dest: "{{ infra_unbound_config_filepath }}"
-        owner: "{{ infra_unbound_directories.cfg.owner | default(infra_subdirectories.cfg.owner) | default(infra_directory_owner) }}"
-        group: "{{ infra_unbound_directories.cfg.group | default(infra_subdirectories.cfg.group) | default(infra_directory_group) }}"
-        mode: "644"
+        src: etc/dnsmasq.d/99-edns.conf.j2
+        dest: "{{ infra_pihole_dnsmasq_edns_conf_file_path }}"
+        owner: "{{ infra_pihole_directory_owner }}"
+        group: "{{ infra_pihole_directory_group }}"
+        mode: "{{ infra_pihole_dnsmasq_edns_conf_file_mode }}"
         backup: true
+      register: pihole_dnsmasq_edns_config_file_output
 
-    - name: Copy unbound pi-hole.conf config into place
-      ansible.builtin.template:
-        src: etc/unbound/unbound.conf.d/pi-hole.conf.j2
-        dest: "{{ infra_unbound_config_d_dir_path }}/pi-hole.conf"
-        owner: "{{ infra_unbound_directories.cfg.owner | default(infra_subdirectories.cfg.owner) | default(infra_directory_owner) }}"
-        group: "{{ infra_unbound_directories.cfg.group | default(infra_subdirectories.cfg.group) | default(infra_directory_group) }}"
-        mode: "644"
-        backup: true
-
-    - name: Deploy unbound service
-      community.docker.docker_container:
-        image: "{{ infra_unbound_container_image }}"
-        pull: "{{ infra_force_pull or infra_unbound_version == 'latest' }}"
-        name: "{{ infra_unbound_container_hostname }}"
-        hostname: "{{ infra_unbound_container_hostname }}"
-        restart_policy: "{{ infra_unbound_restart_policy | default(infra_restart_policy) }}"
-        volumes:
-          - "{{ infra_unbound_config_filepath }}:/opt/unbound/etc/unbound/unbound.conf"
-          - "{{ infra_unbound_config_d_dir_path }}:/opt/unbound/etc/unbound/unbound.conf.d"
-        env: "{{ infra_unbound_env_vars }}"
-        memory: "{{ infra_unbound_container_memory | default('2g') }}"
-        log_driver: "{{ svc_log_driver }}"
-        log_options: "{{ svc_log_options }}"
-        capabilities:
-          - NET_ADMIN
-        networks:
-          - name: "{{ svc_docker_network_name }}"
-      register: _infra_unbound_container_deployment
-
-    - name: Set DNS environment variable setting for pihole
-      ansible.builtin.set_fact:
-        infra_pihole_env_vars_dns: {
-          'PIHOLE_DNS_': "{{
-            _infra_unbound_container_deployment.container.NetworkSettings.Networks[svc_docker_network_name].IPAddress +
-            '#' + (infra_unbound_listening_port | string)
-            if infra_use_unbound else ''
-          }}"
-        }
-      when:
-        - _infra_unbound_container_deployment.container is defined
-        - _infra_unbound_container_deployment.container.NetworkSettings.Networks[svc_docker_network_name].IPAddress is defined
-        - _infra_unbound_container_deployment.container.NetworkSettings.Networks[svc_docker_network_name].IPAddress != ""
-
-- name: Deploy pihole service
-  community.docker.docker_container:
-    image: "{{ infra_pihole_container_image }}"
-    pull: "{{ infra_force_pull or infra_pihole_version == 'latest' }}"
-    name: "{{ infra_pihole_container_hostname }}"
-    hostname: "{{ infra_pihole_container_hostname }}"
-    restart_policy: "{{ infra_pihole_restart_policy | default(infra_restart_policy) }}"
-    volumes:
-      - "{{ infra_pihole_directories.data.path }}/pihole:/etc/pihole"
-      - "{{ infra_pihole_directories.data.path }}/dnsmasq.d:/etc/dnsmasq.d"
-    ports:
-      - "{{ infra_pihole_container_ports.dns | default('53') }}:53/tcp"
-      - "{{ infra_pihole_container_ports.dns | default('53') }}:53/udp"
-      - "{{ infra_pihole_container_ports.ui | default('8053') }}:80/tcp"
-    labels:
-      traefik.enable: 'true'
-      # Web UI
-      traefik.http.routers.pihole-ui-rtr.rule: "Host(\"{{ infra_pihole_container_hostname }}.{{ infra_domain }}\")"
-      traefik.http.routers.pihole-ui-rtr.entrypoints: webSecure
-      traefik.http.services.pihole-ui-svc.loadbalancer.server.port: "80"
-      traefik.http.routers.pihole-ui-rtr.service: pihole-ui-svc
-      # DNS/tcp shared router
-      traefik.tcp.services.pihole-dns-tcp-svc.loadbalancer.server.port: "53"
-      # DNS-TLS/tcp
-      traefik.tcp.routers.pihole-dns-tls-tcp-rtr.rule: "HostSNI(\"{{ infra_pihole_container_hostname }}.{{ infra_domain }}\")"
-      traefik.tcp.routers.pihole-dns-tls-tcp-rtr.entrypoints: dnsTls
-      traefik.tcp.routers.pihole-dns-tls-tcp-rtr.service: pihole-dns-tcp-svc
-      traefik.tcp.routers.pihole-dns-tls-tcp-rtr.tls.certresolver: "{{ svc_traefik_dns_challenge_provider | default('cloudflare') }}"
-      # DNS/tcp
-      traefik.tcp.routers.pihole-dns-tcp-rtr.rule: "HostSNI(\"{{ infra_pihole_container_hostname }}.{{ infra_domain }}\")"
-      traefik.tcp.routers.pihole-dns-tcp-rtr.entrypoints: dns
-      traefik.tcp.routers.pihole-dns-tcp-rtr.service: pihole-dns-tcp-svc
-      traefik.tcp.routers.pihole-dns-tcp-rtr.tls.certresolver: "{{ svc_traefik_dns_challenge_provider | default('cloudflare') }}"
-      # DNS/udp
-      traefik.udp.routers.pihole-dns-udp-rtr.entrypoints: dnsUdp
-      traefik.udp.services.pihole-dns-udp-svc.loadbalancer.server.port: "53"
-      traefik.udp.routers.pihole-dns-udp-rtr.service: pihole-dns-udp-svc
-    env: "{{ infra_pihole_env_vars | combine(infra_pihole_env_vars_dns) }}"
-    memory: "{{ infra_pihole_container_memory | default('2g') }}"
-    log_driver: "{{ svc_log_driver }}"
-    log_options: "{{ svc_log_options }}"
-    networks:
-      - name: "{{ svc_docker_network_name }}"
-      - name: bridge
-    etc_hosts: "{{ infra_pihole_extra_hosts }}"
-
-- name: Copy dnsmasq.d EDNS config into place
-  ansible.builtin.template:
-    src: etc/dnsmasq.d/99-edns.conf.j2
-    dest: "{{ infra_pihole_directories.data.path }}/dnsmasq.d/99-edns.conf"
-    owner: "{{ infra_pihole_directories.data.owner | default(infra_subdirectories.data.owner) | default(infra_directory_owner) }}"
-    group: "{{ infra_pihole_directories.data.group | default(infra_subdirectories.data.group) | default(infra_directory_group) }}"
-    mode: "644"
-  when: infra_use_unbound
+    - name: Remove dnsmasq.d edns config file state
+      when: not infra_use_unbound
+      ansible.builtin.file:
+        path: "{{ infra_pihole_dnsmasq_edns_conf_file_path }}"
+        state: absent
 ...

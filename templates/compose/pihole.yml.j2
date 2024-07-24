@@ -1,0 +1,98 @@
+# {{ ansible_managed }}
+services:
+{% if infra_use_unbound %}
+  {{ infra_unbound_service_name }}:
+    image: {{ infra_unbound_container_image }}
+    container_name: {{ infra_unbound_container_hostname }}
+    restart: {{ infra_unbound_restart_policy | default(infra_restart_policy) }}
+    logging:
+      driver: {{ svc_log_driver }}
+      options: {{ svc_log_options }}
+    env_file: {{ infra_unbound_env_file_path }}
+    volumes:
+      - {{ infra_unbound_conf_file_path }}:/opt/unbound/etc/unbound/unbound.conf
+      - {{ infra_unbound_conf_d_directory_path }}:/opt/unbound/etc/unbound/unbound.conf.d
+    mem_limit: {{ infra_unbound_container_memory }}
+    networks:
+      unbound_net:
+        ipv4_address: {{ infra_unbound_docker_network_ip_address }}
+    cap_add:
+      - NET_ADMIN
+
+{% endif %}
+  {{ infra_pihole_service_name }}:
+    image: {{ infra_pihole_container_image }}
+    container_name: {{ infra_pihole_container_hostname }}
+    restart: {{ infra_pihole_restart_policy | default(infra_restart_policy) }}
+    logging:
+      driver: {{ svc_log_driver }}
+      options: {{ svc_log_options }}
+    env_file: {{ infra_pihole_env_file_path }}
+    secrets:
+      - {{ infra_pihole_password_name }}
+    volumes:
+      - {{ infra_pihole_volume_name_data }}:/etc/pihole
+      - {{ infra_pihole_dnsmasq_d_directory_path }}:/etc/dnsmasq.d
+    mem_limit: {{ infra_pihole_container_memory }}
+    labels:
+      traefik.enable: 'true'
+      # Web UI
+      traefik.http.routers.{{ infra_pihole_service_name }}-web-rtr.rule: "Host(\"{{ infra_pihole_fqdn }}\")"
+      traefik.http.routers.{{ infra_pihole_service_name }}-web-rtr.entrypoints: webSecure
+      traefik.http.services.{{ infra_pihole_service_name }}-web-svc.loadbalancer.server.port: 80
+      traefik.http.services.{{ infra_pihole_service_name }}-web-svc.loadbalancer.server.scheme: http
+      traefik.http.routers.{{ infra_pihole_service_name }}-web-rtr.service: {{ infra_pihole_service_name }}-web-svc
+      traefik.http.routers.{{ infra_pihole_service_name }}-web-rtr.middlewares: lan-mwr@file
+      # DNS/tcp shared router
+      traefik.tcp.services.pihole-dns-tcp-svc.loadbalancer.server.port: 53
+      # DNS-TLS/tcp
+      traefik.tcp.routers.pihole-dns-tls-tcp-rtr.rule: "HostSNI(\"{{ infra_pihole_fqdn }}\")"
+      traefik.tcp.routers.pihole-dns-tls-tcp-rtr.entrypoints: dnsTls
+      traefik.tcp.routers.pihole-dns-tls-tcp-rtr.service: pihole-dns-tcp-svc
+      traefik.tcp.routers.pihole-dns-tls-tcp-rtr.tls.certresolver: "{{ svc_traefik_dns_challenge_provider | default('cloudflare') }}"
+      # DNS/tcp
+      traefik.tcp.routers.pihole-dns-tcp-rtr.rule: "HostSNI(\"{{ infra_pihole_fqdn }}\")"
+      traefik.tcp.routers.pihole-dns-tcp-rtr.entrypoints: dns
+      traefik.tcp.routers.pihole-dns-tcp-rtr.service: pihole-dns-tcp-svc
+      traefik.tcp.routers.pihole-dns-tcp-rtr.tls.certresolver: "{{ svc_traefik_dns_challenge_provider | default('cloudflare') }}"
+      # DNS/udp
+      traefik.udp.routers.pihole-dns-udp-rtr.entrypoints: dnsUdp
+      traefik.udp.services.pihole-dns-udp-svc.loadbalancer.server.port: "53"
+      traefik.udp.routers.pihole-dns-udp-rtr.service: pihole-dns-udp-svc
+    networks:
+{% if infra_use_unbound %}
+      - unbound_net
+{% endif %}
+      - {{ svc_docker_network_name }}
+    ports:
+      - {{ infra_pihole_container_port_dns }}:53/tcp
+      - {{ infra_pihole_container_port_dns }}:53/udp
+      - {{ infra_pihole_container_port_web }}:80/tcp
+    extra_hosts: {{ infra_pihole_extra_hosts }}
+{% if infra_use_unbound %}
+    depends_on:
+      - {{ infra_unbound_service_name }}
+{% endif %}
+
+volumes:
+  {{ infra_pihole_volume_name_data }}:
+    name: {{ infra_pihole_volume_name_data }}
+    labels: {{ infra_pihole_volume_labels | combine(infra_docker_volume_shared_labels) }}
+
+networks:
+{% if infra_use_unbound %}
+  unbound_net:
+    internal: true
+    ipam:
+      driver: default
+      config:
+        - subnet: {{ infra_unbound_docker_network_subnet }}
+          gateway: {{ infra_unbound_docker_network_gateway }}
+          ip_range: {{ infra_unbound_docker_network_ip_range }}
+{% endif %}
+  {{ svc_docker_network_name }}:
+    external: 'true'
+
+secrets:
+  {{ infra_pihole_password_name }}:
+    file: {{ infra_pihole_password_file_path }}

@@ -1,0 +1,7 @@
+---
+# Environment variables for the unbound container
+infra_unbound_env_vars:
+  PUID: "{{ infra_user_uid | string }}"
+  PGID: "{{ infra_group_gid | string }}"
+  TZ: "{{ infra_tz | default('Etc/UTC') | string }}"
+...

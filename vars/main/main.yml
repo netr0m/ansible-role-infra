@@ -4,33 +4,6 @@
 infra_docker_volume_shared_labels:
   netr0m.ansible-role: infra
 
-# Environment variables for the Pihole container
-infra_pihole_env_vars:
-  PUID: "{{ infra_user_uid | string }}"
-  PGID: "{{ infra_group_gid | string }}"
-  TZ: "{{ infra_tz | default('Etc/UTC') | string }}"
-  WEBPASSWORD: "{{ infra_pihole_password | default(omit) }}"
-  VIRTUAL_HOST: "{{ infra_pihole_container_hostname }}.{{ infra_domain }}"
-  DNSMASQ_LISTENING: "{{ infra_pihole_dnsmasq_listening }}"
-
-# DNS environment variables placeholder for the Pihole container
-infra_pihole_env_vars_dns: {}
-
-# Environment variables for the unbound container
-infra_unbound_env_vars:
-  PUID: "{{ infra_user_uid | string }}"
-  PGID: "{{ infra_group_gid | string }}"
-  TZ: "{{ infra_tz | default('Etc/UTC') | string }}"
-
-# Filename of the unbound config
-infra_unbound_config_filename: unbound.conf
-
-# Directory containing additional unbound configs on the host
-infra_unbound_config_d_dir_path: "{{ infra_unbound_directories.cfg.path }}/unbound.conf.d"
-
-# Filepath of the unbound config on the host
-infra_unbound_config_filepath: "{{ infra_unbound_directories.cfg.path }}/{{ infra_unbound_config_filename }}"
-
 # Shared environment variables for the Authentik containers
 infra_authentik_env_vars_shared:
   PUID: "{{ infra_user_uid | string }}"

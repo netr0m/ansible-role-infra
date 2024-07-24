@@ -1,0 +1,85 @@
+---
+### Unbound ###
+# Version of the unbound image to use (see 'infra_unbound_container_image')
+infra_unbound_version: 1.20.0
+
+## Unbound settings - see https://manpages.ubuntu.com/manpages/noble/en/man5/unbound.conf.5.html
+# unbound verbosity level
+infra_unbound_verbosity: 0
+# unbound listening interface
+infra_unbound_listening_iface: 0.0.0.0
+# unbound listening port
+infra_unbound_listening_port: 5353
+# whether to answer ipv4 queries
+infra_unbound_ipv4: 'yes'
+# whether to answer ipv6 queries
+infra_unbound_ipv6: 'no'
+# whether to answer udp queries
+infra_unbound_udp: 'yes'
+# whether to answer tcp queries
+infra_unbound_tcp: 'yes'
+# whether to prefer ipv6 queries
+infra_unbound_prefer_ipv6: 'no'
+# trust glue only if it is within the server's authority
+infra_unbound_harden_glue: 'yes'
+# require DNSSEC data for trust-anchored zones
+infra_unbound_harden_dnssec_stripped: 'yes'
+# number of bytes size to advertise as the EDNS reassembly buffer size
+infra_unbound_edns_buffer_size: 1232
+# perform prefetching of (frequently visited) close to expired message cache entries
+infra_unbound_prefetch: 'yes'
+# whether to restrict access to unbound using the 'access-control' directive
+infra_unbound_restrict_access: true
+# list of subnets to allow access to, in addition to the '_svc_network_subnet'
+infra_unbound_access_control_allowed_subnets: []
+  # - 10.0.0.0/8
+  # - 192.168.0.1/24
+
+## Directories
+# Directory path
+infra_unbound_directory_path: "{{ infra_directory_path }}/unbound"
+# Directory user ownership
+infra_unbound_directory_owner: "{{ infra_directory_owner }}"
+# Directory group ownership
+infra_unbound_directory_group: "{{ infra_directory_group }}"
+# Directory mode
+infra_unbound_directory_mode: "0744"
+# unbound.conf.d directory path
+infra_unbound_conf_d_directory_path: "{{ infra_unbound_directory_path }}/unbound.conf.d"
+# unbound.conf.d directory mode
+infra_unbound_conf_d_directory_mode: "0755"
+
+## File paths
+# File mode
+infra_unbound_file_mode: "0644"
+# unbound env file path
+infra_unbound_env_file_path: "{{ infra_unbound_directory_path }}/unbound.env"
+# Permissions (mode) for the env files (as an octal)
+infra_unbound_env_file_mode: "0600"
+# unbound unbound.conf file path
+infra_unbound_conf_file_path: "{{ infra_unbound_directory_path }}/unbound.conf"
+# unbound pi-hole.conf file path
+infra_unbound_pihole_conf_file_path: "{{ infra_unbound_conf_d_directory_path }}/pi-hole.conf"
+
+## Docker service configs
+# Name of the unbound Docker service
+infra_unbound_service_name: unbound
+# Container image to use for the unbound service
+infra_unbound_container_image: "docker.io/mvance/unbound:{{ infra_unbound_version }}"
+# Hostname of the unbound Docker container
+infra_unbound_container_hostname: "{{ infra_unbound_service_name }}"
+# Restart policy for the unbound Docker container
+infra_unbound_restart_policy: "{{ infra_restart_policy }}"
+# Memory limit for the unbound container
+infra_unbound_container_memory: 2g
+
+## Docker network configs
+# IP address for the unbound Docker container
+infra_unbound_docker_network_ip_address: 172.53.53.53
+# Subnet for the unbound Docker network
+infra_unbound_docker_network_subnet: 172.53.53.0/24
+# Gateway IP for the unbound Docker network
+infra_unbound_docker_network_gateway: 172.53.53.1
+#  IP range for the unbound Docker network
+infra_unbound_docker_network_ip_range: "{{ infra_unbound_docker_network_subnet }}"
+...

@@ -1,0 +1,80 @@
+---
+### Pihole ###
+# Version of the pihole Docker image to use (see 'infra_pihole_container_image')
+infra_pihole_version: latest
+
+## Pihole secrets
+# Password for the web UI
+infra_pihole_password: ~
+
+## Pihole settings. See https://github.com/pi-hole/docker-pi-hole?tab=readme-ov-file#environment-variables
+# Additional optional settings
+infra_pihole_settings: {}
+# Extra hosts for Pihole
+infra_pihole_extra_hosts: {}
+  # service.domain.tld: <IP_ADDR>
+  # service1.domain.tld: <IP_ADDR>
+# Dnsmasq.d listening setting for pihole
+infra_pihole_dnsmasq_listening: all
+
+## Directories
+# Directory path
+infra_pihole_directory_path: "{{ infra_directory_path }}/pihole"
+# Directory user ownership
+infra_pihole_directory_owner: "{{ infra_directory_owner }}"
+# Directory group ownership
+infra_pihole_directory_group: "{{ infra_directory_group }}"
+# Directory mode
+infra_pihole_directory_mode: "{{ infra_directory_mode }}"
+# pihole dnsmasq.d directory path
+infra_pihole_dnsmasq_d_directory_path: "{{ infra_pihole_directory_path }}/dnsmasq.d"
+
+## File paths
+# File mode
+infra_pihole_file_mode: "0644"
+# pihole compose file path
+infra_pihole_compose_path: "{{ infra_pihole_directory_path }}/compose.yml"
+# pihole env file path
+infra_pihole_env_file_path: "{{ infra_pihole_directory_path }}/pihole.env"
+# pihole web UI password file path
+infra_pihole_password_file_path: "{{ infra_pihole_directory_path }}/.pihole-password"
+# Permissions (mode) for the env files (as an octal)
+infra_pihole_env_file_mode: "0600"
+# Permissions (mode) for the secrets files (as an octal)
+infra_pihole_secret_file_mode: "0600"
+# dnsmasq edns config file path
+infra_pihole_dnsmasq_edns_conf_file_path: "{{ infra_pihole_dnsmasq_d_directory_path }}/99-edns.conf"
+# Permissions (mode) for the dnsmasq edns conf file (as an octal)
+infra_pihole_dnsmasq_edns_conf_file_mode: "0644"
+
+## Docker service configs
+# Name of the pihole Docker service
+infra_pihole_service_name: pihole
+# Container image to use for the pihole service
+infra_pihole_container_image: "ghcr.io/pi-hole/pihole:{{ infra_pihole_version }}"
+# Hostname of the pihole Docker container
+infra_pihole_container_hostname: "{{ infra_pihole_service_name }}"
+# FQDN of the pihole Docker container
+infra_pihole_fqdn: "{{ infra_pihole_container_hostname }}.{{ infra_domain }}"
+# Restart policy for the pihole Docker container
+infra_pihole_restart_policy: "{{ infra_restart_policy }}"
+# Memory limit for the pihole container
+infra_pihole_container_memory: 2g
+# Host port for the web UI
+infra_pihole_container_port_web: 8053
+# Host port for the DNS service
+infra_pihole_container_port_dns: 53
+# Max. wait time for pihole compose deployment
+infra_pihole_compose_wait_timeout: 300
+
+## Docker volume configs
+# Name of the data Docker volume
+infra_pihole_volume_name_data: "{{ infra_pihole_service_name }}_data"
+# Labels to attach to the Docker volumes for this service
+infra_pihole_volume_labels:
+  netr0m.infra.service: pihole
+
+## Docker secret configs
+# Name of the web UI password secret
+infra_pihole_password_name: "pihole_password"
+...

@@ -1,0 +1,6 @@
+---
+# Environment variables for the uptime-kuma container
+infra_uptimekuma_env_vars:
+  PUID: "{{ infra_user_uid | string }}"
+  PGID: "{{ infra_group_gid | string }}"
+...

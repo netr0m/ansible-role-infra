@@ -1,0 +1,19 @@
+# {{ ansible_managed }}
+services:
+  {{ infra_godns_service_name }}:
+    image: {{ infra_godns_container_image }}
+    container_name: {{ infra_godns_container_hostname }}
+    restart: {{ infra_godns_restart_policy | default(infra_restart_policy) }}
+    logging:
+      driver: {{ svc_log_driver }}
+      options: {{ svc_log_options }}
+    env_file: {{ infra_godns_env_file_path }}
+    volumes:
+      - {{ infra_godns_config_file_path }}:{{ infra_godns_config_file_path_container }}
+    mem_limit: {{ infra_godns_container_memory }}
+    networks:
+      {{ svc_docker_network_name }}:
+
+networks:
+  {{ svc_docker_network_name }}:
+    external: 'true'

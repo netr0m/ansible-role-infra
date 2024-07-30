@@ -1,0 +1,113 @@
+# {{ ansible_managed }}
+services:
+  {{ infra_authentik_redis_service_name }}:
+    image: {{ infra_authentik_redis_container_image }}
+    container_name: {{ infra_authentik_redis_container_hostname }}
+    restart: {{ infra_authentik_restart_policy | default(infra_restart_policy) }}
+    logging:
+      driver: {{ svc_log_driver }}
+      options: {{ svc_log_options }}
+    volumes:
+      - {{ infra_authentik_redis_volume_name_data }}:/data
+    mem_limit: {{ infra_authentik_redis_container_memory }}
+    networks:
+      - default
+    command: --save 60 1 --loglevel warning
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 3s
+
+  {{ infra_authentik_db_service_name }}:
+    image: {{ infra_authentik_db_container_image }}
+    container_name: {{ infra_authentik_db_container_hostname }}
+    restart: {{ infra_authentik_restart_policy | default(infra_restart_policy) }}
+    logging:
+      driver: {{ svc_log_driver }}
+      options: {{ svc_log_options }}
+    secrets:
+      - {{ infra_authentik_db_password_name }}
+    env_file: {{ infra_authentik_db_env_file_path }}
+    volumes:
+      - {{ infra_authentik_db_volume_name_data }}:/var/lib/postgres/data
+    mem_limit: {{ infra_authentik_db_container_memory }}
+    networks:
+      - default
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 5s
+
+  {{ infra_authentik_service_name }}:
+    image: {{ infra_authentik_container_image }}
+    container_name: {{ infra_authentik_container_hostname }}
+    restart: {{ infra_authentik_restart_policy | default(infra_restart_policy) }}
+    logging:
+      driver: {{ svc_log_driver }}
+      options: {{ svc_log_options }}
+    env_file: {{ infra_authentik_env_file_path }}
+    volumes:
+      - {{ infra_authentik_directory_path }}/media:/media
+      - {{ infra_authentik_directory_path }}/templates:/templates
+    mem_limit: {{ infra_authentik_container_memory }}
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.{{ infra_authentik_service_name }}-rtr.rule: "Host(\"{{ infra_authentik_fqdn }}\")"
+      traefik.http.routers.{{ infra_authentik_service_name }}-rtr.entrypoints: webSecure
+      traefik.http.services.{{ infra_authentik_service_name }}-svc.loadbalancer.server.port: 9443
+      traefik.http.services.{{ infra_authentik_service_name }}-svc.loadbalancer.server.scheme: https
+      traefik.http.routers.{{ infra_authentik_service_name }}-rtr.service: {{ infra_authentik_service_name }}-svc
+      traefik.http.routers.{{ infra_authentik_service_name }}-rtr.middlewares: lan-mwr@file
+      # ForwardAuth regex
+      traefik.http.routers.{{ infra_authentik_service_name }}-outpost-rtr.rule: "HostRegexp(`{subdomain:[a-z0-9-]+}.{{ infra_domain }}`) && PathPrefix(`/outpost.goauthentik.io/`)"
+      traefik.http.routers.{{ infra_authentik_service_name }}-outpost-rtr.entrypoints: webSecure
+    networks:
+      - default
+      - {{ svc_docker_network_name }}
+    depends_on:
+      - {{ infra_authentik_redis_service_name }}
+      - {{ infra_authentik_db_service_name }}
+    command: server
+
+  {{ infra_authentik_worker_service_name }}:
+    image: {{ infra_authentik_container_image }}
+    container_name: {{ infra_authentik_worker_container_hostname }}
+    restart: {{ infra_authentik_restart_policy | default(infra_restart_policy) }}
+    logging:
+      driver: {{ svc_log_driver }}
+      options: {{ svc_log_options }}
+    env_file: {{ infra_authentik_env_file_path }}
+    volumes:
+      - {{ infra_authentik_directory_path }}/media:/media
+      - {{ infra_authentik_directory_path }}/templates:/templates
+      - {{ infra_authentik_directory_path }}/certs:/certs
+    mem_limit: {{ infra_authentik_worker_container_memory }}
+    networks:
+      - default
+    depends_on:
+      - {{ infra_authentik_redis_service_name }}
+      - {{ infra_authentik_db_service_name }}
+    command: worker
+
+volumes:
+  {{ infra_authentik_db_volume_name_data }}:
+    name: {{ infra_authentik_db_volume_name_data }}
+    labels: {{ infra_authentik_volume_labels | combine(infra_docker_volume_shared_labels) }}
+  {{ infra_authentik_redis_volume_name_data }}:
+    name: {{ infra_authentik_redis_volume_name_data }}
+    labels: {{ infra_authentik_volume_labels | combine(infra_docker_volume_shared_labels) }}
+
+networks:
+  default:
+    driver: bridge
+    internal: 'true'
+  {{ svc_docker_network_name }}:
+    external: 'true'
+
+secrets:
+  {{ infra_authentik_db_password_name }}:
+    file: {{ infra_authentik_db_password_file_path }}

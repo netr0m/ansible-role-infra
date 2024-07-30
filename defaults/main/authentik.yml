@@ -1,0 +1,120 @@
+---
+### Authentik ###
+# Version of the authentik Docker image to use (see 'infra_authentik_container_image')
+infra_authentik_version: 2023.10.7
+# Version of the redis Docker image to use (see 'infra_authentik_redis_container_image')
+infra_authentik_redis_version: alpine
+# Version of the posgresql Docker image to use (see 'infra_authentik_db_container_image')
+infra_authentik_db_version: 12-alpine
+
+## Authentik secrets
+# Secret key used for Authentik cookie signing
+infra_authentik_secret_key: ~
+# Password for the authentik postgres (DB) user (infra_authentik_db_user)
+infra_authentik_db_password: ~
+
+## Authentik postgres (DB) settings
+# Database user
+infra_authentik_db_user: "authentik"
+# Database name
+infra_authentik_db_name: "authentik"
+
+## Authentik settings. See https://goauthentik.io/docs/installation/configuration#authentik-settings
+infra_authentik_settings:
+  AUTHENTIK_COOKIE_DOMAIN: "{{ infra_domain }}"
+  AUTHENTIK_LOG_LEVEL: 'INFO'
+  AUTHENTIK_GEOIP: /geoip/GeoLite2-City.mmdb
+  AUTHENTIK_DISABLE_UPDATE_CHECK: 'false'
+  AUTHENTIK_ERROR_REPORTING__ENABLED: 'false'
+  AUTHENTIK_ERROR_REPORTING__SENTRY_DSN: ""
+  AUTHENTIK_ERROR_REPORTING__ENVIRONMENT: customer
+  AUTHENTIK_ERROR_REPORTING__SEND_PII: 'false'
+  AUTHENTIK_AVATARS: initials
+  AUTHENTIK_DEFAULT_USER_CHANGE_NAME: 'true'
+  AUTHENTIK_DEFAULT_USER_CHANGE_EMAIL: 'false'
+  AUTHENTIK_DEFAULT_USER_CHANGE_USERNAME: 'false'
+  AUTHENTIK_GDPR_COMPLIANCE: 'true'
+  AUTHENTIK_DEFAULT_TOKEN_LENGTH: '60'
+  AUTHENTIK_IMPERSONATION: 'false'
+  AUTHENTIK_EMAIL__HOST: 'localhost'
+  AUTHENTIK_EMAIL__PORT: '25'
+  AUTHENTIK_EMAIL__USERNAME: ""
+  AUTHENTIK_EMAIL__PASSWORD: ""
+  AUTHENTIK_EMAIL__USE_TLS: 'false'
+  AUTHENTIK_EMAIL__USE_SSL: 'false'
+  AUTHENTIK_EMAIL__TIMEOUT: '10'
+  AUTHENTIK_EMAIL__FROM: "authentik@{{ infra_domain }}"
+
+## Directories
+# Directory path
+infra_authentik_directory_path: "{{ infra_directory_path }}/authentik"
+# Directory user ownership
+infra_authentik_directory_owner: "{{ infra_directory_owner }}"
+# Directory group ownership
+infra_authentik_directory_group: "{{ infra_directory_group }}"
+# Directory mode
+infra_authentik_directory_mode: "{{ infra_directory_mode }}"
+
+## File paths
+# authentik compose file path
+infra_authentik_compose_path: "{{ infra_authentik_directory_path }}/compose.yml"
+# authentik env file path
+infra_authentik_env_file_path: "{{ infra_authentik_directory_path }}/authentik.env"
+# authentik postgres (DB) env file path
+infra_authentik_db_env_file_path: "{{ infra_authentik_directory_path }}/authentik-db.env"
+# authentik db password file path
+infra_authentik_db_password_file_path: "{{ infra_authentik_directory_path }}/.db-password"
+# Permissions (mode) for the env files (as an octal)
+infra_authentik_env_file_mode: "0600"
+# Permissions (mode) for the secrets files (as an octal)
+infra_authentik_secret_file_mode: "0600"
+
+## Docker service configs
+# Name of the authentik server Docker service
+infra_authentik_service_name: authentik
+# Name of the authentik worker Docker service
+infra_authentik_worker_service_name: "{{ infra_authentik_service_name }}-worker"
+# Name of the authentik redis Docker service
+infra_authentik_redis_service_name: "{{ infra_authentik_service_name }}-redis"
+# Name of the authentik postgres (DB) Docker service
+infra_authentik_db_service_name: "{{ infra_authentik_service_name }}-db"
+# Container image to use for the authentik service
+infra_authentik_container_image: "ghcr.io/goauthentik/server:{{ infra_authentik_version }}"
+# Container image to use for the redis service
+infra_authentik_redis_container_image: "docker.io/redis:{{ infra_authentik_redis_version }}"
+# Container image to use for the postgres (DB) service
+infra_authentik_db_container_image: "docker.io/postgres:{{ infra_authentik_db_version }}"
+# Hostname of the authentik server Docker container
+infra_authentik_container_hostname: "{{ infra_authentik_service_name }}"
+# Hostname of the authentik worker Docker container
+infra_authentik_worker_container_hostname: "{{ infra_authentik_worker_service_name }}"
+# Hostname of the authentik redis Docker container
+infra_authentik_redis_container_hostname: "{{ infra_authentik_redis_service_name }}"
+# Hostname of the authentik postgres (DB) Docker container
+infra_authentik_db_container_hostname: "{{ infra_authentik_db_service_name }}"
+# FQDN of the authentik server Docker container
+infra_authentik_fqdn: "{{ infra_authentik_container_hostname }}.{{ infra_domain }}"
+# Restart policy for the authentik Docker containers
+infra_authentik_restart_policy: "{{ infra_restart_policy }}"
+# Memory limit for the authentik server container
+infra_authentik_container_memory: 2g
+# Memory limit for the authentik worker container
+infra_authentik_worker_container_memory: 2g
+# Memory limit for the authentik redis container
+infra_authentik_redis_container_memory: 1g
+# Memory limit for the authentik redis container
+infra_authentik_db_container_memory: 1g
+
+## Docker volume configs
+# Name of the redis data Docker volume
+infra_authentik_redis_volume_name_data: "{{ infra_authentik_redis_service_name }}_data"
+# Name of the postgres (DB) data Docker volume
+infra_authentik_db_volume_name_data: "{{ infra_authentik_db_service_name }}_data"
+# Labels to attach to the Docker volumes for this service
+infra_authentik_volume_labels:
+  netr0m.infra.service: authentik
+
+## Docker secret configs
+# Name of the DB password secret
+infra_authentik_db_password_name: authentik_db_password
+...

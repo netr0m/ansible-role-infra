@@ -1,116 +1,83 @@
 ---
-- name: Ensure authentik log directory is present
+- name: Ensure authentik directory is present
   ansible.builtin.file:
-    path: "{{ infra_authentik_directories.log.path }}"
+    path: "{{ infra_authentik_directory_path }}"
     state: directory
-    owner: "{{ infra_authentik_directories.log.owner | default(infra_subdirectories.log.owner) | default(infra_directory_owner) }}"
-    group: "{{ infra_authentik_directories.log.group | default(infra_subdirectories.log.group) | default(infra_directory_group) }}"
-    mode: "{{ infra_authentik_directories.log.mode | default(infra_subdirectories.log.mode) | default(infra_directory_mode) }}"
+    owner: "{{ infra_authentik_directory_owner }}"
+    group: "{{ infra_authentik_directory_group }}"
+    mode: "{{ infra_authentik_directory_mode }}"
 
-- name: Ensure authentik data directory is present
-  ansible.builtin.file:
-    path: "{{ infra_authentik_directories.data.path }}"
-    state: directory
-    owner: "{{ infra_authentik_directories.data.owner | default(infra_subdirectories.data.owner) | default(infra_directory_owner) }}"
-    group: "{{ infra_authentik_directories.data.group | default(infra_subdirectories.data.group) | default(infra_directory_group) }}"
-    mode: "{{ infra_authentik_directories.data.mode | default(infra_subdirectories.data.mode) | default(infra_directory_mode) }}"
-
-- name: Deploy authentik databases
+- name: Manage service files
   block:
-    - name: Deploy authentik postgresql
-      community.docker.docker_container:
-        image: "{{ infra_authentik_db_container_image }}"
-        pull: "{{ infra_force_pull or infra_authentik_db_version == 'latest' }}"
-        name: "{{ infra_authentik_db_container_hostname }}"
-        hostname: "{{ infra_authentik_db_container_hostname }}"
-        restart_policy: "{{ infra_authentik_restart_policy | default(infra_restart_policy) }}"
-        volumes:
-          - "{{ infra_authentik_directories.data.path }}/postgresql:/var/lib/postgresql/data"
-        env: "{{ infra_authentik_env_vars_shared | combine(infra_authentik_db_env_vars) }}"
-        memory: "{{ infra_authentik_db_container_memory | default('1g') }}"
-        log_driver: "{{ svc_log_driver }}"
-        log_options: "{{ svc_log_options }}"
-        healthcheck:
-          test: ["CMD-SHELL", "pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER}"]
-          start_period: 20s
-          interval: 30s
-          retries: 5
-          timeout: 5s
+    - name: Write authentik DB password secret to file
+      ansible.builtin.template:
+        src: secret.j2
+        dest: "{{ infra_authentik_db_password_file_path }}"
+        owner: "{{ infra_authentik_directory_owner }}"
+        group: "{{ infra_authentik_directory_group }}"
+        mode: "{{ infra_authentik_secret_file_mode }}"
+        backup: true
+      vars:
+        _secret: "{{ infra_authentik_db_password }}"
+      register: authentik_db_password_file_output
 
-    - name: Deploy authentik redis
-      community.docker.docker_container:
-        image: "{{ infra_authentik_redis_container_image }}"
-        pull: "{{ infra_force_pull or infra_authentik_redis_version == 'latest' }}"
-        name: "{{ infra_authentik_redis_container_hostname }}"
-        hostname: "{{ infra_authentik_redis_container_hostname }}"
-        restart_policy: "{{ infra_authentik_restart_policy | default(infra_restart_policy) }}"
-        memory: "{{ infra_authentik_redis_container_memory | default('1g') }}"
-        log_driver: "{{ svc_log_driver }}"
-        log_options: "{{ svc_log_options }}"
-        command: "--save 60 1 --loglevel warning"
-        healthcheck:
-          test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
-          start_period: 20s
-          interval: 30s
-          retries: 5
-          timeout: 3s
-        recreate: true
-      changed_when: false
+    - name: Write authentik environment variables to file
+      ansible.builtin.template:
+        src: template.env.j2
+        dest: "{{ infra_authentik_env_file_path }}"
+        owner: "{{ infra_authentik_directory_owner }}"
+        group: "{{ infra_authentik_directory_group }}"
+        mode: "{{ infra_authentik_env_file_mode }}"
+        backup: true
+      vars:
+        _env_vars: "{{ infra_authentik_env_vars_shared | combine(infra_authentik_server_env_vars) | combine(infra_authentik_settings) }}"
+      register: authentik_env_file_output
 
-- name: Deploy authentik service
-  block:
-    - name: Deploy authentik server
-      community.docker.docker_container:
-        image: "{{ infra_authentik_server_container_image }}"
-        pull: "{{ infra_force_pull or infra_authentik_version == 'latest' }}"
-        name: "{{ infra_authentik_server_container_hostname }}"
-        hostname: "{{ infra_authentik_server_container_hostname }}"
-        restart_policy: "{{ infra_authentik_restart_policy | default(infra_restart_policy) }}"
-        volumes:
-          - "{{ infra_authentik_directories.data.path }}/media:/media"
-          - "{{ infra_authentik_directories.data.path }}/templates:/templates"
-        exposed_ports:
-          - 9443
-        labels:
-          traefik.enable: 'true'
-          traefik.http.routers.authentik-rtr.rule: "Host(\"{{ infra_authentik_container_hostname }}.{{ infra_domain }}\")"
-          traefik.http.routers.authentik-rtr.entrypoints: webSecure
-          traefik.http.services.authentik-svc.loadbalancer.server.port: "9443"
-          traefik.http.services.authentik-svc.loadbalancer.server.scheme: https
-          traefik.http.routers.authentik-rtr.service: authentik-svc
-          # ForwardAuth regex
-          traefik.http.routers.authentik-rtr-outpost.rule: "HostRegexp(`{subdomain:[a-z0-9-]+}.{{ infra_domain }}`) && PathPrefix(`/outpost.goauthentik.io/`)"
-          traefik.http.routers.authentik-rtr-outpost.entrypoints: webSecure
-        env: "{{ infra_authentik_env_vars_shared | combine(infra_authentik_server_env_vars) | combine(infra_authentik_settings) }}"
-        memory: "{{ infra_authentik_server_container_memory | default('2g') }}"
-        log_driver: "{{ svc_log_driver }}"
-        log_options: "{{ svc_log_options }}"
-        command: server
-        recreate: true
-        links:
-          - "{{ infra_authentik_db_container_hostname }}"
-          - "{{ infra_authentik_redis_container_hostname }}"
-      changed_when: false
+    - name: Write authentik DB environment variables to file
+      ansible.builtin.template:
+        src: template.env.j2
+        dest: "{{ infra_authentik_db_env_file_path }}"
+        owner: "{{ infra_authentik_directory_owner }}"
+        group: "{{ infra_authentik_directory_group }}"
+        mode: "{{ infra_authentik_env_file_mode }}"
+        backup: true
+      vars:
+        _env_vars: "{{ infra_authentik_env_vars_shared | combine(infra_authentik_db_env_vars) }}"
+      register: authentik_db_env_file_output
 
-    - name: Deploy authentik worker
-      community.docker.docker_container:
-        image: "{{ infra_authentik_server_container_image }}"
-        pull: "{{ infra_force_pull or infra_authentik_version == 'latest' }}"
-        name: "{{ infra_authentik_worker_container_hostname }}"
-        hostname: "{{ infra_authentik_worker_container_hostname }}"
-        restart_policy: "{{ infra_authentik_restart_policy | default(infra_restart_policy) }}"
-        volumes:
-          - "{{ infra_authentik_directories.data.path }}/media:/media"
-          - "{{ infra_authentik_directories.data.path }}/templates:/templates"
-          - "{{ infra_authentik_directories.data.path }}/certs:/certs"
-        env: "{{ infra_authentik_env_vars_shared | combine(infra_authentik_server_env_vars) | combine(infra_authentik_settings) }}"
-        memory: "{{ infra_authentik_worker_container_memory | default('2g') }}"
-        log_driver: "{{ svc_log_driver }}"
-        log_options: "{{ svc_log_options }}"
-        command: worker
-        recreate: true
-        links:
-          - "{{ infra_authentik_db_container_hostname }}"
-          - "{{ infra_authentik_redis_container_hostname }}"
-      changed_when: false
+    - name: Copy compose services file into place
+      ansible.builtin.template:
+        src: compose/authentik.yml.j2
+        dest: "{{ infra_authentik_compose_path }}"
+        owner: "{{ infra_authentik_directory_owner }}"
+        group: "{{ infra_authentik_directory_group }}"
+        mode: "{{ infra_authentik_directory_mode }}"
+        backup: true
+        validate: docker compose -f %s config -q
+      register: compose_file_output
+
+- name: Take down services due to changed compose file
+  community.docker.docker_compose_v2:
+    project_src: "{{ infra_authentik_directory_path }}"
+    files: "{{ compose_file_output.backup_file }}"
+    state: absent
+    remove_orphans: true
+  when: compose_file_output.backup_file is defined
+
+- name: Pull container images
+  community.docker.docker_image:
+    name: "{{ item }}"
+    source: pull
+  with_items:
+    - "{{ infra_authentik_container_image }}"
+    - "{{ infra_authentik_redis_container_image }}"
+    - "{{ infra_authentik_db_container_image }}"
+
+- name: Deploy authentik services
+  community.docker.docker_compose_v2:
+    project_src: "{{ infra_authentik_directory_path }}"
+    state: "{{ 'present' if infra_use_authentik else 'absent' }}"
+    wait: true
+    wait_timeout: "{{ infra_compose_wait_timeout }}"
+  register: deploy_authentik_services_output
 ...

@@ -43,6 +43,8 @@ infra_use_pihole: true
 infra_use_unbound: true
 # Configure Unifi Controller
 infra_use_unifi: false
+# Configure MongoDB for the Unifi Controller
+infra_use_unifi_db: "{{ infra_use_unifi }}"
 # Configure wireguard
 infra_use_wireguard: false
 # Configure wireguard-ui
@@ -55,39 +57,6 @@ infra_use_authentik: true
 infra_use_godns: false
 # Configure uptime-kuma
 infra_use_uptimekuma: true
-
-### Unifi ###
-# Directories for Unifi
-infra_unifi_directories:
-  log:
-    path: "{{ infra_subdirectories.log.path }}/unifi"
-  data:
-    path: "{{ infra_subdirectories.data.path }}/unifi"
-
-# unifi container hostname
-infra_unifi_container_hostname: unifi
-# unifi version
-infra_unifi_version: latest
-# unifi container image
-infra_unifi_container_image: "ghcr.io/linuxserver/unifi-controller:{{ infra_unifi_version }}"
-# unifi container memory
-infra_unifi_container_memory: 4g
-# Middleware for the Unifi container
-svc_traefik_extra_middlewares:
-  unifi-headers-mwr:
-    headers:
-      customRequestHeaders:
-        Authorization: ''
-        X-Forwarded-Proto: 'https'
-# Add a route to the Unifi admin portal (due to network_mode: host on the container)
-svc_traefik_extra_hosts:
-  - name: unifi
-    subdomain: "{{ infra_unifi_container_hostname }}"
-    shortname: "unifi"
-    middlewares: [unifi-headers-mwr, lan-mwr]
-    protocol: https
-    ip_addr: "{{ ansible_default_ipv4.address }}"
-    port: "{{ infra_unifi_container_ports.admin }}"
 
 ### Pihole ###
 # Directories for Pihole

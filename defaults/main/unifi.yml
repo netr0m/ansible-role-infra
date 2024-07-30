@@ -1,0 +1,86 @@
+---
+### Unifi ###
+# Version of the unifi Docker image to use (see 'infra_unifi_container_image')
+infra_unifi_version: 8.3.32
+# Version of the MongoDB Docker image to use
+infra_unifi_db_version: 7.0
+
+## Unifi secrets
+# Password for the unifi MongoDB user (infra_unifi_db_user)
+infra_unifi_db_password: ~
+
+## Unifi MongoDB settings. See https://github.com/linuxserver/docker-unifi-network-application?tab=readme-ov-file#parameters
+# Username for the unifi MongoDB user
+infra_unifi_db_user: unifi
+# Host where the unifi MongoDB can be reached
+infra_unifi_db_host: "{{ infra_unifi_db_service_name }}"
+# Port where the unifi MongoDB can be reached
+infra_unifi_db_port: 27017
+# Name of the unifi MongoDB database
+infra_unifi_db_name: unifi
+# Whether to enable TLS for the MongoDB connection
+infra_unifi_db_tls: ~
+# Specify the MongoDB authSource
+infra_unifi_db_auth_source: "{{ infra_unifi_db_name }}"
+
+## Directories
+# Directory path
+infra_unifi_directory_path: "{{ infra_directory_path }}/unifi"
+# Directory user ownership
+infra_unifi_directory_owner: "{{ infra_directory_owner }}"
+# Directory group ownership
+infra_unifi_directory_group: "{{ infra_directory_group }}"
+# Directory mode
+infra_unifi_directory_mode: "{{ infra_directory_mode }}"
+
+## File paths
+# unifi compose file path
+infra_unifi_compose_path: "{{ infra_unifi_directory_path }}/compose.yml"
+# unifi env file path
+infra_unifi_env_file_path: "{{ infra_unifi_directory_path }}/unifi.env"
+# unifi db password file path
+infra_unifi_db_password_file_path: "{{ infra_unifi_directory_path }}/.db-password"
+# Permissions (mode) for the env files (as an octal)
+infra_unifi_env_file_mode: "0600"
+# Permissions (mode) for the secrets files (as an octal)
+infra_unifi_secret_file_mode: "0600"
+# Permissions (mode) for the init-mongo.js file (as an octal)
+infra_unifi_db_init_mongo_file_mode: "0644"
+# unifi init-mongo.js file path
+infra_unifi_db_init_mongo_path: "{{ infra_unifi_directory_path }}/init-mongo.js"
+
+## Docker service configs
+# Name of the unifi Docker service
+infra_unifi_service_name: unifi
+# Name of the unifi MongoDB Docker service
+infra_unifi_db_service_name: "{{ infra_unifi_service_name }}-db"
+# Container image to use for the unifi service
+infra_unifi_container_image: "ghcr.io/linuxserver/unifi-network-application:{{ infra_unifi_version }}"
+# Container image to use for the unifi MongoDB service
+infra_unifi_db_container_image: "docker.io/mongo:{{ infra_unifi_db_version }}"
+# Hostname of the unifi Docker container
+infra_unifi_container_hostname: "{{ infra_unifi_service_name }}"
+# Hostname of the unifi MongoDB Docker container
+infra_unifi_db_container_hostname: "{{ infra_unifi_db_service_name }}"
+# FQDN of the unifi Docker container
+infra_unifi_fqdn: "{{ infra_unifi_container_hostname }}.{{ infra_domain }}"
+# Restart policy for the unifi Docker container
+infra_unifi_restart_policy: "{{ infra_restart_policy }}"
+# Memory limit for the unifi container
+infra_unifi_container_memory: 4g
+# Memory limit for the unifi MongoDB container
+infra_unifi_db_container_memory: 1g
+
+## Docker volume configs
+# Name of the config Docker volume
+infra_unifi_volume_name_config: "{{ infra_unifi_service_name }}_config"
+# Name of the data Docker volume (DB)
+infra_unifi_db_volume_name_data: "{{ infra_unifi_db_service_name }}_data"
+# Labels to attach to the Docker volumes for this service
+infra_unifi_volume_labels:
+  netr0m.infra.service: unifi
+
+## Docker secret configs
+# Name of the DB password secret
+infra_unifi_db_password_name: "unifi_db_password"
+...

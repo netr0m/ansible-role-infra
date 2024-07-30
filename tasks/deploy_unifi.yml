@@ -1,39 +1,80 @@
 ---
-- name: Ensure unifi log directory is present
+- name: Ensure unifi directory is present
   ansible.builtin.file:
-    path: "{{ infra_unifi_directories.log.path }}"
+    path: "{{ infra_unifi_directory_path }}"
     state: directory
-    owner: "{{ infra_unifi_directories.log.owner | default(infra_subdirectories.log.owner) | default(infra_directory_owner) }}"
-    group: "{{ infra_unifi_directories.log.group | default(infra_subdirectories.log.group) | default(infra_directory_group) }}"
-    mode: "{{ infra_unifi_directories.log.mode | default(infra_subdirectories.log.mode) | default(infra_directory_mode) }}"
+    owner: "{{ infra_unifi_directory_owner }}"
+    group: "{{ infra_unifi_directory_group }}"
+    mode: "{{ infra_unifi_directory_mode }}"
 
-- name: Ensure unifi data directory is present
-  ansible.builtin.file:
-    path: "{{ infra_unifi_directories.data.path }}"
-    state: directory
-    owner: "{{ infra_unifi_directories.data.owner | default(infra_subdirectories.data.owner) | default(infra_directory_owner) }}"
-    group: "{{ infra_unifi_directories.data.group | default(infra_subdirectories.data.group) | default(infra_directory_group) }}"
-    mode: "{{ infra_unifi_directories.data.mode | default(infra_subdirectories.data.mode) | default(infra_directory_mode) }}"
+- name: Manage service files
+  block:
+    - name: Write unifi DB password secret to file
+      ansible.builtin.template:
+        src: secret.j2
+        dest: "{{ infra_unifi_db_password_file_path }}"
+        owner: "{{ infra_unifi_directory_owner }}"
+        group: "{{ infra_unifi_directory_group }}"
+        mode: "{{ infra_unifi_secret_file_mode }}"
+        backup: true
+      vars:
+        _secret: "{{ infra_unifi_db_password | urlencode }}"
+      register: unifi_db_password_file_output
 
-- name: Deploy unifi service
-  community.docker.docker_container:
-    image: "{{ infra_unifi_container_image }}"
-    pull: "{{ infra_force_pull or infra_unifi_version == 'latest' }}"
-    name: "{{ infra_unifi_container_hostname }}"
-    hostname: "{{ infra_unifi_container_hostname }}"
-    restart_policy: "{{ infra_unifi_restart_policy | default(infra_restart_policy) }}"
-    volumes:
-      - "{{ infra_unifi_directories.log.path }}:/config/logs"
-      - "{{ infra_unifi_directories.data.path }}:/config/data"
-    network_mode: host
-    healthcheck:
-      test: ["CMD", "curl", "--fail", "http://localhost:{{ infra_unifi_container_ports.device_comms }}"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
-    env: "{{ infra_unifi_env_vars }}"
-    memory: "{{ infra_unifi_container_memory | default('2g') }}"
-    log_driver: "{{ svc_log_driver }}"
-    log_options: "{{ svc_log_options }}"
+    - name: Write init-mongo.js script to file
+      ansible.builtin.template:
+        src: unifi-init-mongo.js.j2
+        dest: "{{ infra_unifi_db_init_mongo_path }}"
+        owner: "{{ infra_unifi_directory_owner }}"
+        group: "{{ infra_unifi_directory_group }}"
+        mode: "{{ infra_unifi_db_init_mongo_file_mode }}"
+        backup: true
+      register: unifi_db_init_script_file_output
+
+    - name: Write unifi environment variables to file
+      ansible.builtin.template:
+        src: template.env.j2
+        dest: "{{ infra_unifi_env_file_path }}"
+        owner: "{{ infra_unifi_directory_owner }}"
+        group: "{{ infra_unifi_directory_group }}"
+        mode: "{{ infra_unifi_env_file_mode }}"
+        backup: true
+      vars:
+        _env_vars: "{{ infra_unifi_env_vars }}"
+      register: unifi_env_file_output
+
+    - name: Copy compose services file into place
+      ansible.builtin.template:
+        src: compose/unifi.yml.j2
+        dest: "{{ infra_unifi_compose_path }}"
+        owner: "{{ infra_unifi_directory_owner }}"
+        group: "{{ infra_unifi_directory_group }}"
+        mode: "{{ infra_unifi_directory_mode }}"
+        backup: true
+        validate: docker compose -f %s config -q
+      register: compose_file_output
+
+- name: Take down services due to changed compose file
+  community.docker.docker_compose_v2:
+    project_src: "{{ infra_unifi_directory_path }}"
+    files: "{{ compose_file_output.backup_file }}"
+    state: absent
+    remove_orphans: true
+  when: compose_file_output.backup_file is defined
+
+- name: Pull container images
+  community.docker.docker_image:
+    name: "{{ item }}"
+    source: pull
+  with_items:
+    - "{{ infra_unifi_db_container_image }}"
+    - "{{ infra_unifi_container_image }}"
+
+- name: Deploy unifi services
+  community.docker.docker_compose_v2:
+    project_src: "{{ infra_unifi_directory_path }}"
+    state: "{{ 'present' if infra_use_unifi else 'absent' }}"
+    wait: true
+    wait_timeout: "{{ infra_compose_wait_timeout }}"
+  register: deploy_unifi_services_output
 ...

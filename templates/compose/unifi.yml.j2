@@ -1,0 +1,80 @@
+# {{ ansible_managed }}
+services:
+{% if infra_use_unifi_db %}
+  {{ infra_unifi_db_service_name }}:
+    image: {{ infra_unifi_db_container_image }}
+    container_name: {{ infra_unifi_db_container_hostname }}
+    restart: {{ infra_unifi_restart_policy | default(infra_restart_policy) }}
+    logging:
+      driver: {{ svc_log_driver }}
+      options: {{ svc_log_options }}
+    volumes:
+      - {{ infra_unifi_db_volume_name_data }}:/data/db
+      - {{ infra_unifi_db_init_mongo_path }}:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    mem_limit: {{ infra_unifi_db_container_memory }}
+    networks:
+      - default
+{% endif %}
+
+  {{ infra_unifi_service_name }}:
+    image: {{ infra_unifi_container_image }}
+    container_name: {{ infra_unifi_container_hostname }}
+    restart: {{ infra_unifi_restart_policy | default(infra_restart_policy) }}
+    logging:
+      driver: {{ svc_log_driver }}
+      options: {{ svc_log_options }}
+    env_file: {{ infra_unifi_env_file_path }}
+    secrets:
+      - {{ infra_unifi_db_password_name }}
+    volumes:
+      - {{ infra_unifi_volume_name_config }}:/config
+    mem_limit: {{ infra_unifi_container_memory }}
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.{{ infra_unifi_service_name }}-inform-rtr.rule: "Host(\"{{ infra_unifi_fqdn }}\") && Path(\"/inform\") && Method(\"POST\")"
+      traefik.http.routers.{{ infra_unifi_service_name }}-inform-rtr.entrypoints: web
+      traefik.http.services.{{ infra_unifi_service_name }}-inform-svc.loadbalancer.server.port: 8080
+      traefik.http.services.{{ infra_unifi_service_name }}-inform-svc.loadbalancer.server.scheme: http
+      traefik.http.routers.{{ infra_unifi_service_name }}-inform-rtr.service: {{ infra_unifi_service_name }}-inform-svc
+      traefik.http.routers.{{ infra_unifi_service_name }}-rtr.rule: "Host(\"{{ infra_unifi_fqdn }}\")"
+      traefik.http.routers.{{ infra_unifi_service_name }}-rtr.entrypoints: webSecure
+      traefik.http.services.{{ infra_unifi_service_name }}-svc.loadbalancer.server.port: 8443
+      traefik.http.services.{{ infra_unifi_service_name }}-svc.loadbalancer.server.scheme: https
+      traefik.http.routers.{{ infra_unifi_service_name }}-rtr.service: {{ infra_unifi_service_name }}-svc
+      traefik.http.routers.{{ infra_unifi_service_name }}-rtr.middlewares: lan-mwr@file
+    networks:
+      - default
+      - {{ svc_docker_network_name }}
+    ports:
+      - 8443:8443
+      - 3478:3478/udp
+      - 10001:10001/udp
+      - 8080:8080
+      - 1900:1900/udp
+      - 8843:8843
+      - 8880:8880
+      - 6789:6789
+      - 5514:5514/udp
+{% if infra_use_unifi_db %}
+    depends_on:
+      - {{ infra_unifi_db_service_name }}
+{% endif %}
+
+volumes:
+{% if infra_use_unifi_db %}
+  {{ infra_unifi_db_volume_name_data }}:
+    name: {{ infra_unifi_db_volume_name_data }}
+    labels: {{ infra_unifi_volume_labels | combine(infra_docker_volume_shared_labels) }}
+{% endif %}
+  {{ infra_unifi_volume_name_config }}:
+    name: {{ infra_unifi_volume_name_config }}
+    labels: {{ infra_unifi_volume_labels | combine(infra_docker_volume_shared_labels) }}
+
+networks:
+  default:
+  {{ svc_docker_network_name }}:
+    external: 'true'
+
+secrets:
+  {{ infra_unifi_db_password_name }}:
+    file: {{ infra_unifi_db_password_file_path }}

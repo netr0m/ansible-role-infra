@@ -1,0 +1,123 @@
+# {{ ansible_managed }}
+services:
+{% if infra_use_graylog_db %}
+  {{ infra_graylog_db_service_name }}:
+    image: {{ infra_graylog_db_container_image }}
+    container_name: {{ infra_graylog_db_container_hostname }}
+    restart: {{ infra_graylog_restart_policy | default(infra_restart_policy) }}
+    logging:
+      driver: {{ infra_graylog_log_driver }}
+      options: {{ infra_graylog_log_options }}
+    env_file: {{ infra_graylog_db_env_file_path }}
+    secrets:
+      - {{ infra_graylog_db_password_name }}
+    volumes:
+      - {{ infra_graylog_db_volume_name_data }}:/data/db
+    mem_limit: {{ infra_graylog_db_container_memory }}
+    networks:
+      - default
+    group_add:
+      - {{ infra_group_gid }}
+
+{% endif %}
+  {{ infra_graylog_opensearch_service_name }}:
+    image: {{ infra_graylog_opensearch_container_image }}
+    container_name: {{ infra_graylog_opensearch_container_hostname }}
+    restart: {{ infra_graylog_restart_policy | default(infra_restart_policy) }}
+    logging:
+      driver: {{ infra_graylog_log_driver }}
+      options: {{ infra_graylog_log_options }}
+    env_file: {{ infra_graylog_opensearch_env_file_path }}
+    volumes:
+      - {{ infra_graylog_opensearch_volume_name_data }}:/usr/share/opensearch/data
+    mem_limit: {{ infra_graylog_opensearch_container_memory }}
+    networks:
+      - default
+    ulimits:
+      memlock:
+        soft: {{ infra_graylog_opensearch_ulimits_memlock_soft }}
+        hard: {{ infra_graylog_opensearch_ulimits_memlock_hard }}
+      nofile:
+        soft: {{ infra_graylog_opensearch_ulimits_nofile_soft }}
+        hard: {{ infra_graylog_opensearch_ulimits_nofile_hard }}
+
+  {{ infra_graylog_service_name }}:
+    image: {{ infra_graylog_container_image }}
+    container_name: {{ infra_graylog_container_hostname }}
+    restart: {{ infra_graylog_restart_policy | default(infra_restart_policy) }}
+    logging:
+      driver: {{ infra_graylog_log_driver }}
+      options: {{ infra_graylog_log_options }}
+    env_file: {{ infra_graylog_env_file_path }}
+    secrets:
+      - {{ infra_graylog_password_secret_name }}
+      - {{ infra_graylog_password_sha2_name }}
+      - {{ infra_graylog_mongodb_uri_name }}
+    volumes:
+      - {{ infra_graylog_volume_name_data }}:/usr/share/graylog/data/data
+      - {{ infra_graylog_volume_name_journal }}:/usr/share/graylog/data/journal
+      - {{ infra_graylog_volume_name_config }}:/usr/share/graylog/data/config
+    mem_limit: {{ infra_graylog_container_memory }}
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.{{ infra_graylog_service_name }}-rtr.rule: "Host(\"{{ infra_graylog_fqdn }}\")"
+      traefik.http.routers.{{ infra_graylog_service_name }}-rtr.entrypoints: webSecure
+      traefik.http.services.{{ infra_graylog_service_name }}-svc.loadbalancer.server.port: 9000
+      traefik.http.services.{{ infra_graylog_service_name }}-svc.loadbalancer.server.scheme: http
+      traefik.http.routers.{{ infra_graylog_service_name }}-rtr.service: {{ infra_graylog_service_name }}-svc
+      traefik.http.middlewares.{{ infra_graylog_service_name }}-mwr.headers.customrequestheaders.X-Graylog-Server-URL: http://{{ infra_graylog_fqdn }}/
+      traefik.http.routers.{{ infra_graylog_service_name }}-rtr.middlewares: {{ infra_graylog_service_name }}-mwr,lan-mwr@file
+    networks:
+      - default
+      - {{ svc_docker_network_name }}
+    depends_on:
+      - {{ infra_graylog_db_service_name }}
+      - {{ infra_graylog_opensearch_service_name }}
+    ports:
+{% if infra_graylog_syslog_port_514 %}
+      - 514:5140/udp
+{% endif %}
+      - {{ infra_graylog_port_syslog }}:5140/udp
+      - {{ infra_graylog_port_gelf }}:12201/tcp
+      - {{ infra_graylog_port_gelf }}:12201/udp
+    entrypoint: "/usr/bin/tini -- wait-for-it {{ infra_graylog_opensearch_service_name }}:9200 --  /docker-entrypoint.sh"
+    group_add:
+      - {{ infra_group_gid }}
+
+volumes:
+{% if infra_use_graylog_db %}
+  {{ infra_graylog_db_volume_name_data }}:
+    name: {{ infra_graylog_db_volume_name_data }}
+    labels: {{ infra_graylog_volume_labels | combine(infra_docker_volume_shared_labels) }}
+{% endif %}
+  {{ infra_graylog_opensearch_volume_name_data }}:
+    name: {{ infra_graylog_opensearch_volume_name_data }}
+    labels: {{ infra_graylog_volume_labels | combine(infra_docker_volume_shared_labels) }}
+  {{ infra_graylog_volume_name_data }}:
+    name: {{ infra_graylog_volume_name_data }}
+    labels: {{ infra_graylog_volume_labels | combine(infra_docker_volume_shared_labels) }}
+  {{ infra_graylog_volume_name_journal }}:
+    name: {{ infra_graylog_volume_name_journal }}
+    labels: {{ infra_graylog_volume_labels | combine(infra_docker_volume_shared_labels) }}
+  {{ infra_graylog_volume_name_config }}:
+    name: {{ infra_graylog_volume_name_config }}
+    labels: {{ infra_graylog_volume_labels | combine(infra_docker_volume_shared_labels) }}
+
+networks:
+  default:
+    driver: bridge
+    internal: 'true'
+  {{ svc_docker_network_name }}:
+    external: 'true'
+
+secrets:
+{% if infra_use_graylog_db %}
+  {{ infra_graylog_db_password_name }}:
+    file: {{ infra_graylog_db_password_file_path }}
+{% endif %}
+  {{ infra_graylog_password_secret_name }}:
+    file: {{ infra_graylog_password_secret_file_path }}
+  {{ infra_graylog_password_sha2_name }}:
+    file: {{ infra_graylog_password_sha2_file_path }}
+  {{ infra_graylog_mongodb_uri_name }}:
+    file: {{ infra_graylog_mongodb_uri_file_path }}

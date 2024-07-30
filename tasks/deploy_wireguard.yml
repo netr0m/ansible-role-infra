@@ -1,67 +1,91 @@
 ---
-- name: Ensure wireguard log directory is present
+- name: Ensure wireguard directory is present
   ansible.builtin.file:
-    path: "{{ infra_wireguard_directories.log.path }}"
+    path: "{{ infra_wireguard_directory_path }}"
     state: directory
-    owner: "{{ infra_wireguard_directories.log.owner | default(infra_subdirectories.log.owner) | default(infra_directory_owner) }}"
-    group: "{{ infra_wireguard_directories.log.group | default(infra_subdirectories.log.group) | default(infra_directory_group) }}"
-    mode: "{{ infra_wireguard_directories.log.mode | default(infra_subdirectories.log.mode) | default(infra_directory_mode) }}"
+    owner: "{{ infra_wireguard_directory_owner }}"
+    group: "{{ infra_wireguard_directory_group }}"
+    mode: "{{ infra_wireguard_directory_mode }}"
 
-- name: Ensure wireguard config directory is present
-  ansible.builtin.file:
-    path: "{{ infra_wireguard_directories.cfg.path }}"
-    state: directory
-    owner: "{{ infra_wireguard_directories.cfg.owner | default(infra_subdirectories.cfg.owner) | default(infra_directory_owner) }}"
-    group: "{{ infra_wireguard_directories.cfg.group | default(infra_subdirectories.cfg.group) | default(infra_directory_group) }}"
-    mode: "{{ infra_wireguard_directories.cfg.mode | default(infra_subdirectories.cfg.mode) | default(infra_directory_mode) }}"
+- name: Manage service files
+  block:
+    - name: Write session-secret secret to file
+      ansible.builtin.lineinfile:
+        path: "{{ infra_wireguard_ui_session_secret_file_path }}"
+        line: "{{ infra_wireguard_ui_session_secret }}"
+        owner: "{{ infra_wireguard_directory_owner }}"
+        group: "{{ infra_wireguard_directory_group }}"
+        mode: "{{ infra_wireguard_secret_file_mode }}"
+        create: true
+      register: wgui_session_secret_file_output
 
-- name: Deploy wireguard service
-  community.docker.docker_container:
-    image: "{{ infra_wireguard_container_image }}"
-    pull: "{{ infra_force_pull or infra_wireguard_version == 'latest' }}"
-    name: "{{ infra_wireguard_container_hostname }}"
-    hostname: "{{ infra_wireguard_container_hostname }}"
-    restart_policy: "{{ infra_wireguard_restart_policy | default(infra_restart_policy) }}"
-    volumes:
-      - "{{ infra_wireguard_directories.log.path }}:/var/log"
-      - "{{ infra_wireguard_directories.cfg.path }}:/config"
-      - /lib/modules:/lib/modules
-    ports:
-      - "{{ infra_wireguard_container_ports.vpn | default('51820') }}:51820/udp"
-    env: "{{ infra_wireguard_settings | combine(infra_wireguard_env_vars) }}"
-    memory: "{{ infra_wireguard_container_memory | default('1g') }}"
-    log_driver: "{{ svc_log_driver }}"
-    log_options: "{{ svc_log_options }}"
-    capabilities:
-      - NET_ADMIN
-      - SYS_MODULE
-    sysctls:
-      net.ipv4.ip_forward: '1'
-    dns_servers: "{{ infra_wireguard_container_dns_servers }}"
+    - name: Write admin-password secret to file
+      ansible.builtin.lineinfile:
+        path: "{{ infra_wireguard_ui_admin_password_file_path }}"
+        line: "{{ infra_wireguard_ui_password }}"
+        owner: "{{ infra_wireguard_directory_owner }}"
+        group: "{{ infra_wireguard_directory_group }}"
+        mode: "{{ infra_wireguard_secret_file_mode }}"
+        create: true
+      register: wgui_admin_password_file_output
 
-- name: Deploy wireguard-ui service
-  community.docker.docker_container:
-    image: "{{ infra_wireguard_ui_container_image }}"
-    pull: "{{ infra_force_pull or infra_wireguard_ui_version == 'latest' }}"
-    name: "{{ infra_wireguard_ui_container_hostname }}"
-    restart_policy: "{{ infra_wireguard_ui_restart_policy | default(infra_restart_policy) }}"
-    volumes:
-      - "{{ infra_wireguard_ui_directories.data.path }}:/app/db"
-      - "{{ infra_wireguard_directories.cfg.path }}:/etc/wireguard"
-    labels:
-      traefik.enable: 'true'
-      traefik.http.routers.wireguard-ui-rtr.rule: "Host(\"{{ infra_wireguard_ui_container_hostname }}.{{ infra_domain }}\")"
-      traefik.http.routers.wireguard-ui-rtr.entrypoints: webSecure
-      traefik.http.services.wireguard-ui-svc.loadbalancer.server.port: "5000"
-      traefik.http.services.wireguard-ui-svc.loadbalancer.server.scheme: http
-      traefik.http.routers.wireguard-ui-rtr.service: wireguard-ui-svc
-      traefik.http.routers.wireguard-ui-rtr.middlewares: lan-mwr@file
-    env: "{{ infra_wireguard_ui_settings | combine(infra_wireguard_ui_env_vars) }}"
-    memory: "{{ infra_wireguard_ui_container_memory | default('1g') }}"
-    log_driver: "{{ svc_log_driver }}"
-    log_options: "{{ svc_log_options }}"
-    capabilities:
-      - NET_ADMIN
-    network_mode: "container:{{ infra_wireguard_container_hostname }}"
-  when: infra_use_wireguard_ui
+    - name: Write Wireguard environment variables to file
+      ansible.builtin.template:
+        src: template.env.j2
+        dest: "{{ infra_wireguard_env_file_path }}"
+        owner: "{{ infra_wireguard_directory_owner }}"
+        group: "{{ infra_wireguard_directory_group }}"
+        mode: "{{ infra_wireguard_env_file_mode }}"
+        backup: true
+      vars:
+        _env_vars: "{{ infra_wireguard_settings | combine(infra_wireguard_env_vars) }}"
+      register: wg_env_file_output
+
+    - name: Write Wireguard-UI environment variables to file
+      ansible.builtin.template:
+        src: template.env.j2
+        dest: "{{ infra_wireguard_ui_env_file_path }}"
+        owner: "{{ infra_wireguard_directory_owner }}"
+        group: "{{ infra_wireguard_directory_group }}"
+        mode: "{{ infra_wireguard_env_file_mode }}"
+        backup: true
+      vars:
+        _env_vars: "{{ infra_wireguard_ui_settings | combine(infra_wireguard_ui_env_vars) }}"
+      register: wgui_env_file_output
+
+    - name: Copy compose services file into place
+      ansible.builtin.template:
+        src: compose/wireguard.yml.j2
+        dest: "{{ infra_wireguard_compose_path }}"
+        owner: "{{ infra_wireguard_directory_owner }}"
+        group: "{{ infra_wireguard_directory_group }}"
+        mode: "{{ infra_wireguard_directory_mode }}"
+        backup: true
+        validate: docker compose -f %s config -q
+      register: compose_file_output
+
+- name: Take down services due to changed compose file
+  community.docker.docker_compose_v2:
+    project_src: "{{ infra_wireguard_directory_path }}"
+    files: "{{ compose_file_output.backup_file }}"
+    state: absent
+    remove_orphans: true
+  when: compose_file_output.backup_file is defined
+
+- name: Pull container images
+  community.docker.docker_image:
+    name: "{{ item }}"
+    source: pull
+  with_items:
+    - "{{ infra_wireguard_container_image }}"
+    - "{{ infra_wireguard_ui_container_image }}"
+
+- name: Deploy Wireguard services
+  community.docker.docker_compose_v2:
+    project_src: "{{ infra_wireguard_directory_path }}"
+    state: "{{ 'present' if infra_use_wireguard else 'absent' }}"
+    wait: true
+    wait_timeout: "{{ infra_compose_wait_timeout }}"
+  register: deploy_wireguard_services_output
+
 ...

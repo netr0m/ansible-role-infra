@@ -1,0 +1,45 @@
+---
+# Wireguard / Wireguard-UI shared variables
+_wg_endpoint: "{{ infra_wireguard_container_hostname }}.{{ infra_domain_ext | default(infra_domain) }}"
+_wg_port_ext: "{{ infra_wireguard_container_port_vpn | string }}"
+# Split infra_wireguard_internal_subnet (e.g. 10.13.13.0) to a list
+_wg_subnet_split: "{{ infra_wireguard_internal_subnet | split('.') }}"
+# Use '1' as the 4th block (similar to linuxserver.io's wireguard image internal logic), i.e. '10.13.13.0' => '10.13.13.1'
+_wg_interface: "{{ _wg_subnet_split[:3] + ['1'] }}"
+# Convert to string, e.g. '10.13.13.1'
+wg_interface_addr: "{{ _wg_interface | join('.') }}"
+# Convert to CIDR range, i.e. '10.13.13.1' => '10.13.13.1/24'. Needed due to mismatching default in wireguard-ui
+wg_interface_cidr: "{{ wg_interface_addr }}/24"
+
+# Environment variables for the Wireguard container.
+infra_wireguard_env_vars:
+  PUID: "{{ infra_user_uid | string }}"
+  PGID: "{{ infra_group_gid | string }}"
+  TZ: "{{ infra_tz | default('Etc/UTC') | string }}"
+  SERVERURL: "{{ _wg_endpoint }}"
+  SERVERPORT: "{{ _wg_port_ext }}"
+  INTERNAL_SUBNET: "{{ infra_wireguard_internal_subnet }}"
+  ALLOWEDIPS: "{{ infra_wireguard_allowed_ips }}"
+  LOG_CONFS: 'false'
+  PEERS: "{{ infra_wireguard_peers | join(',') }}"
+  PEERDNS: auto
+  PERSISTENTKEEPALIVE_PEERS: all
+
+# Environment variables for the Wireguard-ui container.
+infra_wireguard_ui_env_vars:
+  PUID: "{{ infra_user_uid | string }}"
+  PGID: "{{ infra_group_gid | string }}"
+  TZ: "{{ infra_tz | default('Etc/UTC') | string }}"
+  WGUI_ENDPOINT_ADDRESS: "{{ _wg_endpoint }}"
+  WGUI_SERVER_LISTEN_PORT: "{{ _wg_port_ext }}"
+  WGUI_SERVER_INTERFACE_ADDRESSES: "{{ wg_interface_cidr }}"
+  WGUI_DEFAULT_CLIENT_ALLOWED_IPS: "{{ infra_wireguard_allowed_ips }}"
+  SUBNET_RANGES: "Internal:{{ infra_wireguard_internal_subnet }}"
+  WGUI_DNS: "{{ ([wg_interface_addr] + infra_wireguard_container_dns_servers) | join(',') }}"
+  WGUI_USERNAME: "{{ infra_wireguard_ui_username }}"
+  WGUI_PASSWORD: "{{ infra_wireguard_ui_password }}"
+  WGUI_MANAGE_START: "{{ infra_wireguard_ui_manage_wireguard }}"
+  WGUI_MANAGE_RESTART: "{{ infra_wireguard_ui_manage_wireguard }}"
+  SESSION_SECRET_FILE: "/run/secrets/{{ infra_wireguard_ui_session_secret_name }}"
+  WGUI_PASSWORD_FILE: "/run/secrets/{{ infra_wireguard_ui_password_name }}"
+...

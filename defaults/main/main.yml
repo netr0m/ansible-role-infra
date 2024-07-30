@@ -37,6 +37,8 @@ infra_compose_wait_timeout: 60
 infra_force_pull: false
 # Configure Graylog
 infra_use_graylog: true
+# Configure MongoDB for the Graylog server
+infra_use_graylog_db: true
 # Configure PiHole
 infra_use_pihole: true
 # Configure unbound as a recursive DNS resolver for pihole
@@ -57,64 +59,4 @@ infra_use_authentik: true
 infra_use_godns: false
 # Configure uptime-kuma
 infra_use_uptimekuma: true
-
-### Graylog ###
-# Directories for Graylog
-infra_graylog_directories:
-  log:
-    path: "{{ infra_subdirectories.log.path }}/graylog"
-  data:
-    path: "{{ infra_subdirectories.data.path }}/graylog"
-
-# graylog container hostname
-infra_graylog_container_hostname: graylog
-# graylog version
-infra_graylog_version: "5.1.7"
-# Graylog container image
-infra_graylog_server_container_image: "graylog/graylog:{{ infra_graylog_version }}"
-# Graylog server container memory
-infra_graylog_server_container_memory: 4g
-
-# graylog mongodb container hostname
-infra_graylog_db_container_hostname: "{{ infra_graylog_container_hostname }}-db"
-# graylog mongodb version
-infra_graylog_db_version: "5.0"
-# graylog mongodb container image
-infra_graylog_db_container_image: "mongo:{{ infra_graylog_db_version }}"
-# graylog mongodb container memory
-infra_graylog_db_container_memory: 2g
-
-# graylog opensearch container hostname
-infra_graylog_opensearch_container_hostname: "{{ infra_graylog_container_hostname }}-opensearch"
-# graylog opensearch version
-infra_graylog_opensearch_version: "2.4.0"
-# graylog opensearch container image
-infra_graylog_opensearch_container_image: "opensearchproject/opensearch:{{ infra_graylog_opensearch_version }}"
-# graylog opensearch container memory
-infra_graylog_opensearch_container_memory: 6g
-
-# Ports for the Graylog server
-infra_graylog_server_container_ports:
-  beats: 5044
-  syslog: 5140
-  raw: 5555
-  http: 9000
-  gelf: 12201
-  forwarder_data: 13301
-  forwarder_cfg: 13302
-
-# Log driver for the graylog containers
-infra_graylog_log_driver: local
-infra_graylog_log_options:
-  max-size: 20m
-  max-file: '5'
-  compress: 'true'
-
-# Secret used to 'pepper' the passwords - make sure to change this BEFORE deploying.
-infra_graylog_password_secret: "vSQBO0P8JLC//sWG0V1JkvRycKkDXZ6WQN4eOrrALy/JYc8nWsvxMSg29Eel1fscVUfbmpxlNmJEzYf6I3pcK1iXXpdzAhoSiV18I89N7+0QzpcI1ygANBwmRYWLd4Hp"
-# Hash of the password used for the root user [run `echo -n yourpassword | shasum -a 256`]
-infra_graylog_password_sha2: "f5dcec9289c446e7099d483f2ed447c990b3868a2fab4ff4a39436c63589c70e"
-
-# Settings for the Graylog config. See https://github.com/Graylog2/graylog-docker#configuration
-infra_graylog_settings: {}
 ...

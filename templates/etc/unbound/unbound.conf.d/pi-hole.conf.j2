@@ -7,8 +7,8 @@ server:
 {% for _subnet in infra_unbound_access_control_allowed_subnets %}
     access-control: {{ _subnet }} allow
 {% endfor %}
-{% if _svc_network_subnet is defined %}
-    access-control: {{ _svc_network_subnet }} allow
+{% if infra_unbound_docker_network_subnet is defined %}
+    access-control: {{ infra_unbound_docker_network_subnet }} allow
 {% endif %}
 {% endif %}
     port: {{ infra_unbound_listening_port }}

@@ -1,0 +1,13 @@
+---
+# Environment variables for the Pihole container
+infra_pihole_env_vars:
+  PUID: "{{ infra_user_uid | string }}"
+  PGID: "{{ infra_group_gid | string }}"
+  TZ: "{{ infra_tz | default('Etc/UTC') | string }}"
+  WEBPASSWORD_FILE: "/run/secrets/{{ infra_pihole_password_name }}"
+  VIRTUAL_HOST: "{{ infra_pihole_fqdn }}"
+  DNSMASQ_LISTENING: "{{ infra_pihole_dnsmasq_listening }}"
+
+# DNS environment variables placeholder for the Pihole container
+infra_pihole_env_vars_dns: {}
+...

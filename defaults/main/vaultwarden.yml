@@ -1,0 +1,56 @@
+---
+### Vaultwarden ###
+# Version of the vaultwarden Docker image to use (see 'infra_vaultwarden_container_image')
+infra_vaultwarden_version: 1.31.0
+
+## Vaultwarden settings. See https://github.com/dani-garcia/vaultwarden/wiki
+infra_vaultwarden_settings:
+  EXTENDED_LOGGING: 'true'
+  LOG_LEVEL: INFO
+  SIGNUPS_ALLOWED: 'false'
+  SIGNUPS_DOMAINS_WHITELIST: ''
+  INVITATIONS_ALLOWED: 'false'
+  DISABLE_ADMIN_TOKEN: 'false'
+  PASSWORD_ITERATIONS: '350000'
+  PASSWORD_HINTS_ALLOWED: 'false'
+  SHOW_PASSWORD_HINT: 'false'
+
+## Directories
+# Directory path
+infra_vaultwarden_directory_path: "{{ infra_directory_path }}/vaultwarden"
+# Directory user ownership
+infra_vaultwarden_directory_owner: "{{ infra_directory_owner }}"
+# Directory group ownership
+infra_vaultwarden_directory_group: "{{ infra_directory_group }}"
+# Directory mode
+infra_vaultwarden_directory_mode: "{{ infra_directory_mode }}"
+
+## File paths
+# vaultwarden compose file path
+infra_vaultwarden_compose_path: "{{ infra_vaultwarden_directory_path }}/compose.yml"
+# vaultwarden env file path
+infra_vaultwarden_env_file_path: "{{ infra_vaultwarden_directory_path }}/vaultwarden.env"
+# Permissions (mode) for the env files (as an octal)
+infra_vaultwarden_env_file_mode: "0600"
+
+## Docker service configs
+# Name of the vaultwarden Docker service
+infra_vaultwarden_service_name: vaultwarden
+# Container image to use for the vaultwarden service
+infra_vaultwarden_container_image: "ghcr.io/dani-garcia/vaultwarden:{{ infra_vaultwarden_version }}"
+# Hostname of the vaultwarden Docker container
+infra_vaultwarden_container_hostname: "{{ infra_vaultwarden_service_name }}"
+# FQDN of the vaultwarden Docker container
+infra_vaultwarden_fqdn: "{{ infra_vaultwarden_container_hostname }}.{{ infra_domain }}"
+# Restart policy for the vaultwarden Docker container
+infra_vaultwarden_restart_policy: "{{ infra_restart_policy }}"
+# Memory limit for the vaultwarden container
+infra_vaultwarden_container_memory: 1g
+
+## Docker volume configs
+# Name of the data Docker volume
+infra_vaultwarden_volume_name_data: "{{ infra_vaultwarden_service_name }}_data"
+# Labels to attach to the Docker volumes for this service
+infra_vaultwarden_volume_labels:
+  netr0m.infra.service: vaultwarden
+...

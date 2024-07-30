@@ -1,38 +1,58 @@
 ---
-- name: Ensure vaultwarden log directory is present
+- name: Ensure vaultwarden directory is present
   ansible.builtin.file:
-    path: "{{ infra_vaultwarden_directories.log.path }}"
+    path: "{{ infra_vaultwarden_directory_path }}"
     state: directory
-    owner: "{{ infra_vaultwarden_directories.log.owner | default(infra_subdirectories.log.owner) | default(infra_directory_owner) }}"
-    group: "{{ infra_vaultwarden_directories.log.group | default(infra_subdirectories.log.group) | default(infra_directory_group) }}"
-    mode: "{{ infra_vaultwarden_directories.log.mode | default(infra_subdirectories.log.mode) | default(infra_directory_mode) }}"
+    owner: "{{ infra_vaultwarden_directory_owner }}"
+    group: "{{ infra_vaultwarden_directory_group }}"
+    mode: "{{ infra_vaultwarden_directory_mode }}"
 
-- name: Ensure vaultwarden data directory is present
-  ansible.builtin.file:
-    path: "{{ infra_vaultwarden_directories.data.path }}"
-    state: directory
-    owner: "{{ infra_vaultwarden_directories.data.owner | default(infra_subdirectories.data.owner) | default(infra_directory_owner) }}"
-    group: "{{ infra_vaultwarden_directories.data.group | default(infra_subdirectories.data.group) | default(infra_directory_group) }}"
-    mode: "{{ infra_vaultwarden_directories.data.mode | default(infra_subdirectories.data.mode) | default(infra_directory_mode) }}"
+- name: Manage service files
+  block:
+    - name: Write vaultwarden environment variables to file
+      ansible.builtin.template:
+        src: template.env.j2
+        dest: "{{ infra_vaultwarden_env_file_path }}"
+        owner: "{{ infra_vaultwarden_directory_owner }}"
+        group: "{{ infra_vaultwarden_directory_group }}"
+        mode: "{{ infra_vaultwarden_env_file_mode }}"
+        backup: true
+      vars:
+        _env_vars: "{{ infra_vaultwarden_settings | combine(infra_vaultwarden_env_vars) }}"
+      register: vaultwarden_env_file_output
 
-- name: Deploy vaultwarden service
-  community.docker.docker_container:
-    image: "{{ infra_vaultwarden_container_image }}"
-    pull: "{{ infra_force_pull or infra_vaultwarden_version == 'latest' }}"
-    name: "{{ infra_vaultwarden_container_hostname }}"
-    hostname: "{{ infra_vaultwarden_container_hostname }}"
-    restart_policy: "{{ infra_vaultwarden_restart_policy | default(infra_restart_policy) }}"
-    volumes:
-      - "{{ infra_vaultwarden_directories.log.path }}:/data/logs"
-      - "{{ infra_vaultwarden_directories.data.path }}:/data"
-    labels:
-      traefik.enable: 'true'
-      traefik.http.routers.vaultwarden-web-rtr.rule: "Host(\"{{ infra_vaultwarden_container_hostname }}.{{ infra_domain }}\")"
-      traefik.http.routers.vaultwarden-web-rtr.entrypoints: webSecure
-      traefik.http.services.vaultwarden-web-svc.loadbalancer.server.port: "80"
-      traefik.http.services.vaultwarden-web-svc.loadbalancer.server.scheme: http
-    env: "{{ infra_vaultwarden_settings | combine(infra_vaultwarden_env_vars) }}"
-    memory: "{{ infra_vaultwarden_container_memory | default('1g') }}"
-    log_driver: "{{ svc_log_driver }}"
-    log_options: "{{ svc_log_options }}"
+    - name: Copy compose services file into place
+      ansible.builtin.template:
+        src: compose/vaultwarden.yml.j2
+        dest: "{{ infra_vaultwarden_compose_path }}"
+        owner: "{{ infra_vaultwarden_directory_owner }}"
+        group: "{{ infra_vaultwarden_directory_group }}"
+        mode: "{{ infra_vaultwarden_directory_mode }}"
+        backup: true
+        validate: docker compose -f %s config -q
+      register: compose_file_output
+
+- name: Take down services due to changed compose file
+  community.docker.docker_compose_v2:
+    project_src: "{{ infra_vaultwarden_directory_path }}"
+    files: "{{ compose_file_output.backup_file }}"
+    state: absent
+    remove_orphans: true
+  when: compose_file_output.backup_file is defined
+
+- name: Pull container images
+  community.docker.docker_image:
+    name: "{{ item }}"
+    source: pull
+  with_items:
+    - "{{ infra_vaultwarden_container_image }}"
+
+- name: Deploy vaultwarden services
+  community.docker.docker_compose_v2:
+    project_src: "{{ infra_vaultwarden_directory_path }}"
+    state: "{{ 'present' if infra_use_vaultwarden else 'absent' }}"
+    wait: true
+    wait_timeout: "{{ infra_compose_wait_timeout }}"
+  register: deploy_vaultwarden_services_output
+
 ...

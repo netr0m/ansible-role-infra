@@ -1,0 +1,32 @@
+# {{ ansible_managed }}
+services:
+  {{ infra_vaultwarden_service_name }}:
+    image: {{ infra_vaultwarden_container_image }}
+    container_name: {{ infra_vaultwarden_container_hostname }}
+    restart: {{ infra_vaultwarden_restart_policy | default(infra_restart_policy) }}
+    logging:
+      driver: {{ svc_log_driver }}
+      options: {{ svc_log_options }}
+    env_file: {{ infra_vaultwarden_env_file_path }}
+    volumes:
+      - {{ infra_vaultwarden_volume_name_data }}:/data
+    mem_limit: {{ infra_vaultwarden_container_memory }}
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.{{ infra_vaultwarden_service_name }}-rtr.rule: "Host(\"{{ infra_vaultwarden_fqdn }}\")"
+      traefik.http.routers.{{ infra_vaultwarden_service_name }}-rtr.entrypoints: webSecure
+      traefik.http.services.{{ infra_vaultwarden_service_name }}-svc.loadbalancer.server.port: 80
+      traefik.http.services.{{ infra_vaultwarden_service_name }}-svc.loadbalancer.server.scheme: http
+      traefik.http.routers.{{ infra_vaultwarden_service_name }}-rtr.service: {{ infra_vaultwarden_service_name }}-svc
+      traefik.http.routers.{{ infra_vaultwarden_service_name }}-rtr.middlewares: lan-mwr@file
+    networks:
+      {{ svc_docker_network_name }}:
+
+volumes:
+  {{ infra_vaultwarden_volume_name_data }}:
+    name: {{ infra_vaultwarden_volume_name_data }}
+    labels: {{ infra_vaultwarden_volume_labels | combine(infra_docker_volume_shared_labels) }}
+
+networks:
+  {{ svc_docker_network_name }}:
+    external: 'true'

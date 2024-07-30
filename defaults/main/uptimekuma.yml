@@ -1,0 +1,47 @@
+---
+### uptime-kuma ###
+# Version of the uptime-kuma Docker image to use (see 'infra_uptimekuma_container_image')
+infra_uptimekuma_version: 1.23.11-alpine
+
+## uptime-kuma settings. See https://github.com/louislam/uptime-kuma/wiki/Environment-Variables
+infra_uptimekuma_settings: {}
+
+## Directories
+# Directory path
+infra_uptimekuma_directory_path: "{{ infra_directory_path }}/uptimekuma"
+# Directory user ownership
+infra_uptimekuma_directory_owner: "{{ infra_directory_owner }}"
+# Directory group ownership
+infra_uptimekuma_directory_group: "{{ infra_directory_group }}"
+# Directory mode
+infra_uptimekuma_directory_mode: "{{ infra_directory_mode }}"
+
+## File paths
+# uptime-kuma compose file path
+infra_uptimekuma_compose_path: "{{ infra_uptimekuma_directory_path }}/compose.yml"
+# uptime-kuma env file path
+infra_uptimekuma_env_file_path: "{{ infra_uptimekuma_directory_path }}/uptimekuma.env"
+# Permissions (mode) for the env files (as an octal)
+infra_uptimekuma_env_file_mode: "0600"
+
+## Docker service configs
+# Name of the uptime-kuma Docker service
+infra_uptimekuma_service_name: uptime
+# Container image to use for the uptime-kuma service
+infra_uptimekuma_container_image: "louislam/uptime-kuma:{{ infra_uptimekuma_version }}"
+# Hostname of the uptime-kuma Docker container
+infra_uptimekuma_container_hostname: "{{ infra_uptimekuma_service_name }}"
+# FQDN of the uptime-kuma Docker container
+infra_uptimekuma_fqdn: "{{ infra_uptimekuma_container_hostname }}.{{ infra_domain }}"
+# Restart policy for the uptime-kuma Docker containers
+infra_uptimekuma_restart_policy: "{{ infra_restart_policy }}"
+# Memory limit for the uptime-kuma container
+infra_uptimekuma_container_memory: 1g
+
+## Docker volume configs
+# Name of the redis data Docker volume
+infra_uptimekuma_volume_name_data: "{{ infra_uptimekuma_service_name }}_data"
+# Labels to attach to the Docker volumes for this service
+infra_uptimekuma_volume_labels:
+  netr0m.infra.service: uptime-kuma
+...

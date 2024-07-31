@@ -30,7 +30,7 @@ infra_directory_mode: 740
 # Default restart policy
 infra_restart_policy: always
 # Max. wait time for compose deployment
-infra_compose_wait_timeout: 60
+infra_compose_wait_timeout: 120
 
 ### Services ###
 # Whether to force pull container images

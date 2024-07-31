@@ -38,11 +38,11 @@ infra_force_pull: false
 # Configure Graylog
 infra_use_graylog: true
 # Configure MongoDB for the Graylog server
-infra_use_graylog_db: true
+infra_use_graylog_db: "{{ infra_use_graylog }}"
 # Configure PiHole
 infra_use_pihole: true
 # Configure unbound as a recursive DNS resolver for pihole
-infra_use_unbound: true
+infra_use_unbound: "{{ infra_use_pihole }}"
 # Configure Unifi Controller
 infra_use_unifi: false
 # Configure MongoDB for the Unifi Controller
@@ -50,7 +50,7 @@ infra_use_unifi_db: "{{ infra_use_unifi }}"
 # Configure wireguard
 infra_use_wireguard: false
 # Configure wireguard-ui
-infra_use_wireguard_ui: false
+infra_use_wireguard_ui: "{{ infra_use_wireguard }}"
 # Configure Vaultwarden
 infra_use_vaultwarden: true
 # Configure Authentik

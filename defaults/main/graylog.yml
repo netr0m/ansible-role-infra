@@ -1,0 +1,148 @@
+---
+### graylog ###
+# Version of the graylog Docker image to use (see 'infra_graylog_container_image')
+infra_graylog_version: 5.1.7
+# Version of the MongoDB Docker image to use
+infra_graylog_db_version: 5.0
+# Version of the opensearch Docker image to use
+infra_graylog_opensearch_version: 2.4.0
+
+## graylog secrets
+# Password for the graylog MongoDB user (infra_graylog_db_user)
+infra_graylog_db_password: ~
+# Secret used to 'pepper' the passwords - make sure to change this BEFORE deploying.
+infra_graylog_password_secret: ~
+# Hash of the password used for the root user [run `echo -n yourpassword | shasum -a 256`]
+infra_graylog_password_sha2: ~
+# Password for the graylog Opensearch admin user [run `tr -dc A-Z-a-z-0-9_@#%^-_=+ < /dev/urandom  | head -c${1:-32}`]
+infra_graylog_opensearch_admin_password: ~
+
+## graylog MongoDB settings
+# Username for the graylog MongoDB user
+infra_graylog_db_user: graylog
+# Host where the graylog MongoDB can be reached
+infra_graylog_db_host: "{{ infra_graylog_db_service_name }}"
+# Port where the graylog MongoDB can be reached
+infra_graylog_db_port: 27017
+# Name of the graylog MongoDB database
+infra_graylog_db_name: graylog
+# Whether to enable TLS for the MongoDB connection ('true'|'false')
+infra_graylog_db_tls: 'false'
+# Specify the MongoDB authSource
+infra_graylog_db_auth_source: admin
+
+## graylog settings. See https://github.com/Graylog2/graylog-docker#configuration
+infra_graylog_settings: {}
+# Whether to expose syslog on port 514 in addition to the ones defined below
+infra_graylog_syslog_port_514: true
+
+## Directories
+# Directory path
+infra_graylog_directory_path: "{{ infra_directory_path }}/graylog"
+# Directory user ownership
+infra_graylog_directory_owner: "{{ infra_directory_owner }}"
+# Directory group ownership
+infra_graylog_directory_group: "{{ infra_directory_group }}"
+# Directory mode
+infra_graylog_directory_mode: "{{ infra_directory_mode }}"
+
+## File paths
+# graylog compose file path
+infra_graylog_compose_path: "{{ infra_graylog_directory_path }}/compose.yml"
+# graylog env file path
+infra_graylog_env_file_path: "{{ infra_graylog_directory_path }}/graylog.env"
+# graylog MongoDB env file path
+infra_graylog_db_env_file_path: "{{ infra_graylog_directory_path }}/graylog-db.env"
+# graylog opensearch env file path
+infra_graylog_opensearch_env_file_path: "{{ infra_graylog_directory_path }}/graylog-opensearch.env"
+# graylog db password file path
+infra_graylog_db_password_file_path: "{{ infra_graylog_directory_path }}/.db-password"
+# graylog password secret (pepper) file path
+infra_graylog_password_secret_file_path: "{{ infra_graylog_directory_path }}/.password-secret"
+# graylog password hash (sha2) file path
+infra_graylog_password_sha2_file_path: "{{ infra_graylog_directory_path }}/.password-sha2"
+# graylog password hash (sha2) file path
+infra_graylog_mongodb_uri_file_path: "{{ infra_graylog_directory_path }}/.mongodb-uri"
+# Permissions (mode) for the env files (as an octal)
+infra_graylog_env_file_mode: "0600"
+# Permissions (mode) for the secrets files (as an octal)
+infra_graylog_secret_file_mode: "0660"
+# Permissions (group) for the MongoDB password file (group ID for the mongodb group in the container)
+infra_graylog_db_password_secret_file_group: 999
+
+## Docker service configs
+# Name of the graylog Docker service
+infra_graylog_service_name: graylog
+# Name of the graylog MongoDB Docker service
+infra_graylog_db_service_name: "{{ infra_graylog_service_name }}-db"
+# Name of the graylog opensearch Docker service
+infra_graylog_opensearch_service_name: "{{ infra_graylog_service_name }}-opensearch"
+# Container image to use for the graylog service
+infra_graylog_container_image: "docker.io/graylog/graylog:{{ infra_graylog_version }}"
+# Container image to use for the graylog MongoDB service
+infra_graylog_db_container_image: "docker.io/mongo:{{ infra_graylog_db_version }}"
+# Container image to use for the graylog opensearch service
+infra_graylog_opensearch_container_image: "docker.io/opensearchproject/opensearch:{{ infra_graylog_opensearch_version }}"
+# Hostname of the graylog Docker container
+infra_graylog_container_hostname: "{{ infra_graylog_service_name }}"
+# Hostname of the graylog MongoDB Docker container
+infra_graylog_db_container_hostname: "{{ infra_graylog_db_service_name }}"
+# Hostname of the graylog opensearch Docker container
+infra_graylog_opensearch_container_hostname: "{{ infra_graylog_opensearch_service_name }}"
+# FQDN of the graylog Docker container
+infra_graylog_fqdn: "{{ infra_graylog_container_hostname }}.{{ infra_domain }}"
+# Restart policy for the graylog Docker containers
+infra_graylog_restart_policy: "{{ infra_restart_policy }}"
+# Memory limit for the graylog container
+infra_graylog_container_memory: 4g
+# Memory limit for the graylog MongoDB container
+infra_graylog_db_container_memory: 2g
+# Memory limit for the graylog opensearch container
+infra_graylog_opensearch_container_memory: 6g
+# Beats port for the Graylog server
+infra_graylog_port_beats: 5044
+# SYSLOG port for the Graylog server
+infra_graylog_port_syslog: 5140
+# RAW port for the Graylog server
+infra_graylog_port_raw: 5555
+# HTTP port for the Graylog server
+infra_graylog_port_http: 9000
+# GELF port for the Graylog server
+infra_graylog_port_gelf: 12201
+# Forwarder data port for the Graylog server
+infra_graylog_port_forwarder_data: 13301
+# Forwarder config port for the Graylog server
+infra_graylog_port_forwarder_cfg: 13302
+# Log driver for the graylog containers
+infra_graylog_log_driver: local
+# Log driver options for the graylog containers
+infra_graylog_log_options:
+  max-size: 20m
+  max-file: '5'
+  compress: 'true'
+
+## Docker volume configs
+# Name of the graylog config Docker volume
+infra_graylog_volume_name_config: "{{ infra_graylog_service_name }}_config"
+# Name of the graylog data Docker volume
+infra_graylog_volume_name_data: "{{ infra_graylog_service_name }}_data"
+# Name of the graylog journal Docker volume
+infra_graylog_volume_name_journal: "{{ infra_graylog_service_name }}_journal"
+# Name of the data Docker volume (MongoDB)
+infra_graylog_db_volume_name_data: "{{ infra_graylog_db_service_name }}_data"
+# Name of the data Docker volume (opensearch)
+infra_graylog_opensearch_volume_name_data: "{{ infra_graylog_opensearch_service_name }}_data"
+# Labels to attach to the Docker volumes for this service
+infra_graylog_volume_labels:
+  netr0m.infra.service: graylog
+
+## Docker secret configs
+# Name of the MongoDB password secret
+infra_graylog_db_password_name: graylog_db_password
+# Name of the graylog password secret (pepper) secret
+infra_graylog_password_secret_name: graylog_password_secret
+# Name of the graylog password hash (SHA2) secret
+infra_graylog_password_sha2_name: graylog_password_sha2
+# Name of the graylog mongodb URI secret
+infra_graylog_mongodb_uri_name: graylog_mongodb_uri
+...

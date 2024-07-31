@@ -1,0 +1,42 @@
+---
+# MongoDB URI for the Graylog container
+infra_graylog_mongodb_uri: "mongodb://{{ infra_graylog_db_user }}:{{ infra_graylog_db_password | urlencode }}@{{ infra_graylog_db_host }}:{{ infra_graylog_db_port }}/{{ infra_graylog_db_name }}?tls={{ infra_graylog_db_tls }}&authSource={{ infra_graylog_db_auth_source }}"
+
+# Shared environment variables for the Graylog containers
+infra_graylog_env_vars_shared:
+  PUID: "{{ infra_user_uid | string }}"
+  PGID: "{{ infra_group_gid | string }}"
+
+# Environment variables for Graylog
+infra_graylog_env_vars:
+  GRAYLOG_NODE_ID_FILE: "/usr/share/graylog/data/config/node-id"
+  GRAYLOG_PASSWORD_SECRET__FILE: "/run/secrets/{{ infra_graylog_password_secret_name }}"
+  GRAYLOG_ROOT_PASSWORD_SHA2__FILE: "/run/secrets/{{ infra_graylog_password_sha2_name }}"
+  GRAYLOG_HTTP_EXTERNAL_URI: "https://{{ infra_graylog_container_hostname }}.{{ infra_domain }}/"
+  GRAYLOG_ELASTICSEARCH_HOSTS: "http://{{ infra_graylog_opensearch_service_name }}:9200"
+  GRAYLOG_MONGODB_URI__FILE: "/run/secrets/{{ infra_graylog_mongodb_uri_name }}"
+
+# Environment variables for the Graylog MongoDB container
+infra_graylog_db_env_vars:
+  MONGO_INITDB_ROOT_USERNAME: "{{ infra_graylog_db_user }}"
+  MONGO_INITDB_ROOT_PASSWORD_FILE: "/run/secrets/{{ infra_graylog_db_password_name }}"
+
+# Environment variables for the Graylog Opensearch container
+infra_graylog_opensearch_env_vars:
+  OPENSEARCH_JAVA_OPTS: "-Xms1g -Xmx{{ infra_graylog_opensearch_container_memory }}"
+  bootstrap.memory_lock: 'true'
+  discovery.type: single-node
+  action.auto_create_index: 'false'
+  plugins.security.ssl.http.enabled: 'false'
+  plugins.security.disabled: 'true'
+  OPENSEARCH_INITIAL_ADMIN_PASSWORD: "{{ infra_graylog_opensearch_admin_password }}"
+
+# memlock ulimit (soft) for the Graylog Opensearch container
+infra_graylog_opensearch_ulimits_memlock_soft: -1
+# memlock ulimit (hard) for the Graylog Opensearch container
+infra_graylog_opensearch_ulimits_memlock_hard: -1
+# nofile ulimit (soft) for the Graylog Opensearch container
+infra_graylog_opensearch_ulimits_nofile_soft: 65536
+# nofile ulimit (hard) for the Graylog Opensearch container
+infra_graylog_opensearch_ulimits_nofile_hard: 65536
+...

@@ -33,8 +33,6 @@ infra_restart_policy: always
 infra_compose_wait_timeout: 120
 
 ### Services ###
-# Whether to force pull container images
-infra_force_pull: false
 # Configure Graylog
 infra_use_graylog: true
 # Configure MongoDB for the Graylog server

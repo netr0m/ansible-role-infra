@@ -13,7 +13,7 @@ services:
       - /lib/modules:/lib/modules
     mem_limit: {{ infra_wireguard_container_memory }}
     ports:
-      - {{ infra_wireguard_container_port_vpn }}:51820/udp
+      - {{ infra_wireguard_port_vpn }}:51820/udp
     cap_add:
       - NET_ADMIN
       - SYS_MODULE

@@ -65,9 +65,9 @@ services:
 {% endif %}
       - {{ svc_docker_network_name }}
     ports:
-      - {{ infra_pihole_container_port_dns }}:53/tcp
-      - {{ infra_pihole_container_port_dns }}:53/udp
-      - {{ infra_pihole_container_port_web }}:80/tcp
+      - {{ infra_pihole_port_dns }}:53/tcp
+      - {{ infra_pihole_port_dns }}:53/udp
+      - {{ infra_pihole_port_web }}:80/tcp
     extra_hosts: {{ infra_pihole_extra_hosts }}
 {% if infra_use_unbound %}
     depends_on:

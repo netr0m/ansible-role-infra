@@ -4,6 +4,7 @@ services:
   {{ infra_unbound_service_name }}:
     image: {{ infra_unbound_container_image }}
     container_name: {{ infra_unbound_container_hostname }}
+    hostname: {{ infra_unbound_container_hostname }}
     restart: {{ infra_unbound_restart_policy | default(infra_restart_policy) }}
     logging:
       driver: {{ svc_log_driver }}
@@ -23,6 +24,7 @@ services:
   {{ infra_pihole_service_name }}:
     image: {{ infra_pihole_container_image }}
     container_name: {{ infra_pihole_container_hostname }}
+    hostname: {{ infra_pihole_container_hostname }}
     restart: {{ infra_pihole_restart_policy | default(infra_restart_policy) }}
     logging:
       driver: {{ svc_log_driver }}
@@ -69,6 +71,8 @@ services:
       - {{ infra_pihole_port_dns }}:53/udp
       - {{ infra_pihole_port_web }}:80/tcp
     extra_hosts: {{ infra_pihole_extra_hosts }}
+    group_add:
+      - {{ infra_group_gid }}
 {% if infra_use_unbound %}
     depends_on:
       - {{ infra_unbound_service_name }}

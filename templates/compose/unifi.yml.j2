@@ -4,6 +4,7 @@ services:
   {{ infra_unifi_db_service_name }}:
     image: {{ infra_unifi_db_container_image }}
     container_name: {{ infra_unifi_db_container_hostname }}
+    hostname: {{ infra_unifi_db_container_hostname }}
     restart: {{ infra_unifi_restart_policy | default(infra_restart_policy) }}
     logging:
       driver: {{ svc_log_driver }}
@@ -19,6 +20,7 @@ services:
   {{ infra_unifi_service_name }}:
     image: {{ infra_unifi_container_image }}
     container_name: {{ infra_unifi_container_hostname }}
+    hostname: {{ infra_unifi_container_hostname }}
     restart: {{ infra_unifi_restart_policy | default(infra_restart_policy) }}
     logging:
       driver: {{ svc_log_driver }}

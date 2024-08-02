@@ -3,6 +3,7 @@ services:
   {{ infra_wireguard_service_name }}:
     image: {{ infra_wireguard_container_image }}
     container_name: {{ infra_wireguard_container_hostname }}
+    hostname: {{ infra_wireguard_container_hostname }}
     restart: {{ infra_wireguard_restart_policy | default(infra_restart_policy) }}
     logging:
       driver: {{ svc_log_driver }}
@@ -25,6 +26,7 @@ services:
   {{ infra_wireguard_ui_service_name }}:
     image: {{ infra_wireguard_ui_container_image }}
     container_name: {{ infra_wireguard_ui_container_hostname }}
+    hostname: {{ infra_wireguard_ui_container_hostname }}
     restart: {{ infra_wireguard_ui_restart_policy | default(infra_restart_policy) }}
     logging:
       driver: {{ svc_log_driver }}

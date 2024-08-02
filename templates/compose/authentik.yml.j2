@@ -3,6 +3,7 @@ services:
   {{ infra_authentik_redis_service_name }}:
     image: {{ infra_authentik_redis_container_image }}
     container_name: {{ infra_authentik_redis_container_hostname }}
+    hostname: {{ infra_authentik_redis_container_hostname }}
     restart: {{ infra_authentik_restart_policy | default(infra_restart_policy) }}
     logging:
       driver: {{ svc_log_driver }}
@@ -23,6 +24,7 @@ services:
   {{ infra_authentik_db_service_name }}:
     image: {{ infra_authentik_db_container_image }}
     container_name: {{ infra_authentik_db_container_hostname }}
+    hostname: {{ infra_authentik_db_container_hostname }}
     restart: {{ infra_authentik_restart_policy | default(infra_restart_policy) }}
     logging:
       driver: {{ svc_log_driver }}
@@ -45,6 +47,7 @@ services:
   {{ infra_authentik_service_name }}:
     image: {{ infra_authentik_container_image }}
     container_name: {{ infra_authentik_container_hostname }}
+    hostname: {{ infra_authentik_container_hostname }}
     restart: {{ infra_authentik_restart_policy | default(infra_restart_policy) }}
     logging:
       driver: {{ svc_log_driver }}
@@ -76,6 +79,7 @@ services:
   {{ infra_authentik_worker_service_name }}:
     image: {{ infra_authentik_container_image }}
     container_name: {{ infra_authentik_worker_container_hostname }}
+    hostname: {{ infra_authentik_worker_container_hostname }}
     restart: {{ infra_authentik_restart_policy | default(infra_restart_policy) }}
     logging:
       driver: {{ svc_log_driver }}

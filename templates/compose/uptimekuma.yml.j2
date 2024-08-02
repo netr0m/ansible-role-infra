@@ -3,6 +3,7 @@ services:
   {{ infra_uptimekuma_service_name }}:
     image: {{ infra_uptimekuma_container_image }}
     container_name: {{ infra_uptimekuma_container_hostname }}
+    hostname: {{ infra_uptimekuma_container_hostname }}
     restart: {{ infra_uptimekuma_restart_policy | default(infra_restart_policy) }}
     logging:
       driver: {{ svc_log_driver }}

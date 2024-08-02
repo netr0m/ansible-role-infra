@@ -3,6 +3,7 @@ services:
   {{ infra_vaultwarden_service_name }}:
     image: {{ infra_vaultwarden_container_image }}
     container_name: {{ infra_vaultwarden_container_hostname }}
+    hostname: {{ infra_vaultwarden_container_hostname }}
     restart: {{ infra_vaultwarden_restart_policy | default(infra_restart_policy) }}
     logging:
       driver: {{ svc_log_driver }}

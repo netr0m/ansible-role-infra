@@ -7,6 +7,14 @@
     group: "{{ infra_pihole_directory_group }}"
     mode: "{{ infra_pihole_directory_mode }}"
 
+- name: Ensure pihole dnsmasq.d directory is present
+  ansible.builtin.file:
+    path: "{{ infra_pihole_dnsmasq_d_directory_path }}"
+    state: directory
+    owner: "{{ infra_pihole_dnsmasq_d_directory_owner }}"
+    group: "{{ infra_pihole_dnsmasq_d_directory_group }}"
+    mode: "{{ infra_pihole_dnsmasq_d_directory_mode }}"
+
 - name: Ensure unbound directory is present
   ansible.builtin.file:
     path: "{{ infra_unbound_directory_path }}"
@@ -19,6 +27,15 @@
 - name: Manage unbound configuration
   when: infra_use_unbound
   block:
+    - name: Query for docker network details of '{{ svc_docker_network_name }}'
+      community.docker.docker_network_info:
+        name: "{{ svc_docker_network_name }}"
+      register: _svc_net_res
+
+    - name: Set svc_network_subnet fact
+      ansible.builtin.set_fact:
+        _svc_network_subnet: "{{ _svc_net_res.network.IPAM.Config[0].Subnet }}"
+
     - name: Ensure unbound.conf.d subdirectory is present
       ansible.builtin.file:
         path: "{{ infra_unbound_conf_d_directory_path }}"
@@ -50,7 +67,7 @@
     - name: Set DNS environment variable setting for pihole
       ansible.builtin.set_fact:
         infra_pihole_env_vars_dns:
-          PIHOLE_DNS_: "{{ infra_unbound_docker_network_ip_address }}#{{ infra_unbound_listening_port }}"
+          PIHOLE_DNS_: "{{ infra_unbound_service_name }}#{{ infra_unbound_listening_port }}"
 
 - name: Manage service files
   block:

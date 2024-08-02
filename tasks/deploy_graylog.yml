@@ -30,7 +30,7 @@
         mode: "{{ infra_graylog_secret_file_mode }}"
         backup: true
       vars:
-        _secret: "{{ infra_graylog_password_secret}}"
+        _secret: "{{ infra_graylog_password_secret }}"
       register: graylog_password_secret_file_output
 
     - name: Write graylog password sha2 (hash) secret to file

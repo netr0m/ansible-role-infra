@@ -72,14 +72,4 @@ infra_unbound_container_hostname: "{{ infra_unbound_service_name }}"
 infra_unbound_restart_policy: "{{ infra_restart_policy }}"
 # Memory limit for the unbound container
 infra_unbound_container_memory: 2g
-
-## Docker network configs
-# IP address for the unbound Docker container
-infra_unbound_docker_network_ip_address: 172.53.53.53
-# Subnet for the unbound Docker network
-infra_unbound_docker_network_subnet: 172.53.53.0/24
-# Gateway IP for the unbound Docker network
-infra_unbound_docker_network_gateway: 172.53.53.1
-#  IP range for the unbound Docker network
-infra_unbound_docker_network_ip_range: "{{ infra_unbound_docker_network_subnet }}"
 ...

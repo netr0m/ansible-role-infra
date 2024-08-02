@@ -15,8 +15,7 @@ services:
       - {{ infra_unbound_conf_d_directory_path }}:/opt/unbound/etc/unbound/unbound.conf.d
     mem_limit: {{ infra_unbound_container_memory }}
     networks:
-      unbound_net:
-        ipv4_address: {{ infra_unbound_docker_network_ip_address }}
+      - {{ svc_docker_network_name }}
     cap_add:
       - NET_ADMIN
 
@@ -62,9 +61,6 @@ services:
       traefik.udp.services.pihole-dns-udp-svc.loadbalancer.server.port: "53"
       traefik.udp.routers.pihole-dns-udp-rtr.service: pihole-dns-udp-svc
     networks:
-{% if infra_use_unbound %}
-      - unbound_net
-{% endif %}
       - {{ svc_docker_network_name }}
     ports:
       - {{ infra_pihole_port_dns }}:53/tcp
@@ -84,16 +80,6 @@ volumes:
     labels: {{ infra_pihole_volume_labels | combine(infra_docker_volume_shared_labels) }}
 
 networks:
-{% if infra_use_unbound %}
-  unbound_net:
-    internal: true
-    ipam:
-      driver: default
-      config:
-        - subnet: {{ infra_unbound_docker_network_subnet }}
-          gateway: {{ infra_unbound_docker_network_gateway }}
-          ip_range: {{ infra_unbound_docker_network_ip_range }}
-{% endif %}
   {{ svc_docker_network_name }}:
     external: 'true'
 

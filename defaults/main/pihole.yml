@@ -28,6 +28,12 @@ infra_pihole_directory_group: "{{ infra_directory_group }}"
 infra_pihole_directory_mode: "{{ infra_directory_mode }}"
 # pihole dnsmasq.d directory path
 infra_pihole_dnsmasq_d_directory_path: "{{ infra_pihole_directory_path }}/dnsmasq.d"
+# pihole dnsmasq.d directory user ownership
+infra_pihole_dnsmasq_d_directory_owner: root
+# pihole dnsmasq.d directory group ownership
+infra_pihole_dnsmasq_d_directory_group: root
+# pihole dnsmasq.d directory mode
+infra_pihole_dnsmasq_d_directory_mode: "0755"
 
 ## File paths
 # File mode
@@ -44,8 +50,12 @@ infra_pihole_env_file_mode: "0600"
 infra_pihole_secret_file_mode: "0600"
 # dnsmasq edns config file path
 infra_pihole_dnsmasq_edns_conf_file_path: "{{ infra_pihole_dnsmasq_d_directory_path }}/99-edns.conf"
+# Permissions (user) for the pihole-dnsmasq EDNS config file (user inside the container)
+infra_pihole_dnsmasq_edns_conf_file_owner: "{{ infra_pihole_dnsmasq_d_directory_owner }}"
+# Permissions (group) for the pihole-dnsmasq EDNS config file (group inside the container)
+infra_pihole_dnsmasq_edns_conf_file_group: "{{ infra_pihole_dnsmasq_d_directory_group }}"
 # Permissions (mode) for the dnsmasq edns conf file (as an octal)
-infra_pihole_dnsmasq_edns_conf_file_mode: "0644"
+infra_pihole_dnsmasq_edns_conf_file_mode: "0664"
 
 ## Docker service configs
 # Name of the pihole Docker service

@@ -25,6 +25,7 @@ infra_directory_path: '/opt/infra'
 infra_directory_owner: "{{ infra_user_name }}"
 infra_directory_group: "{{ infra_group_name }}"
 infra_directory_mode: 740
+infra_file_mode: 640
 
 ### Docker ###
 # Default restart policy

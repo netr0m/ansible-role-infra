@@ -59,7 +59,7 @@
         dest: "{{ infra_wireguard_compose_path }}"
         owner: "{{ infra_wireguard_directory_owner }}"
         group: "{{ infra_wireguard_directory_group }}"
-        mode: "{{ infra_wireguard_directory_mode }}"
+        mode: "{{ infra_wireguard_file_mode }}"
         backup: true
         validate: docker compose -f %s config -q
       register: compose_file_output

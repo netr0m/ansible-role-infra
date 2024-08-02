@@ -26,6 +26,8 @@ infra_vaultwarden_directory_group: "{{ infra_directory_group }}"
 infra_vaultwarden_directory_mode: "{{ infra_directory_mode }}"
 
 ## File paths
+# File mode
+infra_vaultwarden_file_mode: "{{ infra_file_mode }}"
 # vaultwarden compose file path
 infra_vaultwarden_compose_path: "{{ infra_vaultwarden_directory_path }}/compose.yml"
 # vaultwarden env file path

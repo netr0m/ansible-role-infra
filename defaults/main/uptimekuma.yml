@@ -17,6 +17,8 @@ infra_uptimekuma_directory_group: "{{ infra_directory_group }}"
 infra_uptimekuma_directory_mode: "{{ infra_directory_mode }}"
 
 ## File paths
+# File mode
+infra_uptimekuma_file_mode: "{{ infra_file_mode }}"
 # uptime-kuma compose file path
 infra_uptimekuma_compose_path: "{{ infra_uptimekuma_directory_path }}/compose.yml"
 # uptime-kuma env file path

@@ -51,7 +51,7 @@
         dest: "{{ infra_authentik_compose_path }}"
         owner: "{{ infra_authentik_directory_owner }}"
         group: "{{ infra_authentik_directory_group }}"
-        mode: "{{ infra_authentik_directory_mode }}"
+        mode: "{{ infra_authentik_file_mode }}"
         backup: true
         validate: docker compose -f %s config -q
       register: compose_file_output

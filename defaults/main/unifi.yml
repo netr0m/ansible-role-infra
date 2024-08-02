@@ -34,6 +34,8 @@ infra_unifi_directory_group: "{{ infra_directory_group }}"
 infra_unifi_directory_mode: "{{ infra_directory_mode }}"
 
 ## File paths
+# File mode
+infra_unifi_file_mode: "{{ infra_file_mode }}"
 # unifi compose file path
 infra_unifi_compose_path: "{{ infra_unifi_directory_path }}/compose.yml"
 # unifi env file path

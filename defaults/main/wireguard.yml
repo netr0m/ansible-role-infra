@@ -47,6 +47,8 @@ infra_wireguard_directory_group: "{{ infra_directory_group }}"
 infra_wireguard_directory_mode: "{{ infra_directory_mode }}"
 
 ## File paths
+# File mode
+infra_wireguard_file_mode: "{{ infra_file_mode }}"
 # wireguard compose file path
 infra_wireguard_compose_path: "{{ infra_wireguard_directory_path }}/compose.yml"
 # wireguard env file path

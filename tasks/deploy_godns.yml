@@ -15,7 +15,7 @@
         dest: "{{ infra_godns_config_file_path }}"
         owner: "{{ infra_godns_directory_owner }}"
         group: "{{ infra_godns_directory_group }}"
-        mode: "{{ infra_godns_directory_mode }}"
+        mode: "{{ infra_godns_file_mode }}"
         backup: true
       register: godns_config_file_output
 
@@ -37,7 +37,7 @@
         dest: "{{ infra_godns_compose_path }}"
         owner: "{{ infra_godns_directory_owner }}"
         group: "{{ infra_godns_directory_group }}"
-        mode: "{{ infra_godns_directory_mode }}"
+        mode: "{{ infra_godns_file_mode }}"
         backup: true
         validate: docker compose -f %s config -q
       register: compose_file_output

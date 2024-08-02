@@ -49,7 +49,7 @@
         dest: "{{ infra_unifi_compose_path }}"
         owner: "{{ infra_unifi_directory_owner }}"
         group: "{{ infra_unifi_directory_group }}"
-        mode: "{{ infra_unifi_directory_mode }}"
+        mode: "{{ infra_unifi_file_mode }}"
         backup: true
         validate: docker compose -f %s config -q
       register: compose_file_output

@@ -139,8 +139,8 @@
       ansible.builtin.template:
         src: etc/dnsmasq.d/99-edns.conf.j2
         dest: "{{ infra_pihole_dnsmasq_edns_conf_file_path }}"
-        owner: "{{ infra_pihole_directory_owner }}"
-        group: "{{ infra_pihole_directory_group }}"
+        owner: "{{ infra_pihole_dnsmasq_edns_conf_file_owner }}"
+        group: "{{ infra_pihole_dnsmasq_edns_conf_file_group }}"
         mode: "{{ infra_pihole_dnsmasq_edns_conf_file_mode }}"
         backup: true
       register: pihole_dnsmasq_edns_config_file_output

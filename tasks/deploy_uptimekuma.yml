@@ -27,7 +27,7 @@
         dest: "{{ infra_uptimekuma_compose_path }}"
         owner: "{{ infra_uptimekuma_directory_owner }}"
         group: "{{ infra_uptimekuma_directory_group }}"
-        mode: "{{ infra_uptimekuma_directory_mode }}"
+        mode: "{{ infra_uptimekuma_file_mode }}"
         backup: true
         validate: docker compose -f %s config -q
       register: compose_file_output

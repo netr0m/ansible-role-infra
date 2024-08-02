@@ -50,6 +50,8 @@ infra_godns_directory_group: "{{ infra_directory_group }}"
 infra_godns_directory_mode: "{{ infra_directory_mode }}"
 
 ## File paths
+# File mode
+infra_godns_file_mode: "{{ infra_file_mode }}"
 # godns compose file path
 infra_godns_compose_path: "{{ infra_godns_directory_path }}/compose.yml"
 # godns env file path

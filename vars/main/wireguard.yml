@@ -1,7 +1,7 @@
 ---
 # Wireguard / Wireguard-UI shared variables
 _wg_endpoint: "{{ infra_wireguard_container_hostname }}.{{ infra_domain_ext | default(infra_domain) }}"
-_wg_port_ext: "{{ infra_wireguard_container_port_vpn | string }}"
+_wg_port_ext: "{{ infra_wireguard_port_vpn | string }}"
 # Split infra_wireguard_internal_subnet (e.g. 10.13.13.0) to a list
 _wg_subnet_split: "{{ infra_wireguard_internal_subnet | split('.') }}"
 # Use '1' as the 4th block (similar to linuxserver.io's wireguard image internal logic), i.e. '10.13.13.0' => '10.13.13.1'

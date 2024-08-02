@@ -4,6 +4,7 @@ services:
   {{ infra_graylog_db_service_name }}:
     image: {{ infra_graylog_db_container_image }}
     container_name: {{ infra_graylog_db_container_hostname }}
+    hostname: {{ infra_graylog_db_container_hostname }}
     restart: {{ infra_graylog_restart_policy | default(infra_restart_policy) }}
     logging:
       driver: {{ infra_graylog_log_driver }}
@@ -23,6 +24,7 @@ services:
   {{ infra_graylog_opensearch_service_name }}:
     image: {{ infra_graylog_opensearch_container_image }}
     container_name: {{ infra_graylog_opensearch_container_hostname }}
+    hostname: {{ infra_graylog_opensearch_container_hostname }}
     restart: {{ infra_graylog_restart_policy | default(infra_restart_policy) }}
     logging:
       driver: {{ infra_graylog_log_driver }}
@@ -44,6 +46,7 @@ services:
   {{ infra_graylog_service_name }}:
     image: {{ infra_graylog_container_image }}
     container_name: {{ infra_graylog_container_hostname }}
+    hostname: {{ infra_graylog_container_hostname }}
     restart: {{ infra_graylog_restart_policy | default(infra_restart_policy) }}
     logging:
       driver: {{ infra_graylog_log_driver }}

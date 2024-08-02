@@ -61,9 +61,9 @@ infra_pihole_restart_policy: "{{ infra_restart_policy }}"
 # Memory limit for the pihole container
 infra_pihole_container_memory: 2g
 # Host port for the web UI
-infra_pihole_container_port_web: 8053
+infra_pihole_port_web: 8053
 # Host port for the DNS service
-infra_pihole_container_port_dns: 53
+infra_pihole_port_dns: 53
 # Max. wait time for pihole compose deployment
 infra_pihole_compose_wait_timeout: 300
 

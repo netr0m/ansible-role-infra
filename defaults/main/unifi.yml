@@ -34,6 +34,8 @@ infra_unifi_directory_group: "{{ infra_directory_group }}"
 infra_unifi_directory_mode: "{{ infra_directory_mode }}"
 
 ## File paths
+# File mode
+infra_unifi_file_mode: "{{ infra_file_mode }}"
 # unifi compose file path
 infra_unifi_compose_path: "{{ infra_unifi_directory_path }}/compose.yml"
 # unifi env file path
@@ -70,6 +72,24 @@ infra_unifi_restart_policy: "{{ infra_restart_policy }}"
 infra_unifi_container_memory: 4g
 # Memory limit for the unifi MongoDB container
 infra_unifi_db_container_memory: 1g
+# Admin UI port for the unifi server
+infra_unifi_port_admin: 8443
+# Device communications port for the unifi server
+infra_unifi_port_device_comms: 8080
+# Guest portal (https) port for the unifi server
+infra_unifi_port_guest_portal_https: 8843
+# Guest portal (http) port for the unifi server
+infra_unifi_port_guest_portal_http: 8880
+# Mobile throughput test port for the unifi server
+infra_unifi_port_throughput: 6789
+# STUN port for the unifi server
+infra_unifi_port_stun: 3478
+# AP Discovery port for the unifi server
+infra_unifi_port_discovery: 10001
+# Layer 2 discovery port for the unifi server
+infra_unifi_port_l2_discovery: 1900
+# Syslog port for the unifi server
+infra_unifi_port_syslog: 5514
 
 ## Docker volume configs
 # Name of the config Docker volume

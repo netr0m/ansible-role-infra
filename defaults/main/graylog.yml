@@ -47,6 +47,8 @@ infra_graylog_directory_group: "{{ infra_directory_group }}"
 infra_graylog_directory_mode: "{{ infra_directory_mode }}"
 
 ## File paths
+# File mode
+infra_graylog_file_mode: "{{ infra_file_mode }}"
 # graylog compose file path
 infra_graylog_compose_path: "{{ infra_graylog_directory_path }}/compose.yml"
 # graylog env file path

@@ -3,6 +3,7 @@ services:
   {{ infra_godns_service_name }}:
     image: {{ infra_godns_container_image }}
     container_name: {{ infra_godns_container_hostname }}
+    hostname: {{ infra_godns_container_hostname }}
     restart: {{ infra_godns_restart_policy | default(infra_restart_policy) }}
     logging:
       driver: {{ svc_log_driver }}

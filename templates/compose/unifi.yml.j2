@@ -48,15 +48,15 @@ services:
       - default
       - {{ svc_docker_network_name }}
     ports:
-      - 8443:8443
-      - 3478:3478/udp
-      - 10001:10001/udp
-      - 8080:8080
-      - 1900:1900/udp
-      - 8843:8843
-      - 8880:8880
-      - 6789:6789
-      - 5514:5514/udp
+      - {{ infra_unifi_port_admin }}:8443
+      - {{ infra_unifi_port_stun }}:3478/udp
+      - {{ infra_unifi_port_discovery }}:10001/udp
+      - {{ infra_unifi_port_device_comms }}:8080
+      - {{ infra_unifi_port_l2_discovery }}:1900/udp
+      - {{ infra_unifi_port_guest_portal_https }}:8843
+      - {{ infra_unifi_port_guest_portal_http }}:8880
+      - {{ infra_unifi_port_throughput }}:6789
+      - {{ infra_unifi_port_syslog }}:5514/udp
 {% if infra_use_unifi_db %}
     depends_on:
       - {{ infra_unifi_db_service_name }}

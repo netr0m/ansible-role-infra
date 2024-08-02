@@ -20,7 +20,7 @@ infra_domain_ext: ~
 # Manage directories
 infra_manage_directories: true
 # Directory to store service data
-infra_directory_path: '/opt/infra'
+infra_directory_path: '/opt/netr0m.infra'
 # Default permissions
 infra_directory_owner: "{{ infra_user_name }}"
 infra_directory_group: "{{ infra_group_name }}"

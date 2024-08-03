@@ -53,11 +53,22 @@ infra_authentik_directory_owner: "{{ infra_directory_owner }}"
 # Directory group ownership
 infra_authentik_directory_group: "{{ infra_directory_group }}"
 # Directory mode
-infra_authentik_directory_mode: "{{ infra_directory_mode }}"
+infra_authentik_directory_mode: "0770"
+# User ownership of the Authentik subdirectories
+infra_authentik_subdirectory_owner: 1000
+# Group ownership of the Authentik subdirectories
+infra_authentik_subdirectory_group: 1000
+# Mode of the Authentik subdirectories (as an octal)
+infra_authentik_subdirectory_mode: "0750"
+# Subdirectories to create
+infra_authentik_subdirectories:
+  - media
+  - certs
+  - templates
 
 ## File paths
 # File mode
-infra_authentik_file_mode: "{{ infra_file_mode }}"
+infra_authentik_file_mode: "0660"
 # authentik compose file path
 infra_authentik_compose_path: "{{ infra_authentik_directory_path }}/compose.yml"
 # authentik env file path

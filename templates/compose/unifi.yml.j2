@@ -33,6 +33,7 @@ services:
     mem_limit: {{ infra_unifi_container_memory }}
     labels:
       traefik.enable: 'true'
+      traefik.docker.network: {{ svc_docker_network_name }}
       traefik.http.routers.{{ infra_unifi_service_name }}-inform-rtr.rule: "Host(\"{{ infra_unifi_fqdn }}\") && Path(\"/inform\") && Method(\"POST\")"
       traefik.http.routers.{{ infra_unifi_service_name }}-inform-rtr.entrypoints: web
       traefik.http.services.{{ infra_unifi_service_name }}-inform-svc.loadbalancer.server.port: 8080

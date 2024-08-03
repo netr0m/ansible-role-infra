@@ -37,6 +37,7 @@ services:
     mem_limit: {{ infra_pihole_container_memory }}
     labels:
       traefik.enable: 'true'
+      traefik.docker.network: {{ svc_docker_network_name }}
       # Web UI
       traefik.http.routers.{{ infra_pihole_service_name }}-web-rtr.rule: "Host(\"{{ infra_pihole_fqdn }}\")"
       traefik.http.routers.{{ infra_pihole_service_name }}-web-rtr.entrypoints: webSecure

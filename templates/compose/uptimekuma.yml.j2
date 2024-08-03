@@ -14,6 +14,7 @@ services:
     mem_limit: {{ infra_uptimekuma_container_memory }}
     labels:
       traefik.enable: 'true'
+      traefik.docker.network: {{ svc_docker_network_name }}
       traefik.http.routers.{{ infra_uptimekuma_service_name }}-rtr.rule: "Host(\"{{ infra_uptimekuma_fqdn }}\")"
       traefik.http.routers.{{ infra_uptimekuma_service_name }}-rtr.entrypoints: webSecure
       traefik.http.services.{{ infra_uptimekuma_service_name }}-svc.loadbalancer.server.port: 3001

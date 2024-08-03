@@ -1,11 +1,11 @@
 ---
 ### Authentik ###
 # Version of the authentik Docker image to use (see 'infra_authentik_container_image')
-infra_authentik_version: 2023.10.7
+infra_authentik_version: 2024.6.2
 # Version of the redis Docker image to use (see 'infra_authentik_redis_container_image')
 infra_authentik_redis_version: alpine
 # Version of the posgresql Docker image to use (see 'infra_authentik_db_container_image')
-infra_authentik_db_version: 12-alpine
+infra_authentik_db_version: 16-alpine
 
 ## Authentik secrets
 # Secret key used for Authentik cookie signing
@@ -22,7 +22,7 @@ infra_authentik_db_name: "authentik"
 ## Authentik settings. See https://goauthentik.io/docs/installation/configuration#authentik-settings
 infra_authentik_settings:
   AUTHENTIK_COOKIE_DOMAIN: "{{ infra_domain }}"
-  AUTHENTIK_LOG_LEVEL: 'INFO'
+  AUTHENTIK_LOG_LEVEL: 'info'
   AUTHENTIK_GEOIP: /geoip/GeoLite2-City.mmdb
   AUTHENTIK_DISABLE_UPDATE_CHECK: 'false'
   AUTHENTIK_ERROR_REPORTING__ENABLED: 'false'

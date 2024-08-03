@@ -7,6 +7,15 @@
     group: "{{ infra_authentik_directory_group }}"
     mode: "{{ infra_authentik_directory_mode }}"
 
+- name: Ensure authentik subdirectories are present
+  ansible.builtin.file:
+    path: "{{ infra_authentik_directory_path }}/{{ item }}"
+    state: directory
+    owner: "{{ infra_authentik_subdirectory_owner }}"
+    group: "{{ infra_authentik_subdirectory_group }}"
+    mode: "{{ infra_authentik_subdirectory_mode }}"
+  with_items: "{{ infra_authentik_subdirectories }}"
+
 - name: Manage service files
   block:
     - name: Write authentik DB password secret to file

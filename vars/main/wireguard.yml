@@ -34,7 +34,7 @@ infra_wireguard_ui_env_vars:
   WGUI_SERVER_LISTEN_PORT: "{{ _wg_port_ext }}"
   WGUI_SERVER_INTERFACE_ADDRESSES: "{{ wg_interface_cidr }}"
   WGUI_DEFAULT_CLIENT_ALLOWED_IPS: "{{ infra_wireguard_allowed_ips }}"
-  SUBNET_RANGES: "Internal:{{ infra_wireguard_internal_subnet }}"
+  SUBNET_RANGES: "Internal:{{ infra_wireguard_internal_subnet }}/24"
   WGUI_DNS: "{{ ([wg_interface_addr] + infra_wireguard_container_dns_servers) | join(',') }}"
   WGUI_USERNAME: "{{ infra_wireguard_ui_username }}"
   WGUI_PASSWORD: "{{ infra_wireguard_ui_password }}"

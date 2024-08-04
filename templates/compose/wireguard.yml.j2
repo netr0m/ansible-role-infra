@@ -14,7 +14,7 @@ services:
       - /lib/modules:/lib/modules
     mem_limit: {{ infra_wireguard_container_memory }}
     ports:
-      - {{ infra_wireguard_port_vpn }}:51820/udp
+      - {{ infra_wireguard_port_vpn }}:{{ infra_wireguard_port_vpn }}/udp
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
@@ -26,7 +26,6 @@ services:
   {{ infra_wireguard_ui_service_name }}:
     image: {{ infra_wireguard_ui_container_image }}
     container_name: {{ infra_wireguard_ui_container_hostname }}
-    hostname: {{ infra_wireguard_ui_container_hostname }}
     restart: {{ infra_wireguard_ui_restart_policy | default(infra_restart_policy) }}
     logging:
       driver: {{ svc_log_driver }}

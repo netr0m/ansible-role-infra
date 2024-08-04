@@ -33,7 +33,7 @@ services:
       - {{ infra_authentik_db_password_name }}
     env_file: {{ infra_authentik_db_env_file_path }}
     volumes:
-      - {{ infra_authentik_db_volume_name_data }}:/var/lib/postgres/data
+      - {{ infra_authentik_db_volume_name_data }}:/var/lib/postgresql/data
     mem_limit: {{ infra_authentik_db_container_memory }}
     networks:
       - default

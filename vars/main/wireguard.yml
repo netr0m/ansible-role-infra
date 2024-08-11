@@ -10,6 +10,8 @@ _wg_interface: "{{ _wg_subnet_split[:3] + ['1'] }}"
 wg_interface_addr: "{{ _wg_interface | join('.') }}"
 # Convert to CIDR range, i.e. '10.13.13.1' => '10.13.13.1/24'. Needed due to mismatching default in wireguard-ui
 wg_interface_cidr: "{{ wg_interface_addr }}/24"
+# Placeholder for wireguard DNS settings
+infra_wireguard_dns_servers: "{{ infra_wireguard_container_dns_servers }}"
 
 # Environment variables for the Wireguard container.
 infra_wireguard_env_vars:
@@ -35,7 +37,7 @@ infra_wireguard_ui_env_vars:
   WGUI_SERVER_INTERFACE_ADDRESSES: "{{ wg_interface_cidr }}"
   WGUI_DEFAULT_CLIENT_ALLOWED_IPS: "{{ infra_wireguard_allowed_ips }}"
   SUBNET_RANGES: "Internal:{{ infra_wireguard_internal_subnet }}/24"
-  WGUI_DNS: "{{ ([wg_interface_addr] + infra_wireguard_container_dns_servers) | join(',') }}"
+  WGUI_DNS: "{{ infra_wireguard_dns_servers | join(',') }}"
   WGUI_USERNAME: "{{ infra_wireguard_ui_username }}"
   WGUI_PASSWORD: "{{ infra_wireguard_ui_password }}"
   WGUI_MANAGE_START: "{{ infra_wireguard_ui_manage_wireguard }}"

@@ -16,13 +16,16 @@ infra_wireguard_ui_session_secret_name: "wgui_session_secret"
 infra_wireguard_ui_password_name: "wg_ui_admin_password"
 
 ## Wireguard settings
-# Peers to create. Can also be created manually in the UI. See https://github.com/linuxserver/docker-wireguard#parameters
-infra_wireguard_peers: []
+# Peers to create. Can also be created manually in the UI. See https://github.com/linuxserver/docker-wireguard#parameters.
+# NB: Must contain at least one peer to start wireguard in server mode.
+#   Otherwise, you must reboot the wireguard container after generating (and applying) clients in the wireguard UI.
+infra_wireguard_peers:
+  - autogen
   # - laptop
   # - desktop
   # - phone
 # Comma-separated list of CIDR ranges to use for the AllowedIPs field
-infra_wireguard_allowed_ips: '0.0.0.0/0, ::0/0'
+infra_wireguard_allowed_ips: '0.0.0.0/0'
 # Internal subnet for wireguard
 infra_wireguard_internal_subnet: 10.13.13.0
 # Host port to use for the wireguard VPN
@@ -89,11 +92,13 @@ infra_wireguard_ui_restart_policy: "{{ infra_restart_policy }}"
 infra_wireguard_container_memory: 1g
 # Memory limit for the wireguard-ui container
 infra_wireguard_ui_container_memory: 1g
-# DNS servers to use for the wireguard Docker container
+# DNS servers to use for the wireguard Docker container.
 infra_wireguard_container_dns_servers:
   - "{{ ansible_host }}"
   - 1.1.1.1
   - 1.0.0.1
+# Whether to use Pihole for Wireguard DNS. Requires 'infra_use_pihole' to be true
+infra_wireguard_use_pihole_dns: "{{ infra_use_pihole }}"
 
 ## Docker volume configs
 # Name of the config files' Docker volume

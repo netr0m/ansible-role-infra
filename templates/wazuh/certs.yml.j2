@@ -1,0 +1,13 @@
+# {{ ansible_managed }}
+nodes:
+  indexer:
+    - name: {{ infra_wazuh_indexer_service_name }}
+      ip: {{ infra_wazuh_indexer_service_name }}
+
+  server:
+    - name: {{ infra_wazuh_manager_service_name }}
+      ip: {{ infra_wazuh_manager_service_name }}
+
+  dashboard:
+    - name: {{ infra_wazuh_dashboard_service_name }}
+      ip: {{ infra_wazuh_dashboard_service_name }}

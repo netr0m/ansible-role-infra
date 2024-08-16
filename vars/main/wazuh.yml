@@ -1,0 +1,86 @@
+---
+# Environment variables for the wazuh manager container
+infra_wazuh_manager_env_vars:
+  INDEXER_URL: "https://{{ infra_wazuh_indexer_service_name }}:9200"
+  INDEXER_USERNAME: "{{ infra_wazuh_indexer_admin_user }}"
+  INDEXER_PASSWORD: "{{ infra_wazuh_indexer_admin_password }}"
+  FILEBEAT_SSL_VERIFICATION_MODE: full
+  SSL_CERTIFICATE_AUTHORITIES: /etc/ssl/root-ca.pem
+  SSL_CERTIFICATE: /etc/ssl/filebeat.pem
+  SSL_KEY: /etc/ssl/filebeat.key
+  API_USERNAME: "{{ infra_wazuh_api_user }}"
+  API_PASSWORD: "{{ infra_wazuh_api_password }}"
+
+# Environment variables for the wazuh indexer container
+infra_wazuh_indexer_env_vars:
+  OPENSEARCH_JAVA_OPTS: "-Xms1g -Xmx{{ infra_wazuh_indexer_container_memory }}"
+  bootstrap.memory_lock: "true"
+  NODE_NAME: "{{ infra_wazuh_indexer_service_name }}"
+  CLUSTER_INITIAL_MASTER_NODES: "{{ infra_wazuh_indexer_service_name }}"
+  CLUSTER_NAME: "{{ infra_wazuh_service_name }}-cluster"
+  PATH_DATA: /var/lib/wazuh-indexer
+  PATH_LOGS: /var/log/wazuh-indexer
+  HTTP_PORT: 9200-9299
+  TRANSPORT_TCP_PORT: 9300-9399
+  COMPATIBILITY_OVERRIDE_MAIN_RESPONSE_VERSION: "true"
+  PLUGINS_SECURITY_SSL_HTTP_PEMCERT_FILEPATH: "/usr/share/wazuh-indexer/certs/{{ infra_wazuh_indexer_service_name }}.pem"
+  PLUGINS_SECURITY_SSL_HTTP_PEMKEY_FILEPATH: "/usr/share/wazuh-indexer/certs/{{ infra_wazuh_indexer_service_name }}.key"
+  PLUGINS_SECURITY_SSL_HTTP_PEMTRUSTEDCAS_FILEPATH: /usr/share/wazuh-indexer/certs/root-ca.pem
+  PLUGINS_SECURITY_SSL_TRANSPORT_PEMCERT_FILEPATH: "/usr/share/wazuh-indexer/certs/{{ infra_wazuh_indexer_service_name }}.pem"
+  PLUGINS_SECURITY_SSL_TRANSPORT_PEMKEY_FILEPATH: "/usr/share/wazuh-indexer/certs/{{ infra_wazuh_indexer_service_name }}.key"
+  PLUGINS_SECURITY_SSL_TRANSPORT_PEMTRUSTEDCAS_FILEPATH: /usr/share/wazuh-indexer/certs/root-ca.pem
+  PLUGINS_SECURITY_SSL_HTTP_ENABLED: "true"
+  PLUGINS_SECURITY_SSL_TRANSPORT_ENFORCE_HOSTNAME_VERIFICATION: "false"
+  PLUGINS_SECURITY_SSL_TRANSPORT_RESOLVE_HOSTNAME: "false"
+  PLUGINS_SECURITY_AUTHCZ_ADMIN_DN: "CN=admin,OU=Wazuh,O=Wazuh,L=California,C=US"
+  PLUGINS_SECURITY_CHECK_SNAPSHOT_RESTORE_WRITE_PRIVILEGES: "true"
+  PLUGINS_SECURITY_ENABLE_SNAPSHOT_RESTORE_PRIVILEGE: "true"
+  PLUGINS_SECURITY_NODES_DN: "CN={{ infra_wazuh_indexer_service_name }},OU=Wazuh,O=Wazuh,L=California,C=US"
+  PLUGINS_SECURITY_RESTAPI_ROLES_ENABLED: '["all_access", "security_rest_api_access"]'
+  PLUGINS_SECURITY_SYSTEM_INDICES_ENABLED: "true"
+  PLUGINS_SECURITY_SYSTEM_INDICES_INDICES: '[".opendistro-alerting-config", ".opendistro-alerting-alert*", ".opendistro-anomaly-results*", ".opendistro-anomaly-detector*", ".opendistro-anomaly-checkpoints", ".opendistro-anomaly-detection-state", ".opendistro-reports-*", ".opendistro-notifications-*", ".opendistro-notebooks", ".opensearch-observability", ".opendistro-asynchronous-search-response*", ".replication-metadata-store"]'
+  PLUGINS_SECURITY_ALLOW_DEFAULT_INIT_SECURITYINDEX: "true"
+  CLUSTER_ROUTING_ALLOCATION_DISK_THRESHOLD_ENABLED: "false"
+
+# Environment variables for the wazuh dashboard container
+infra_wazuh_dashboard_env_vars:
+  WAZUH_API_URL: "https://{{ infra_wazuh_manager_service_name }}"
+  DASHBOARD_USERNAME: "{{ infra_wazuh_indexer_dashboard_user }}"
+  DASHBOARD_PASSWORD: "{{ infra_wazuh_indexer_dashboard_password }}"
+  API_USERNAME: "{{ infra_wazuh_api_user }}"
+  API_PASSWORD: "{{ infra_wazuh_api_password }}"
+  SERVER_HOST: 0.0.0.0
+  SERVER_PORT: 5601
+  OPENSEARCH_HOSTS: "https://{{ infra_wazuh_indexer_service_name }}:9200"
+  OPENSEARCH_SSL_VERIFICATIONMODE: certificate
+  OPENSEARCH_REQUESTHEADERSALLOWLIST: '["securitytenant","Authorization"]'
+  OPENSEARCH_SECURITY_MULTITENANCY_ENABLED: "false"
+  SERVER_SSL_ENABLED: "true"
+  OPENSEARCH_SECURITY_READONLY_MODE_ROLES: '["kibana_read_only"]'
+  SERVER_SSL_KEY: "/usr/share/wazuh-dashboard/certs/{{ infra_wazuh_dashboard_service_name }}-key.pem"
+  SERVER_SSL_CERTIFICATE: "/usr/share/wazuh-dashboard/certs/{{ infra_wazuh_indexer_service_name }}.pem"
+  OPENSEARCH_SSL_CERTIFICATEAUTHORITIES: '["/usr/share/wazuh-dashboard/certs/root-ca.pem"]'
+  UISETTINGS_OVERRIDES_DEFAULTROUTE: /app/wz-home
+
+## Certificate paths. See https://documentation.wazuh.com/current/user-manual/manager/wazuh-server-cluster.html#generating-wazuh-server-certificates
+# Certificate path for the wazuh manager root CA
+infra_wazuh_manager_cert_root_ca_public_key_path: "{{ infra_wazuh_certificates_directory_path }}/root-ca-manager.pem"
+# Certificate path for the wazuh manager public key
+infra_wazuh_manager_cert_public_key_path: "{{ infra_wazuh_certificates_directory_path }}/{{ infra_wazuh_manager_service_name }}.pem"
+# Certificate path for the wazuh manager private key
+infra_wazuh_manager_cert_private_key_path: "{{ infra_wazuh_certificates_directory_path }}/{{ infra_wazuh_manager_service_name }}-key.pem"
+# Certificate path for the wazuh root CA
+infra_wazuh_cert_root_ca_public_key_path: "{{ infra_wazuh_certificates_directory_path }}/root-ca.pem"
+# Certificate path for the wazuh indexer public key
+infra_wazuh_indexer_cert_public_key_path: "{{ infra_wazuh_certificates_directory_path }}/{{ infra_wazuh_indexer_service_name }}.pem"
+# Certificate path for the wazuh indexer private key
+infra_wazuh_indexer_cert_private_key_path: "{{ infra_wazuh_certificates_directory_path }}/{{ infra_wazuh_indexer_service_name }}-key.pem"
+# Certificate path for the wazuh indexer admin public key
+infra_wazuh_indexer_admin_cert_public_key_path: "{{ infra_wazuh_certificates_directory_path }}/admin.pem"
+# Certificate path for the wazuh indexer admin private key
+infra_wazuh_indexer_admin_cert_private_key_path: "{{ infra_wazuh_certificates_directory_path }}/admin-key.pem"
+# Certificate path for the wazuh dashboard public key
+infra_wazuh_dashboard_cert_public_key_path: "{{ infra_wazuh_certificates_directory_path }}/{{ infra_wazuh_dashboard_service_name }}.pem"
+# Certificate path for the wazuh indexer private key
+infra_wazuh_dashboard_cert_private_key_path: "{{ infra_wazuh_certificates_directory_path }}/{{ infra_wazuh_dashboard_service_name }}-key.pem"
+...

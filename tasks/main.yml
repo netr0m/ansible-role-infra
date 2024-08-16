@@ -47,4 +47,9 @@
 - name: Include 'uptimekuma' tasks
   ansible.builtin.import_tasks: deploy_uptimekuma.yml
   when: infra_use_uptimekuma
+
+# Manage wazuh deployment
+- name: Include 'wazuh' tasks
+  ansible.builtin.import_tasks: deploy_wazuh.yml
+  when: infra_use_wazuh
 ...

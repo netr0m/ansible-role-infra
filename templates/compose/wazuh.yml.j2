@@ -1,0 +1,163 @@
+services:
+  {{ infra_wazuh_manager_service_name }}:
+    image: {{ infra_wazuh_manager_container_image }}
+    container_name: {{ infra_wazuh_manager_container_hostname }}
+    hostname: {{ infra_wazuh_manager_container_hostname }}
+    restart: {{ infra_wazuh_restart_policy | default(infra_restart_policy) }}
+    logging:
+      driver: {{ infra_wazuh_log_driver }}
+      options: {{ infra_wazuh_log_options }}
+    env_file: {{ infra_wazuh_manager_env_file_path }}
+    volumes:
+      - {{ infra_wazuh_manager_volume_name_api_config }}:/var/ossec/api/configuration
+      - {{ infra_wazuh_manager_volume_name_ossec_config }}:/var/ossec/etc
+      - {{ infra_wazuh_manager_volume_name_ossec_logs }}:/var/ossec/logs
+      - {{ infra_wazuh_manager_volume_name_ossec_queue }}:/var/ossec/queue
+      - {{ infra_wazuh_manager_volume_name_ossec_multigroups }}:/var/ossec/var/multigroups
+      - {{ infra_wazuh_manager_volume_name_ossec_integrations }}:/var/ossec/integrations
+      - {{ infra_wazuh_manager_volume_name_ossec_active_response }}:/var/ossec/active-response/bin
+      - {{ infra_wazuh_manager_volume_name_ossec_agentless }}:/var/ossec/agentless
+      - {{ infra_wazuh_manager_volume_name_ossec_wodles }}:/var/ossec/wodles
+      - {{ infra_wazuh_manager_volume_name_filebeat_etc }}:/etc/filebeat
+      - {{ infra_wazuh_manager_volume_name_filebeat_var }}:/var/lib/filebeat
+      - {{ infra_wazuh_manager_cert_root_ca_public_key_path }}:/etc/ssl/root-ca.pem
+      - {{ infra_wazuh_manager_cert_public_key_path }}:/etc/ssl/filebeat.pem
+      - {{ infra_wazuh_manager_cert_private_key_path }}:/etc/ssl/filebeat.key
+      - {{ infra_wazuh_manager_conf_file_path }}:/wazuh-config-mount/etc/ossec.conf
+    mem_limit: {{ infra_wazuh_manager_container_memory }}
+    networks:
+      - default
+    ports:
+      - {{ infra_wazuh_manager_port_agentd }}:1514
+      - {{ infra_wazuh_manager_port_auth }}:1515
+      - {{ infra_wazuh_manager_port_syslog }}:514/udp
+      - {{ infra_wazuh_manager_port_api }}:55000
+    ulimits:
+      memlock:
+        soft: {{ infra_wazuh_ulimit_memlock_soft }}
+        hard: {{ infra_wazuh_ulimit_memlock_hard }}
+      nofile:
+        soft: {{ infra_wazuh_ulimit_nofile_soft }}
+        hard: {{ infra_wazuh_ulimit_nofile_hard }}
+
+  {{ infra_wazuh_indexer_service_name }}:
+    image: {{ infra_wazuh_indexer_container_image }}
+    container_name: {{ infra_wazuh_indexer_container_hostname }}
+    hostname: {{ infra_wazuh_indexer_container_hostname }}
+    restart: {{ infra_wazuh_restart_policy | default(infra_restart_policy) }}
+    logging:
+      driver: {{ infra_wazuh_log_driver }}
+      options: {{ infra_wazuh_log_options }}
+    env_file: {{ infra_wazuh_indexer_env_file_path }}
+    volumes:
+      - {{ infra_wazuh_indexer_volume_name_data }}:/var/lib/wazuh-indexer
+      - {{ infra_wazuh_cert_root_ca_public_key_path }}:/usr/share/wazuh-indexer/certs/root-ca.pem
+      - {{ infra_wazuh_indexer_cert_public_key_path }}:/usr/share/wazuh-indexer/certs/wazuh.indexer.pem
+      - {{ infra_wazuh_indexer_cert_private_key_path }}:/usr/share/wazuh-indexer/certs/wazuh.indexer.key
+      - {{ infra_wazuh_indexer_admin_cert_public_key_path }}:/usr/share/wazuh-indexer/certs/admin.pem
+      - {{ infra_wazuh_indexer_admin_cert_private_key_path }}:/usr/share/wazuh-indexer/certs/admin-key.pem
+{% if _infra_wazuh_initial_setup %}
+      - {{ infra_wazuh_indexer_internal_users_config_path }}:/usr/share/wazuh-indexer/opensearch-security/internal_users.yml
+{% endif %}
+    mem_limit: {{ infra_wazuh_indexer_container_memory }}
+    networks:
+      - default
+    ports:
+      - {{ infra_wazuh_indexer_port_api }}:9200
+    ulimits:
+      memlock:
+        soft: {{ infra_wazuh_ulimit_memlock_soft }}
+        hard: {{ infra_wazuh_ulimit_memlock_hard }}
+      nofile:
+        soft: {{ infra_wazuh_ulimit_nofile_soft }}
+        hard: {{ infra_wazuh_ulimit_nofile_hard }}
+
+  {{ infra_wazuh_dashboard_service_name }}:
+    image: {{ infra_wazuh_dashboard_container_image }}
+    container_name: {{ infra_wazuh_dashboard_container_hostname }}
+    hostname: {{ infra_wazuh_dashboard_container_hostname }}
+    restart: {{ infra_wazuh_restart_policy | default(infra_restart_policy) }}
+    logging:
+      driver: {{ infra_wazuh_log_driver }}
+      options: {{ infra_wazuh_log_options }}
+    env_file: {{ infra_wazuh_dashboard_env_file_path }}
+    volumes:
+      - {{ infra_wazuh_dashboard_volume_name_config }}:/usr/share/wazuh-dashboard/data/wazuh/config
+      - {{ infra_wazuh_dashboard_volume_name_custom_plugins }}:/usr/share/wazuh-dashboard/plugins/wazuh/public/assets/custom
+      - {{ infra_wazuh_cert_root_ca_public_key_path }}:/usr/share/wazuh-dashboard/certs/root-ca.pem
+      - {{ infra_wazuh_dashboard_cert_public_key_path }}:/usr/share/wazuh-dashboard/certs/wazuh-dashboard.pem
+      - {{ infra_wazuh_dashboard_cert_private_key_path }}:/usr/share/wazuh-dashboard/certs/wazuh-dashboard-key.pem
+      - {{ infra_wazuh_dashboard_conf_file_path }}:/wazuh-config-mount/data/wazuh/config/wazuh.yml
+    mem_limit: {{ infra_wazuh_dashboard_container_memory }}
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: {{ svc_docker_network_name }}
+      traefik.http.routers.{{ infra_wazuh_service_name }}-rtr.rule: "Host(\"{{ infra_wazuh_fqdn }}\")"
+      traefik.http.routers.{{ infra_wazuh_service_name }}-rtr.entrypoints: webSecure
+      traefik.http.services.{{ infra_wazuh_service_name }}-svc.loadbalancer.server.port: 5601
+      traefik.http.services.{{ infra_wazuh_service_name }}-svc.loadbalancer.server.scheme: https
+      traefik.http.routers.{{ infra_wazuh_service_name }}-rtr.service: {{ infra_wazuh_service_name }}-svc
+      traefik.http.routers.{{ infra_wazuh_service_name }}-rtr.middlewares: lan-mwr@file
+    networks:
+      - default
+      - {{ svc_docker_network_name }}
+    depends_on:
+      - {{ infra_wazuh_indexer_service_name }}
+    ulimits:
+      memlock:
+        soft: {{ infra_wazuh_ulimit_memlock_soft }}
+        hard: {{ infra_wazuh_ulimit_memlock_hard }}
+      nofile:
+        soft: {{ infra_wazuh_ulimit_nofile_soft }}
+        hard: {{ infra_wazuh_ulimit_nofile_hard }}
+
+volumes:
+  {{ infra_wazuh_manager_volume_name_api_config }}:
+    name: {{ infra_wazuh_manager_volume_name_api_config }}
+    labels: {{ infra_wazuh_volume_labels | combine(infra_docker_volume_shared_labels) }}
+  {{ infra_wazuh_manager_volume_name_ossec_config }}:
+    name: {{ infra_wazuh_manager_volume_name_ossec_config }}
+    labels: {{ infra_wazuh_volume_labels | combine(infra_docker_volume_shared_labels) }}
+  {{ infra_wazuh_manager_volume_name_ossec_logs }}:
+    name: {{ infra_wazuh_manager_volume_name_ossec_logs }}
+    labels: {{ infra_wazuh_volume_labels | combine(infra_docker_volume_shared_labels) }}
+  {{ infra_wazuh_manager_volume_name_ossec_queue }}:
+    name: {{ infra_wazuh_manager_volume_name_ossec_queue }}
+    labels: {{ infra_wazuh_volume_labels | combine(infra_docker_volume_shared_labels) }}
+  {{ infra_wazuh_manager_volume_name_ossec_multigroups }}:
+    name: {{ infra_wazuh_manager_volume_name_ossec_multigroups }}
+    labels: {{ infra_wazuh_volume_labels | combine(infra_docker_volume_shared_labels) }}
+  {{ infra_wazuh_manager_volume_name_ossec_integrations }}:
+    name: {{ infra_wazuh_manager_volume_name_ossec_integrations }}
+    labels: {{ infra_wazuh_volume_labels | combine(infra_docker_volume_shared_labels) }}
+  {{ infra_wazuh_manager_volume_name_ossec_active_response }}:
+    name: {{ infra_wazuh_manager_volume_name_ossec_active_response }}
+    labels: {{ infra_wazuh_volume_labels | combine(infra_docker_volume_shared_labels) }}
+  {{ infra_wazuh_manager_volume_name_ossec_agentless }}:
+    name: {{ infra_wazuh_manager_volume_name_ossec_agentless }}
+    labels: {{ infra_wazuh_volume_labels | combine(infra_docker_volume_shared_labels) }}
+  {{ infra_wazuh_manager_volume_name_ossec_wodles }}:
+    name: {{ infra_wazuh_manager_volume_name_ossec_wodles }}
+    labels: {{ infra_wazuh_volume_labels | combine(infra_docker_volume_shared_labels) }}
+  {{ infra_wazuh_manager_volume_name_filebeat_etc }}:
+    name: {{ infra_wazuh_manager_volume_name_filebeat_etc }}
+    labels: {{ infra_wazuh_volume_labels | combine(infra_docker_volume_shared_labels) }}
+  {{ infra_wazuh_manager_volume_name_filebeat_var }}:
+    name: {{ infra_wazuh_manager_volume_name_filebeat_var }}
+    labels: {{ infra_wazuh_volume_labels | combine(infra_docker_volume_shared_labels) }}
+  {{ infra_wazuh_indexer_volume_name_data }}:
+    name: {{ infra_wazuh_indexer_volume_name_data }}
+    labels: {{ infra_wazuh_volume_labels | combine(infra_docker_volume_shared_labels) }}
+  {{ infra_wazuh_dashboard_volume_name_config }}:
+    name: {{ infra_wazuh_dashboard_volume_name_config }}
+    labels: {{ infra_wazuh_volume_labels | combine(infra_docker_volume_shared_labels) }}
+  {{ infra_wazuh_dashboard_volume_name_custom_plugins }}:
+    name: {{ infra_wazuh_dashboard_volume_name_custom_plugins }}
+    labels: {{ infra_wazuh_volume_labels | combine(infra_docker_volume_shared_labels) }}
+
+networks:
+  default:
+    driver: bridge
+    internal: 'true'
+  {{ svc_docker_network_name }}:
+    external: 'true'

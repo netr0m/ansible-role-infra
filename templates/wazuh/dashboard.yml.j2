@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+hosts:
+  - 1513629884013:
+      url: "https://{{ infra_wazuh_manager_service_name }}"
+      port: 55000
+      username: "{{ infra_wazuh_indexer_dashboard_user }}"
+      password: "{{ infra_wazuh_indexer_dashboard_password }}"
+      run_as: false

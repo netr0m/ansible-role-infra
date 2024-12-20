@@ -1,0 +1,17 @@
+#! /usr/bin/env bash
+
+# util to print QR codes for wireguard configs
+# requires 'jq' and 'qrencode' to be installed
+
+if ! command -v jq &> /dev/null; then
+    echo "Missing required package 'jq'"
+    exit 1
+elif ! command -v qrencode &> /dev/null; then
+    echo "Missing required package 'qrencode'"
+    exit 1
+fi
+
+for wgcfg in $(docker volume inspect {{ infra_wireguard_volume_name_config }} | jq '.[].Mountpoint' | sed 's/"//g')/peer_*/peer_*.conf; do
+    echo $(basename "$wgcfg")
+    qrencode -t ansiutf8 < "$wgcfg"
+done

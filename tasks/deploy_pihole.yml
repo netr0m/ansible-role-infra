@@ -167,4 +167,23 @@
       ansible.builtin.file:
         path: "{{ infra_pihole_dnsmasq_edns_conf_file_path }}"
         state: absent
+
+- name: Add Pihole to the container DNS server list
+  when: infra_containers_use_pihole_dns and infra_use_pihole
+  block:
+    - name: Get pihole container settings
+      block:
+        - name: Query for pihole container
+          community.docker.docker_container_info:
+            name: "{{ infra_pihole_service_name }}"
+          register: pihole_container_output
+
+        - name: Set pihole container IP fact
+          ansible.builtin.set_fact:
+            pihole_container_ip: "{{ pihole_container_output.container.NetworkSettings.Networks[svc_docker_network_name].IPAddress }}"
+
+    - name: Update the DNS server variable to include pihole
+      when: pihole_container_ip is defined
+      ansible.builtin.set_fact:
+        infra_container_dns_servers: "{{ [pihole_container_ip] + infra_container_dns_servers }}"
 ...

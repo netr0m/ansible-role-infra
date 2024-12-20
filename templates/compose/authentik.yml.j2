@@ -13,6 +13,9 @@ services:
     mem_limit: {{ infra_authentik_redis_container_memory }}
     networks:
       - default
+{% if infra_containers_override_dns %}
+    dns: {{ infra_container_dns_servers }}
+{% endif %}
     command: --save 60 1 --loglevel warning
     healthcheck:
       test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
@@ -37,6 +40,9 @@ services:
     mem_limit: {{ infra_authentik_db_container_memory }}
     networks:
       - default
+{% if infra_containers_override_dns %}
+    dns: {{ infra_container_dns_servers }}
+{% endif %}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       start_period: 20s
@@ -72,6 +78,9 @@ services:
     networks:
       - default
       - {{ svc_docker_network_name }}
+{% if infra_containers_override_dns %}
+    dns: {{ infra_container_dns_servers }}
+{% endif %}
     depends_on:
       - {{ infra_authentik_redis_service_name }}
       - {{ infra_authentik_db_service_name }}
@@ -93,6 +102,9 @@ services:
     mem_limit: {{ infra_authentik_worker_container_memory }}
     networks:
       - default
+{% if infra_containers_override_dns %}
+    dns: {{ infra_container_dns_servers }}
+{% endif %}
     depends_on:
       - {{ infra_authentik_redis_service_name }}
       - {{ infra_authentik_db_service_name }}

@@ -12,6 +12,9 @@
     infra_use_graylog: false  # skip testing due to GH actions space constraint
     infra_use_authentik: false  # skip testing due to GH actions space constraint
     infra_use_unifi: true
+    infra_container_dns_servers: # override to remove '{{ ansible_host }}' for GH actions runner
+      - 1.1.1.1
+      - 1.0.0.1
 
   pre_tasks:
     - name: Update package repository cache

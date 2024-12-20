@@ -15,6 +15,10 @@ infra_tz: Etc/UTC
 infra_domain: "{{ svc_domain }}"
 # Domain name, external
 infra_domain_ext: ~
+# Whether to override the DNS for containers (does not apply to wireguard, unifi, pihole, and unbound)
+infra_containers_override_dns: true
+# Whether to use pihole as DNS for other containers (requires 'infra_use_pihole' and 'infra_containers_override_dns' to be true)
+infra_containers_use_pihole_dns: true
 
 ### Directories ###
 # Manage directories
@@ -32,6 +36,11 @@ infra_file_mode: 640
 infra_restart_policy: always
 # Max. wait time for compose deployment
 infra_compose_wait_timeout: 120
+# DNS servers to use for containers (does not apply to wireguard, unifi, pihole, and unbound). Requires 'infra_containers_override_dns' to be true
+infra_container_dns_servers:
+  - "{{ ansible_host }}"
+  - 1.1.1.1
+  - 1.0.0.1
 
 ### Services ###
 # Configure Graylog

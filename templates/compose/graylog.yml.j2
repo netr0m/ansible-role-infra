@@ -17,6 +17,9 @@ services:
     mem_limit: {{ infra_graylog_db_container_memory }}
     networks:
       - default
+{% if infra_containers_override_dns %}
+    dns: {{ infra_container_dns_servers }}
+{% endif %}
     group_add:
       - {{ infra_group_gid }}
 
@@ -35,6 +38,9 @@ services:
     mem_limit: {{ infra_graylog_opensearch_container_memory }}
     networks:
       - default
+{% if infra_containers_override_dns %}
+    dns: {{ infra_container_dns_servers }}
+{% endif %}
     ulimits:
       memlock:
         soft: {{ infra_graylog_opensearch_ulimits_memlock_soft }}
@@ -74,6 +80,9 @@ services:
     networks:
       - default
       - {{ svc_docker_network_name }}
+{% if infra_containers_override_dns %}
+    dns: {{ infra_container_dns_servers }}
+{% endif %}
     depends_on:
       - {{ infra_graylog_db_service_name }}
       - {{ infra_graylog_opensearch_service_name }}

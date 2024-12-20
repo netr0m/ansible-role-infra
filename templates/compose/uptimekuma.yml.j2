@@ -23,6 +23,9 @@ services:
       traefik.http.routers.{{ infra_uptimekuma_service_name }}-rtr.middlewares: lan-mwr@file
     networks:
       {{ svc_docker_network_name }}:
+{% if infra_containers_override_dns %}
+    dns: {{ infra_container_dns_servers }}
+{% endif %}
 
 volumes:
   {{ infra_uptimekuma_volume_name_data }}:

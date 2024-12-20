@@ -107,4 +107,12 @@
     wait_timeout: "{{ infra_compose_wait_timeout }}"
   register: deploy_wireguard_services_output
 
+- name: Copy print-qr-codes util script into place
+  ansible.builtin.template:
+    src: print-qr-codes.sh.j2
+    dest: "{{ infra_wireguard_directory_path }}/print-qr-codes.sh"
+    owner: "{{ infra_wireguard_directory_owner }}"
+    group: "{{ infra_wireguard_directory_group }}"
+    mode: "0750"
+
 ...

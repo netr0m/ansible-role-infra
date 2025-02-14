@@ -47,4 +47,23 @@
 - name: Include 'uptimekuma' tasks
   ansible.builtin.import_tasks: deploy_uptimekuma.yml
   when: infra_use_uptimekuma
+
+# Manage docker-volume-backup deployment
+- name: Include 'deploy_docker-volume-backup' from 'netr0m.svc'
+  ansible.builtin.include_role:
+    name: netr0m.svc
+    tasks_from: 'deploy_docker-volume-backup'
+    apply:
+      tags:
+        - 'always'
+  vars:
+    svc_docker_volume_backup_directory_path: "{{ infra_directory_path }}/docker-volume-backup"
+    svc_docker_volume_backup_directory_owner: "{{ infra_directory_owner }}"
+    svc_docker_volume_backup_directory_group: "{{ infra_directory_group }}"
+    svc_docker_volume_backup_directory_mode: "{{ infra_directory_mode }}"
+    svc_docker_volume_backup_file_mode: "{{ infra_file_mode }}"
+    svc_docker_volume_backup_service_name: "docker-volume-backup-{{ infra_role_name }}"
+    svc_docker_volume_backup_restart_policy: "{{ infra_restart_policy }}"
+    __svc_docker_volume_backup_service_var_prefix: "infra_docker_volume_backup_services"
+  when: infra_backup_enabled
 ...

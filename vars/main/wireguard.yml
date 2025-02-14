@@ -44,4 +44,7 @@ infra_wireguard_ui_env_vars:
   WGUI_MANAGE_RESTART: "{{ infra_wireguard_ui_manage_wireguard }}"
   SESSION_SECRET_FILE: "/run/secrets/{{ infra_wireguard_ui_session_secret_name }}"
   WGUI_PASSWORD_FILE: "/run/secrets/{{ infra_wireguard_ui_password_name }}"
+
+# Placeholder for the wireguard volumes to include for docker-volume-backup
+infra_docker_volume_backup_services_wireguard: []
 ...

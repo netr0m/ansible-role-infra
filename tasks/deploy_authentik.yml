@@ -89,4 +89,14 @@
     wait: true
     wait_timeout: "{{ infra_compose_wait_timeout }}"
   register: deploy_authentik_services_output
+
+- name: Add docker-volume-backup entries
+  when: infra_backup_enabled
+  ansible.builtin.set_fact:
+    infra_docker_volume_backup_services_authentik:
+      - service: "{{ infra_authentik_service_name }}"
+        volumes:
+          - "{{ infra_authentik_db_volume_name_data }}"
+        stop:
+          - "{{ infra_authentik_service_name }}"
 ...

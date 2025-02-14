@@ -21,6 +21,7 @@ services:
       traefik.http.services.{{ infra_vaultwarden_service_name }}-svc.loadbalancer.server.scheme: http
       traefik.http.routers.{{ infra_vaultwarden_service_name }}-rtr.service: {{ infra_vaultwarden_service_name }}-svc
       traefik.http.routers.{{ infra_vaultwarden_service_name }}-rtr.middlewares: lan-mwr@file
+      docker-volume-backup.stop-during-backup: "{{ infra_vaultwarden_service_name }}"
     networks:
       {{ svc_docker_network_name }}:
 {% if infra_containers_override_dns %}

@@ -39,4 +39,7 @@ infra_graylog_opensearch_ulimits_memlock_hard: -1
 infra_graylog_opensearch_ulimits_nofile_soft: 65536
 # nofile ulimit (hard) for the Graylog Opensearch container
 infra_graylog_opensearch_ulimits_nofile_hard: 65536
+
+# Placeholder for the graylog volumes to include for docker-volume-backup
+infra_docker_volume_backup_services_graylog: []
 ...

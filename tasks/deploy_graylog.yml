@@ -128,4 +128,18 @@
     wait: true
     wait_timeout: "{{ infra_compose_wait_timeout }}"
   register: deploy_graylog_services_output
+
+- name: Add docker-volume-backup entries
+  when: infra_backup_enabled
+  ansible.builtin.set_fact:
+    infra_docker_volume_backup_services_graylog:
+      - service: "{{ infra_graylog_service_name }}"
+        volumes:
+          - "{{ infra_graylog_volume_name_config }}"
+          - "{{ infra_graylog_volume_name_data }}"
+          - "{{ infra_graylog_volume_name_journal }}"
+          - "{{ infra_graylog_db_volume_name_data }}"
+          - "{{ infra_graylog_opensearch_volume_name_data }}"
+        stop:
+          - "{{ infra_graylog_service_name }}"
 ...

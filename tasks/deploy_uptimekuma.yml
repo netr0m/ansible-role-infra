@@ -54,4 +54,14 @@
     wait: true
     wait_timeout: "{{ infra_compose_wait_timeout }}"
   register: deploy_uptimekuma_services_output
+
+- name: Add docker-volume-backup entries
+  when: infra_backup_enabled
+  ansible.builtin.set_fact:
+    infra_docker_volume_backup_services_uptimekuma:
+      - service: "{{ infra_uptimekuma_service_name }}"
+        volumes:
+          - "{{ infra_uptimekuma_volume_name_data }}"
+        stop:
+          - "{{ infra_uptimekuma_service_name }}"
 ...

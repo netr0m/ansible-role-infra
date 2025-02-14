@@ -61,6 +61,7 @@ services:
       traefik.udp.routers.pihole-dns-udp-rtr.entrypoints: dnsUdp
       traefik.udp.services.pihole-dns-udp-svc.loadbalancer.server.port: "53"
       traefik.udp.routers.pihole-dns-udp-rtr.service: pihole-dns-udp-svc
+      docker-volume-backup.stop-during-backup: "{{ infra_pihole_service_name }}"
     networks:
       - {{ svc_docker_network_name }}
     ports:

@@ -1,4 +1,6 @@
 ---
+# Role name
+infra_role_name: netr0m.infra
 # Environment
 infra_env: "{{ lookup('env', 'ENVIRONMENT') | default('production') }}"
 # Username of the user owning the files
@@ -19,12 +21,14 @@ infra_domain_ext: ~
 infra_containers_override_dns: true
 # Whether to use pihole as DNS for other containers (requires 'infra_use_pihole' and 'infra_containers_override_dns' to be true)
 infra_containers_use_pihole_dns: true
+# Whether to enable backups of docker volumes. See netr0m.svc
+infra_backup_enabled: true
 
 ### Directories ###
 # Manage directories
 infra_manage_directories: true
 # Directory to store service data
-infra_directory_path: '/opt/netr0m.infra'
+infra_directory_path: "/opt/{{ infra_role_name }}"
 # Default permissions
 infra_directory_owner: "{{ infra_user_name }}"
 infra_directory_group: "{{ infra_group_name }}"

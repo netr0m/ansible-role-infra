@@ -13,6 +13,8 @@ services:
       - {{ infra_unifi_db_volume_name_data }}:/data/db
       - {{ infra_unifi_db_init_mongo_path }}:/docker-entrypoint-initdb.d/init-mongo.js:ro
     mem_limit: {{ infra_unifi_db_container_memory }}
+    labels:
+      docker-volume-backup.stop-during-backup: "{{ infra_unifi_service_name }}"
     networks:
       - default
 {% endif %}
@@ -45,6 +47,7 @@ services:
       traefik.http.services.{{ infra_unifi_service_name }}-svc.loadbalancer.server.scheme: https
       traefik.http.routers.{{ infra_unifi_service_name }}-rtr.service: {{ infra_unifi_service_name }}-svc
       traefik.http.routers.{{ infra_unifi_service_name }}-rtr.middlewares: lan-mwr@file
+      docker-volume-backup.stop-during-backup: "{{ infra_unifi_service_name }}"
     networks:
       - default
       - {{ svc_docker_network_name }}

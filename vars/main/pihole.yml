@@ -11,4 +11,7 @@ infra_pihole_env_vars:
 
 # DNS environment variables placeholder for the Pihole container
 infra_pihole_env_vars_dns: {}
+
+# Placeholder for the pihole volumes to include for docker-volume-backup
+infra_docker_volume_backup_services_pihole: []
 ...

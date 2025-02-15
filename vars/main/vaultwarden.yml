@@ -3,4 +3,7 @@
 infra_vaultwarden_env_vars:
   WEBSOCKET_ENABLED: 'true'
   DOMAIN: "https://{{ infra_vaultwarden_fqdn }}"
+
+# Placeholder for the vaultwarden volumes to include for docker-volume-backup
+infra_docker_volume_backup_services_vaultwarden: []
 ...

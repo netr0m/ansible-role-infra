@@ -186,4 +186,14 @@
       when: pihole_container_ip is defined
       ansible.builtin.set_fact:
         infra_container_dns_servers: "{{ [pihole_container_ip] + infra_container_dns_servers }}"
+
+- name: Add docker-volume-backup entries
+  when: infra_backup_enabled
+  ansible.builtin.set_fact:
+    infra_docker_volume_backup_services_pihole:
+      - service: "{{ infra_pihole_service_name }}"
+        volumes:
+          - "{{ infra_pihole_volume_name_data }}"
+        stop:
+          - "{{ infra_pihole_service_name }}"
 ...

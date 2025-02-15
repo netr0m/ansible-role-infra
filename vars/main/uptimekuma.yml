@@ -3,4 +3,7 @@
 infra_uptimekuma_env_vars:
   PUID: "{{ infra_user_uid | string }}"
   PGID: "{{ infra_group_gid | string }}"
+
+# Placeholder for the uptimekuma volumes to include for docker-volume-backup
+infra_docker_volume_backup_services_uptimekuma: []
 ...

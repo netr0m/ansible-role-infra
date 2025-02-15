@@ -15,6 +15,8 @@ services:
     volumes:
       - {{ infra_graylog_db_volume_name_data }}:/data/db
     mem_limit: {{ infra_graylog_db_container_memory }}
+    labels:
+      docker-volume-backup.stop-during-backup: "{{ infra_graylog_service_name }}"
     networks:
       - default
 {% if infra_containers_override_dns %}
@@ -36,6 +38,8 @@ services:
     volumes:
       - {{ infra_graylog_opensearch_volume_name_data }}:/usr/share/opensearch/data
     mem_limit: {{ infra_graylog_opensearch_container_memory }}
+    labels:
+      docker-volume-backup.stop-during-backup: "{{ infra_graylog_service_name }}"
     networks:
       - default
 {% if infra_containers_override_dns %}
@@ -77,6 +81,7 @@ services:
       traefik.http.routers.{{ infra_graylog_service_name }}-rtr.service: {{ infra_graylog_service_name }}-svc
       traefik.http.middlewares.{{ infra_graylog_service_name }}-mwr.headers.customrequestheaders.X-Graylog-Server-URL: http://{{ infra_graylog_fqdn }}/
       traefik.http.routers.{{ infra_graylog_service_name }}-rtr.middlewares: {{ infra_graylog_service_name }}-mwr,lan-mwr@file
+      docker-volume-backup.stop-during-backup: "{{ infra_graylog_service_name }}"
     networks:
       - default
       - {{ svc_docker_network_name }}

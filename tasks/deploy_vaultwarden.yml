@@ -55,4 +55,13 @@
     wait_timeout: "{{ infra_compose_wait_timeout }}"
   register: deploy_vaultwarden_services_output
 
+- name: Add docker-volume-backup entries
+  when: infra_backup_enabled
+  ansible.builtin.set_fact:
+    infra_docker_volume_backup_services_vaultwarden:
+      - service: "{{ infra_vaultwarden_service_name }}"
+        volumes:
+          - "{{ infra_vaultwarden_volume_name_data }}"
+        stop:
+          - "{{ infra_vaultwarden_service_name }}"
 ...

@@ -11,4 +11,7 @@ infra_unifi_env_vars:
   MONGO_DBNAME: "{{ infra_unifi_db_name }}"
   MONGO_TLS: "{{ infra_unifi_db_tls }}"
   MONGO_AUTHSOURCE: "{{ infra_unifi_db_auth_source }}"
+
+# Placeholder for the unifi volumes to include for docker-volume-backup
+infra_docker_volume_backup_services_unifi: []
 ...

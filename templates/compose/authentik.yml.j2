@@ -38,6 +38,8 @@ services:
     volumes:
       - {{ infra_authentik_db_volume_name_data }}:/var/lib/postgresql/data
     mem_limit: {{ infra_authentik_db_container_memory }}
+    labels:
+      docker-volume-backup.stop-during-backup: "{{ infra_authentik_service_name }}"
     networks:
       - default
 {% if infra_containers_override_dns %}
@@ -75,6 +77,7 @@ services:
       # ForwardAuth regex
       traefik.http.routers.{{ infra_authentik_service_name }}-outpost-rtr.rule: "HostRegexp(`{subdomain:[a-z0-9-]+}.{{ infra_domain }}`) && PathPrefix(`/outpost.goauthentik.io/`)"
       traefik.http.routers.{{ infra_authentik_service_name }}-outpost-rtr.entrypoints: webSecure
+      docker-volume-backup.stop-during-backup: "{{ infra_authentik_service_name }}"
     networks:
       - default
       - {{ svc_docker_network_name }}
@@ -100,6 +103,8 @@ services:
       - {{ infra_authentik_directory_path }}/templates:/templates
       - {{ infra_authentik_directory_path }}/certs:/certs
     mem_limit: {{ infra_authentik_worker_container_memory }}
+    labels:
+      docker-volume-backup.stop-during-backup: "{{ infra_authentik_service_name }}"
     networks:
       - default
 {% if infra_containers_override_dns %}

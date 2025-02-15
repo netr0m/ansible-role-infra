@@ -19,4 +19,7 @@ infra_authentik_server_env_vars:
   AUTHENTIK_POSTGRESQL__NAME: "{{ infra_authentik_db_name | string }}"
   AUTHENTIK_POSTGRESQL__USER: "{{ infra_authentik_db_user | string }}"
   AUTHENTIK_POSTGRESQL__PASSWORD: "{{ infra_authentik_db_password | string }}"
+
+# Placeholder for the authentik volumes to include for docker-volume-backup
+infra_docker_volume_backup_services_authentik: []
 ...

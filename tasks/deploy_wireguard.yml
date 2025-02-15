@@ -115,4 +115,12 @@
     group: "{{ infra_wireguard_directory_group }}"
     mode: "0750"
 
+- name: Add docker-volume-backup entries
+  when: infra_backup_enabled
+  ansible.builtin.set_fact:
+    infra_docker_volume_backup_services_wireguard:
+      - service: wireguard
+        volumes:
+          - "{{ infra_wireguard_volume_name_config }}"
+          - "{{ infra_wireguard_ui_volume_name_data }}"
 ...

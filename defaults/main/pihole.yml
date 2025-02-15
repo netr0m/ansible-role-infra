@@ -1,7 +1,7 @@
 ---
 ### Pihole ###
 # Version of the pihole Docker image to use (see 'infra_pihole_container_image')
-infra_pihole_version: latest
+infra_pihole_version: 2024.07.0
 
 ## Pihole secrets
 # Password for the web UI

@@ -1,7 +1,7 @@
 ---
 ### Vaultwarden ###
 # Version of the vaultwarden Docker image to use (see 'infra_vaultwarden_container_image')
-infra_vaultwarden_version: 1.31.0
+infra_vaultwarden_version: 1.33.2
 
 ## Vaultwarden settings. See https://github.com/dani-garcia/vaultwarden/wiki
 infra_vaultwarden_settings:

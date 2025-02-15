@@ -1,7 +1,7 @@
 ---
 ### Authentik ###
 # Version of the authentik Docker image to use (see 'infra_authentik_container_image')
-infra_authentik_version: 2024.6.2
+infra_authentik_version: 2024.12.3
 # Version of the redis Docker image to use (see 'infra_authentik_redis_container_image')
 infra_authentik_redis_version: alpine
 # Version of the posgresql Docker image to use (see 'infra_authentik_db_container_image')
@@ -19,7 +19,7 @@ infra_authentik_db_user: "authentik"
 # Database name
 infra_authentik_db_name: "authentik"
 
-## Authentik settings. See https://goauthentik.io/docs/installation/configuration#authentik-settings
+## Authentik settings. See https://docs.goauthentik.io/docs/install-config/configuration/#authentik-settings
 infra_authentik_settings:
   AUTHENTIK_COOKIE_DOMAIN: "{{ infra_domain }}"
   AUTHENTIK_LOG_LEVEL: 'info'

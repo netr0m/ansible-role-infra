@@ -63,7 +63,12 @@ services:
       traefik.udp.routers.pihole-dns-udp-rtr.service: pihole-dns-udp-svc
       docker-volume-backup.stop-during-backup: "{{ infra_pihole_service_name }}"
     networks:
+{% if _svc_pihole_container_ip %}
+      {{ svc_docker_network_name }}:
+        ipv4_address: {{ _svc_pihole_container_ip }}
+{% else %}
       - {{ svc_docker_network_name }}
+{% endif %}
     ports:
       - {{ infra_pihole_port_dns }}:53/tcp
       - {{ infra_pihole_port_dns }}:53/udp

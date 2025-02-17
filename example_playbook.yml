@@ -6,5 +6,5 @@
 
   roles:
     - role: netr0m.infra  # noqa syntax-check[specific]
-      src: git+https://github.com/netr0m/netr0m.infra.git
+      src: git+https://github.com/netr0m/ansible-role-infra.git
 ...

@@ -60,7 +60,7 @@ infra_graylog_password_sha2: "sha256-sum-of-your-password"
 infra_wazuh_indexer_admin_password: ~
 # Password for the wazuh indexer 'dashboard' user (infra_wazuh_indexer_dashboard_user)
 infra_wazuh_indexer_dashboard_password: ~
-# Password for the wazuh api user (infra_wazuh_api_username). NB: The password for Wazuh API users must be between 8 and 64 characters long. It must contain at least one uppercase and one lowercase letter, a number, and a symbol.
+# Password for the wazuh api user (infra_wazuh_api_user). NB: The password for Wazuh API users must be between 8 and 64 characters long. It must contain at least one uppercase and one lowercase letter, a number, and a symbol.
 infra_wazuh_api_password: ~
 
 ```

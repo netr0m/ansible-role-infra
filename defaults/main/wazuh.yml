@@ -1,7 +1,7 @@
 ---
 ### wazuh ###
 # Version of the wazuh Docker image to use (see 'infra_wazuh_manager_container_image', 'infra_wazuh_indexer_container_image', 'infra_wazuh_dashboard_container_image')
-infra_wazuh_version: 4.8.1
+infra_wazuh_version: 4.11.0
 # Version of the wazuh Docker image to use (see 'infra_wazuh_cert_tool_container_image')
 infra_wazuh_cert_tool_version: 0.0.2
 
@@ -10,7 +10,7 @@ infra_wazuh_cert_tool_version: 0.0.2
 infra_wazuh_indexer_admin_password: ~
 # Password for the wazuh indexer 'dashboard' user (infra_wazuh_indexer_dashboard_user)
 infra_wazuh_indexer_dashboard_password: ~
-# Password for the wazuh api user (infra_wazuh_api_username). NB: The password for Wazuh API users must be between 8 and 64 characters long. It must contain at least one uppercase and one lowercase letter, a number, and a symbol.
+# Password for the wazuh api user (infra_wazuh_api_user). NB: The password for Wazuh API users must be between 8 and 64 characters long. It must contain at least one uppercase and one lowercase letter, a number, and a symbol.
 infra_wazuh_api_password: ~
 
 ## wazuh users
@@ -19,15 +19,21 @@ infra_wazuh_indexer_admin_user: admin
 # username for the indexer 'dashboard' user
 infra_wazuh_indexer_dashboard_user: kibanaserver
 # api username
-infra_wazuh_api_user: wazuh
+infra_wazuh_api_user: wazuh-wui
 
-## wazuh settings
-# wazuh manager settings. See https://github.com/wazuh/wazuh-docker#manager
+## wazuh settings. see https://github.com/wazuh/wazuh-docker/blob/main/README.md#environment-variables
+# wazuh manager settings
 infra_wazuh_manager_settings: {}
-# wazuh indexer settings. See https://github.com/wazuh/wazuh-docker#indexer
+# wazuh indexer settings
 infra_wazuh_indexer_settings: {}
-# wazuh dashboard settings. See https://github.com/wazuh/wazuh-docker#dashboard
+# wazuh dashboard settings
 infra_wazuh_dashboard_settings: {}
+
+## init settings
+# time (in seconds) to wait for the wazuh indexer to initialize before running securityadmin.sh
+infra_wazuh_indexer_init_wait_time: 30
+# whether to set the 'vm.max_map_count' value with sysctl
+infra_wazuh_set_vm_max_map_count: true
 
 ## Directories
 # Directory path
@@ -55,7 +61,7 @@ infra_wazuh_file_mode: "{{ infra_file_mode }}"
 # wazuh compose file path
 infra_wazuh_compose_path: "{{ infra_wazuh_directory_path }}/compose.yml"
 # wazuh generate-certs compose file path
-infra_wazuh_generate_certs_compose_path: "{{ infra_wazuh_directory_path }}/generate-certs.yml"
+infra_wazuh_generate_certs_compose_path: "{{ infra_wazuh_directory_path }}/generate-indexer-certs.yml"
 # wazuh env file path
 infra_wazuh_manager_env_file_path: "{{ infra_wazuh_directory_path }}/wazuh-manager.env"
 # wazuh env file path
@@ -67,11 +73,15 @@ infra_wazuh_env_file_mode: "0600"
 # wazuh certs.yml config file path
 infra_wazuh_certs_conf_file_path: "{{ infra_wazuh_config_directory_path }}/certs.yml"
 # wazuh manager config file path
-infra_wazuh_manager_conf_file_path: "{{ infra_wazuh_config_directory_path }}/wazuh-manager.conf"
+infra_wazuh_manager_conf_file_path: "{{ infra_wazuh_config_directory_path }}/wazuh_manager.conf"
+# wazuh indexer opensearch config file path
+infra_wazuh_indexer_opensearch_config_path: "{{ infra_wazuh_config_directory_path }}/wazuh.indexer.yml"
 # wazuh indexer users config file path
 infra_wazuh_indexer_internal_users_config_path: "{{ infra_wazuh_config_directory_path }}/internal_users.yml"
 # wazuh dashboard config file path
 infra_wazuh_dashboard_conf_file_path: "{{ infra_wazuh_config_directory_path }}/wazuh.yml"
+# wazuh dashboard opensearch config file path
+infra_wazuh_dashboard_opensearch_config_path: "{{ infra_wazuh_config_directory_path }}/opensearch_dashboards.yml"
 # wazuh init file path (check if previously initialized)
 infra_wazuh_init_file_path: "{{ infra_wazuh_directory_path }}/.initialized"
 
@@ -110,15 +120,15 @@ infra_wazuh_manager_container_memory: 4g
 infra_wazuh_indexer_container_memory: 6g
 # Memory limit for the wazuh dashboard container
 infra_wazuh_dashboard_container_memory: 2g
-# agentd port (secure event listener) for the wazuh manager
+# agentd port (secure event listener) for the wazuh manager (TCP)
 infra_wazuh_manager_port_agentd: 1514
-# agentAuthd port (agent enrollment service) for the wazuh manager
+# agentAuthd port (agent enrollment service) for the wazuh manager (TCP)
 infra_wazuh_manager_port_auth: 1515
-# syslog port (event listener) for the wazuh manager
+# syslog port (event listener) for the wazuh manager (UDP)
 infra_wazuh_manager_port_syslog: 514
-# api port for the wazuh manager
+# api port for the wazuh manager (TCP)
 infra_wazuh_manager_port_api: 55000
-# api port for the wazuh indexer
+# api port for the wazuh indexer (HTTPS)
 infra_wazuh_indexer_port_api: 9200
 # Log driver for the wazuh containers
 infra_wazuh_log_driver: local

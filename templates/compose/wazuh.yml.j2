@@ -25,6 +25,8 @@ services:
       - {{ infra_wazuh_manager_cert_private_key_path }}:/etc/ssl/filebeat.key
       - {{ infra_wazuh_manager_conf_file_path }}:/wazuh-config-mount/etc/ossec.conf
     mem_limit: {{ infra_wazuh_manager_container_memory }}
+    labels:
+      docker-volume-backup.stop-during-backup: "{{ infra_wazuh_service_name }}"
     networks:
       - default
     ports:
@@ -56,10 +58,13 @@ services:
       - {{ infra_wazuh_indexer_cert_private_key_path }}:/usr/share/wazuh-indexer/certs/wazuh.indexer.key
       - {{ infra_wazuh_indexer_admin_cert_public_key_path }}:/usr/share/wazuh-indexer/certs/admin.pem
       - {{ infra_wazuh_indexer_admin_cert_private_key_path }}:/usr/share/wazuh-indexer/certs/admin-key.pem
+      - {{ infra_wazuh_indexer_opensearch_config_path }}:/usr/share/wazuh-indexer/opensearch.yml
 {% if _infra_wazuh_initial_setup %}
       - {{ infra_wazuh_indexer_internal_users_config_path }}:/usr/share/wazuh-indexer/opensearch-security/internal_users.yml
 {% endif %}
     mem_limit: {{ infra_wazuh_indexer_container_memory }}
+    labels:
+      docker-volume-backup.stop-during-backup: "{{ infra_wazuh_service_name }}"
     networks:
       - default
     ports:
@@ -88,6 +93,7 @@ services:
       - {{ infra_wazuh_dashboard_cert_public_key_path }}:/usr/share/wazuh-dashboard/certs/wazuh-dashboard.pem
       - {{ infra_wazuh_dashboard_cert_private_key_path }}:/usr/share/wazuh-dashboard/certs/wazuh-dashboard-key.pem
       - {{ infra_wazuh_dashboard_conf_file_path }}:/wazuh-config-mount/data/wazuh/config/wazuh.yml
+      - {{ infra_wazuh_dashboard_opensearch_config_path }}:/usr/share/wazuh-dashboard/config/opensearch_dashboards.yml
     mem_limit: {{ infra_wazuh_dashboard_container_memory }}
     labels:
       traefik.enable: 'true'
@@ -98,6 +104,7 @@ services:
       traefik.http.services.{{ infra_wazuh_service_name }}-svc.loadbalancer.server.scheme: https
       traefik.http.routers.{{ infra_wazuh_service_name }}-rtr.service: {{ infra_wazuh_service_name }}-svc
       traefik.http.routers.{{ infra_wazuh_service_name }}-rtr.middlewares: lan-mwr@file
+      docker-volume-backup.stop-during-backup: "{{ infra_wazuh_service_name }}"
     networks:
       - default
       - {{ svc_docker_network_name }}

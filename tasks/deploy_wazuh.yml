@@ -26,19 +26,21 @@
       ansible.builtin.set_fact:
         _infra_wazuh_initial_setup: "{{ not infra_wazuh_init_file_stat_output.stat.exists }}"
 
-    - name: Create init file
-      when: _infra_wazuh_initial_setup
-      ansible.builtin.file:
-        path: "{{ infra_wazuh_init_file_path }}"
-        owner: "{{ infra_wazuh_directory_owner }}"
-        group: "{{ infra_wazuh_directory_group }}"
-        state: touch
+- name: Increase 'max_map_count'
+  when: infra_wazuh_set_vm_max_map_count
+  ansible.posix.sysctl:
+    name: vm.max_map_count
+    value: '262144'
+    state: present
+    sysctl_set: true
+    reload: true
+  ignore_errors: true # noqa ignore-errors
 
 - name: Manage wazuh configuration
   block:
     - name: Write wazuh manager config to file
       ansible.builtin.template:
-        src: wazuh/wazuh_manager.conf.j2
+        src: wazuh/wazuh_cluster/wazuh_manager.conf.j2
         dest: "{{ infra_wazuh_manager_conf_file_path }}"
         owner: "{{ infra_wazuh_config_directory_owner }}"
         group: "{{ infra_wazuh_config_directory_group }}"
@@ -59,7 +61,7 @@
 
         - name: Write wazuh indexer users config to file
           ansible.builtin.template:
-            src: wazuh/internal_users.yml.j2
+            src: wazuh/wazuh_indexer/internal_users.yml.j2
             dest: "{{ infra_wazuh_indexer_internal_users_config_path }}"
             owner: "{{ infra_wazuh_config_directory_owner }}"
             group: "{{ infra_wazuh_config_directory_group }}"
@@ -67,9 +69,19 @@
             backup: true
           register: wazuh_indexer_users_config_file_output
 
+    - name: Write wazuh indexer opensearch config to file
+      ansible.builtin.template:
+        src: wazuh/wazuh_indexer/wazuh.indexer.yml.j2
+        dest: "{{ infra_wazuh_indexer_opensearch_config_path }}"
+        owner: "{{ infra_wazuh_config_directory_owner }}"
+        group: "{{ infra_wazuh_config_directory_group }}"
+        mode: "{{ infra_wazuh_file_mode }}"
+        backup: true
+      register: wazuh_indexer_opensearch_config_file_output
+
     - name: Write wazuh dashboard config to file
       ansible.builtin.template:
-        src: wazuh/dashboard.yml.j2
+        src: wazuh/wazuh_dashboard/wazuh.yml.j2
         dest: "{{ infra_wazuh_dashboard_conf_file_path }}"
         owner: "{{ infra_wazuh_config_directory_owner }}"
         group: "{{ infra_wazuh_config_directory_group }}"
@@ -77,11 +89,21 @@
         backup: true
       register: wazuh_dashboard_config_file_output
 
+    - name: Write wazuh dashboard opensearch config to file
+      ansible.builtin.template:
+        src: wazuh/wazuh_dashboard/opensearch_dashboards.yml.j2
+        dest: "{{ infra_wazuh_dashboard_opensearch_config_path }}"
+        owner: "{{ infra_wazuh_config_directory_owner }}"
+        group: "{{ infra_wazuh_config_directory_group }}"
+        mode: "{{ infra_wazuh_file_mode }}"
+        backup: true
+      register: wazuh_dashboard_opensearch_config_file_output
+
 - name: Manage service files
   block:
     - name: Write wazuh manager environment variables to file
       ansible.builtin.template:
-        src: template.env.j2
+        src: wazuh/template.env.j2
         dest: "{{ infra_wazuh_manager_env_file_path }}"
         owner: "{{ infra_wazuh_directory_owner }}"
         group: "{{ infra_wazuh_directory_group }}"
@@ -93,7 +115,7 @@
 
     - name: Write wazuh indexer environment variables to file
       ansible.builtin.template:
-        src: template.env.j2
+        src: wazuh/template.env.j2
         dest: "{{ infra_wazuh_indexer_env_file_path }}"
         owner: "{{ infra_wazuh_directory_owner }}"
         group: "{{ infra_wazuh_directory_group }}"
@@ -105,7 +127,7 @@
 
     - name: Write wazuh dashboard environment variables to file
       ansible.builtin.template:
-        src: template.env.j2
+        src: wazuh/template.env.j2
         dest: "{{ infra_wazuh_dashboard_env_file_path }}"
         owner: "{{ infra_wazuh_directory_owner }}"
         group: "{{ infra_wazuh_directory_group }}"
@@ -154,22 +176,55 @@
         group: "{{ infra_wazuh_config_directory_group }}"
         mode: "{{ infra_wazuh_file_mode }}"
         backup: true
-      register: wazuh_certs_config_file_output
+      register: wazuh_certs_config_file_outputcertificates
+
+    - name: Ensure wazuh certificates directory is present
+      ansible.builtin.file:
+        path: "{{ infra_wazuh_certificates_directory_path }}"
+        state: directory
+        owner: "{{ infra_wazuh_config_directory_owner }}"
+        group: "{{ infra_wazuh_config_directory_group }}"
+        mode: "{{ infra_wazuh_config_directory_mode }}"
+
+    - name: Copy compose services file into place
+      ansible.builtin.template:
+        src: compose/wazuh-generate-indexer-certs.yml.j2
+        dest: "{{ infra_wazuh_generate_certs_compose_path }}"
+        owner: "{{ infra_wazuh_directory_owner }}"
+        group: "{{ infra_wazuh_directory_group }}"
+        mode: "{{ infra_wazuh_file_mode }}"
+        backup: true
+        validate: docker compose -f %s config -q
+      register: compose_file_output
 
     - name: Pull container image
       community.docker.docker_image:
         name: "{{ infra_wazuh_cert_tool_container_image }}"
         source: pull
 
-    - name: Run wazuh certs-generator
-      community.docker.docker_container:
-        image: "{{ infra_wazuh_cert_tool_container_image }}"
-        name: "{{ infra_wazuh_cert_tool_hostname }}"
-        hostname: "{{ infra_wazuh_cert_tool_hostname }}"
-        volumes:
-          - "{{ infra_wazuh_certificates_directory_path }}:/certificates/"
-          - "{{ infra_wazuh_certs_conf_file_path }}:/config/certs.yml"
-        auto_remove: true
+    - name: Run wazuh certs generator
+      community.docker.docker_compose_v2:
+        project_src: "{{ infra_wazuh_directory_path }}"
+        files:
+          - "{{ infra_wazuh_generate_certs_compose_path }}"
+        state: present
+        services:
+          - "{{ infra_wazuh_cert_tool_hostname }}"
+        wait: true
+        wait_timeout: "{{ infra_wazuh_compose_wait_timeout | default(infra_compose_wait_timeout) }}"
+      register: deploy_wazuh_cert_gen_output
+
+- name: Include 'set_access_control' from 'netr0m.svc'
+  ansible.builtin.include_role:
+    name: netr0m.svc
+    tasks_from: 'set_access_control'
+    apply:
+      tags:
+        - 'always'
+  vars:
+    svc_acl_entries_wazuh: "{{ infra_wazuh_acl_entries }}"
+  tags:
+    - always
 
 - name: Deploy wazuh services
   community.docker.docker_compose_v2:
@@ -179,10 +234,61 @@
     wait_timeout: "{{ infra_wazuh_compose_wait_timeout | default(infra_compose_wait_timeout) }}"
   register: deploy_wazuh_services_output
 
-- name: Clean up init config files
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: absent
-  with_items:
-    - "{{ infra_wazuh_indexer_internal_users_config_path }}"
+- name: Run securityadmin.sh to apply indexer user changes
+  when: _infra_wazuh_initial_setup
+  block:
+    - name: Wait for indexer to initialize ({{ infra_wazuh_indexer_init_wait_time | default(120) }}s)
+      ansible.builtin.wait_for:
+        timeout: "{{ infra_wazuh_indexer_init_wait_time | default(120) | int }}"
+
+    - name: Run the securityadmin.sh script
+      community.docker.docker_container_exec:
+        container: "{{ infra_wazuh_indexer_container_hostname }}"
+        command: "{{ infra_wazuh_indexer_security_admin_sh_command }}"
+        env: "{{ wazuh_indexer_security_admin_sh_env_vars }}"
+
+- name: Run post-initialization tasks
+  when: _infra_wazuh_initial_setup
+  block:
+    - name: Remove wazuh certs generator
+      community.docker.docker_compose_v2:
+        project_src: "{{ infra_wazuh_directory_path }}"
+        files:
+          - "{{ infra_wazuh_generate_certs_compose_path }}"
+        state: absent
+        services:
+          - "{{ infra_wazuh_cert_tool_hostname }}"
+        wait: true
+        wait_timeout: "{{ infra_wazuh_compose_wait_timeout | default(infra_compose_wait_timeout) }}"
+      register: remove_wazuh_cert_gen_output
+
+    - name: Create 'init' file
+      ansible.builtin.file:
+        path: "{{ infra_wazuh_init_file_path }}"
+        owner: "{{ infra_wazuh_directory_owner }}"
+        group: "{{ infra_wazuh_directory_group }}"
+        state: touch
+
+- name: Add docker-volume-backup entries
+  when: infra_backup_enabled
+  ansible.builtin.set_fact:
+    infra_docker_volume_backup_services_wazuh:
+      - service: "{{ infra_wazuh_service_name }}"
+        volumes:
+          - "{{ infra_wazuh_manager_volume_name_api_config }}"
+          - "{{ infra_wazuh_manager_volume_name_ossec_config }}"
+          - "{{ infra_wazuh_manager_volume_name_ossec_logs }}"
+          - "{{ infra_wazuh_manager_volume_name_ossec_queue }}"
+          - "{{ infra_wazuh_manager_volume_name_ossec_multigroups }}"
+          - "{{ infra_wazuh_manager_volume_name_ossec_integrations }}"
+          - "{{ infra_wazuh_manager_volume_name_ossec_active_response }}"
+          - "{{ infra_wazuh_manager_volume_name_ossec_agentless }}"
+          - "{{ infra_wazuh_manager_volume_name_ossec_wodles }}"
+          - "{{ infra_wazuh_manager_volume_name_filebeat_etc }}"
+          - "{{ infra_wazuh_manager_volume_name_filebeat_var }}"
+          - "{{ infra_wazuh_indexer_volume_name_data }}"
+          - "{{ infra_wazuh_dashboard_volume_name_config }}"
+          - "{{ infra_wazuh_dashboard_volume_name_custom_plugins }}"
+        stop:
+          - "{{ infra_wazuh_service_name }}"
 ...

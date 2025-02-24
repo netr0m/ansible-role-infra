@@ -1,0 +1,181 @@
+---
+### wazuh ###
+# Version of the wazuh Docker image to use (see 'infra_wazuh_manager_container_image', 'infra_wazuh_indexer_container_image', 'infra_wazuh_dashboard_container_image')
+infra_wazuh_version: 4.11.0
+# Version of the wazuh Docker image to use (see 'infra_wazuh_cert_tool_container_image')
+infra_wazuh_cert_tool_version: 0.0.2
+
+## wazuh secrets
+# Password for the wazuh indexer 'admin' user (infra_wazuh_indexer_admin_user)
+infra_wazuh_indexer_admin_password: ~
+# Password for the wazuh indexer 'dashboard' user (infra_wazuh_indexer_dashboard_user)
+infra_wazuh_indexer_dashboard_password: ~
+# Password for the wazuh api user (infra_wazuh_api_user). NB: The password for Wazuh API users must be between 8 and 64 characters long. It must contain at least one uppercase and one lowercase letter, a number, and a symbol.
+infra_wazuh_api_password: ~
+
+## wazuh users
+# username for the indexer 'admin' user
+infra_wazuh_indexer_admin_user: admin
+# username for the indexer 'dashboard' user
+infra_wazuh_indexer_dashboard_user: kibanaserver
+# api username
+infra_wazuh_api_user: wazuh-wui
+
+## wazuh settings. see https://github.com/wazuh/wazuh-docker/blob/main/README.md#environment-variables
+# wazuh manager settings
+infra_wazuh_manager_settings: {}
+# wazuh indexer settings
+infra_wazuh_indexer_settings: {}
+# wazuh dashboard settings
+infra_wazuh_dashboard_settings: {}
+
+## init settings
+# time (in seconds) to wait for the wazuh indexer to initialize before running securityadmin.sh
+infra_wazuh_indexer_init_wait_time: 30
+# whether to set the 'vm.max_map_count' value with sysctl
+infra_wazuh_set_vm_max_map_count: true
+
+## Directories
+# Directory path
+infra_wazuh_directory_path: "{{ infra_directory_path }}/wazuh"
+# Directory user ownership
+infra_wazuh_directory_owner: "{{ infra_directory_owner }}"
+# Directory group ownership
+infra_wazuh_directory_group: "{{ infra_directory_group }}"
+# Directory mode
+infra_wazuh_directory_mode: "{{ infra_directory_mode }}"
+# wazuh config directory path
+infra_wazuh_config_directory_path: "{{ infra_wazuh_directory_path }}/config"
+# wazuh config directory user ownership
+infra_wazuh_config_directory_owner: "{{ infra_directory_owner }}"
+# wazuh configdirectory group ownership
+infra_wazuh_config_directory_group: "{{ infra_directory_group }}"
+# wazuh configdirectory mode
+infra_wazuh_config_directory_mode: "{{ infra_directory_mode }}"
+# wazuh certificates directory path
+infra_wazuh_certificates_directory_path: "{{ infra_wazuh_config_directory_path }}/certificates"
+
+## File paths
+# File mode
+infra_wazuh_file_mode: "{{ infra_file_mode }}"
+# wazuh compose file path
+infra_wazuh_compose_path: "{{ infra_wazuh_directory_path }}/compose.yml"
+# wazuh generate-certs compose file path
+infra_wazuh_generate_certs_compose_path: "{{ infra_wazuh_directory_path }}/generate-indexer-certs.yml"
+# wazuh env file path
+infra_wazuh_manager_env_file_path: "{{ infra_wazuh_directory_path }}/wazuh-manager.env"
+# wazuh env file path
+infra_wazuh_indexer_env_file_path: "{{ infra_wazuh_directory_path }}/wazuh-indexer.env"
+# wazuh env file path
+infra_wazuh_dashboard_env_file_path: "{{ infra_wazuh_directory_path }}/wazuh-dashboard.env"
+# Permissions (mode) for the env files (as an octal)
+infra_wazuh_env_file_mode: "0600"
+# wazuh certs.yml config file path
+infra_wazuh_certs_conf_file_path: "{{ infra_wazuh_config_directory_path }}/certs.yml"
+# wazuh manager config file path
+infra_wazuh_manager_conf_file_path: "{{ infra_wazuh_config_directory_path }}/wazuh_manager.conf"
+# wazuh indexer opensearch config file path
+infra_wazuh_indexer_opensearch_config_path: "{{ infra_wazuh_config_directory_path }}/wazuh.indexer.yml"
+# wazuh indexer users config file path
+infra_wazuh_indexer_internal_users_config_path: "{{ infra_wazuh_config_directory_path }}/internal_users.yml"
+# wazuh dashboard config file path
+infra_wazuh_dashboard_conf_file_path: "{{ infra_wazuh_config_directory_path }}/wazuh.yml"
+# wazuh dashboard opensearch config file path
+infra_wazuh_dashboard_opensearch_config_path: "{{ infra_wazuh_config_directory_path }}/opensearch_dashboards.yml"
+# wazuh init file path (check if previously initialized)
+infra_wazuh_init_file_path: "{{ infra_wazuh_directory_path }}/.initialized"
+
+## Docker service configs
+# Base name of the wazuh Docker service
+infra_wazuh_service_name: wazuh
+# Name of the wazuh manager Docker service
+infra_wazuh_manager_service_name: "{{ infra_wazuh_service_name }}.manager"
+# Name of the wazuh indexer Docker service
+infra_wazuh_indexer_service_name: "{{ infra_wazuh_service_name }}.indexer"
+# Name of the wazuh dashboard Docker service
+infra_wazuh_dashboard_service_name: "{{ infra_wazuh_service_name }}.dashboard"
+# Container image to use for the wazuh manager service
+infra_wazuh_manager_container_image: "docker.io/wazuh/wazuh-manager:{{ infra_wazuh_version }}"
+# Container image to use for the wazuh indexer service
+infra_wazuh_indexer_container_image: "docker.io/wazuh/wazuh-indexer:{{ infra_wazuh_version }}"
+# Container image to use for the wazuh dashboard service
+infra_wazuh_dashboard_container_image: "docker.io/wazuh/wazuh-dashboard:{{ infra_wazuh_version }}"
+# Container image to use for the wazuh certificates tool
+infra_wazuh_cert_tool_container_image: "docker.io/wazuh/wazuh-certs-generator:{{ infra_wazuh_cert_tool_version }}"
+# Hostname of the wazuh manager Docker container
+infra_wazuh_manager_container_hostname: "{{ infra_wazuh_manager_service_name }}"
+# Hostname of the wazuh indexer Docker container
+infra_wazuh_indexer_container_hostname: "{{ infra_wazuh_indexer_service_name }}"
+# Hostname of the wazuh dashboard Docker container
+infra_wazuh_dashboard_container_hostname: "{{ infra_wazuh_dashboard_service_name }}"
+# Hostname of the wazuh cert-tool Docker container
+infra_wazuh_cert_tool_hostname: "{{ infra_wazuh_service_name }}-certs-generator"
+# FQDN of the wazuh dashboard Docker container
+infra_wazuh_fqdn: "{{ infra_wazuh_service_name }}.{{ infra_domain }}"
+# Restart policy for the wazuh Docker containers
+infra_wazuh_restart_policy: "{{ infra_restart_policy }}"
+# Memory limit for the wazuh manager container
+infra_wazuh_manager_container_memory: 4g
+# Memory limit for the wazuh indexer container
+infra_wazuh_indexer_container_memory: 6g
+# Memory limit for the wazuh dashboard container
+infra_wazuh_dashboard_container_memory: 2g
+# agentd port (secure event listener) for the wazuh manager (TCP)
+infra_wazuh_manager_port_agentd: 1514
+# agentAuthd port (agent enrollment service) for the wazuh manager (TCP)
+infra_wazuh_manager_port_auth: 1515
+# syslog port (event listener) for the wazuh manager (UDP)
+infra_wazuh_manager_port_syslog: 514
+# api port for the wazuh manager (TCP)
+infra_wazuh_manager_port_api: 55000
+# api port for the wazuh indexer (HTTPS)
+infra_wazuh_indexer_port_api: 9200
+# Log driver for the wazuh containers
+infra_wazuh_log_driver: local
+# Log driver options for the containers
+infra_wazuh_log_options:
+  max-size: 20m
+  max-file: '5'
+  compress: 'true'
+# soft ulimit for memlock
+infra_wazuh_ulimit_memlock_soft: -1
+# hard ulimit for memlock
+infra_wazuh_ulimit_memlock_hard: -1
+# soft ulimit for nofile
+infra_wazuh_ulimit_nofile_soft: 65536
+# hard ulimit for nofile
+infra_wazuh_ulimit_nofile_hard: 65536
+
+## Docker volume configs
+# Name of the manager api config Docker volume
+infra_wazuh_manager_volume_name_api_config: "{{ infra_wazuh_service_name }}_api_config"
+# Name of the manager ossec config Docker volume
+infra_wazuh_manager_volume_name_ossec_config: "{{ infra_wazuh_service_name }}_ossec_config"
+# Name of the manager logs Docker volume
+infra_wazuh_manager_volume_name_ossec_logs: "{{ infra_wazuh_service_name }}_ossec_logs"
+# Name of the manager ossec queue Docker volume
+infra_wazuh_manager_volume_name_ossec_queue: "{{ infra_wazuh_service_name }}_ossec_queue"
+# Name of the manager ossec multigroups Docker volume
+infra_wazuh_manager_volume_name_ossec_multigroups: "{{ infra_wazuh_service_name }}_ossec_multigroups"
+# Name of the manager ossec integrations Docker volume
+infra_wazuh_manager_volume_name_ossec_integrations: "{{ infra_wazuh_service_name }}_ossec_integrations"
+# Name of the manager ossec active-response Docker volume
+infra_wazuh_manager_volume_name_ossec_active_response: "{{ infra_wazuh_service_name }}_ossec_active-response"
+# Name of the manager ossec agentless Docker volume
+infra_wazuh_manager_volume_name_ossec_agentless: "{{ infra_wazuh_service_name }}_ossec_agentless"
+# Name of the manager ossec wodles Docker volume
+infra_wazuh_manager_volume_name_ossec_wodles: "{{ infra_wazuh_service_name }}_ossec_wodles"
+# Name of the manager filebeat etc Docker volume
+infra_wazuh_manager_volume_name_filebeat_etc: "{{ infra_wazuh_service_name }}_filebeat_etc"
+# Name of the manager filebeat var Docker volume
+infra_wazuh_manager_volume_name_filebeat_var: "{{ infra_wazuh_service_name }}_filebeat_var"
+# Name of the indexer data Docker volume
+infra_wazuh_indexer_volume_name_data: "{{ infra_wazuh_service_name }}_indexer_data"
+# Name of the dashboard config Docker volume
+infra_wazuh_dashboard_volume_name_config: "{{ infra_wazuh_service_name }}_dashboard_config"
+# Name of the dashboard custom plugins Docker volume
+infra_wazuh_dashboard_volume_name_custom_plugins: "{{ infra_wazuh_service_name }}_dashboard_custom"
+# Labels to attach to the Docker volumes for this service
+infra_wazuh_volume_labels:
+  netr0m.infra.service: wazuh
+...

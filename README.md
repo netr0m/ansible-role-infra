@@ -13,6 +13,7 @@ An Ansible role for infrastructure components as Docker containers. Handles task
 | [godns](https://github.com/TimothyYe/godns) | Dynamic DNS | No |
 | [Wireguard](https://github.com/linuxserver/docker-wireguard) | Remote access VPN | No |
 | [Unifi](https://github.com/linuxserver/docker-unifi-controller) | Unifi network management | No |
+| [Wazuh](https://github.com/wazuh/wazuh) | Wazuh Security Platform | No |
 
 ## Installation
 
@@ -53,6 +54,14 @@ infra_authentik_db_password: ""
 infra_graylog_password_secret: "super-long-random-string-minimum-64-chars"
 # Hash of the password used for the root user [run `echo -n yourpassword | shasum -a 256`]
 infra_graylog_password_sha2: "sha256-sum-of-your-password"
+
+# If `infra_use_wazuh` is true, then
+# Password for the wazuh indexer 'admin' user (infra_wazuh_indexer_admin_user)
+infra_wazuh_indexer_admin_password: ~
+# Password for the wazuh indexer 'dashboard' user (infra_wazuh_indexer_dashboard_user)
+infra_wazuh_indexer_dashboard_password: ~
+# Password for the wazuh api user (infra_wazuh_api_user). NB: The password for Wazuh API users must be between 8 and 64 characters long. It must contain at least one uppercase and one lowercase letter, a number, and a symbol.
+infra_wazuh_api_password: ~
 
 ```
 

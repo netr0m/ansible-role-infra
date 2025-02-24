@@ -1,0 +1,94 @@
+---
+# Environment variables for the wazuh manager container
+infra_wazuh_manager_env_vars:
+  INDEXER_URL: "https://{{ infra_wazuh_indexer_service_name }}:9200"
+  INDEXER_USERNAME: "{{ infra_wazuh_indexer_admin_user }}"
+  INDEXER_PASSWORD: "{{ infra_wazuh_indexer_admin_password }}"
+  FILEBEAT_SSL_VERIFICATION_MODE: full
+  SSL_CERTIFICATE_AUTHORITIES: /etc/ssl/root-ca.pem
+  SSL_CERTIFICATE: /etc/ssl/filebeat.pem
+  SSL_KEY: /etc/ssl/filebeat.key
+  API_USERNAME: "{{ infra_wazuh_api_user }}"
+  API_PASSWORD: "{{ infra_wazuh_api_password }}"
+
+# Directory in which the wazuh indexer is installed
+__wazuh_indexer_installation_dir: "/usr/share/wazuh-indexer"
+
+# Environment variables for the wazuh indexer container
+infra_wazuh_indexer_env_vars:
+  OPENSEARCH_JAVA_OPTS: "-Xms1g -Xmx{{ infra_wazuh_indexer_container_memory }}"
+
+# Environment variables for the wazuh dashboard container
+infra_wazuh_dashboard_env_vars:
+  INDEXER_USERNAME: "{{ infra_wazuh_indexer_admin_user }}"
+  INDEXER_PASSWORD: "{{ infra_wazuh_indexer_admin_password }}"
+  WAZUH_API_URL: "https://{{ infra_wazuh_manager_service_name }}"
+  DASHBOARD_USERNAME: "{{ infra_wazuh_indexer_dashboard_user }}"
+  DASHBOARD_PASSWORD: "{{ infra_wazuh_indexer_dashboard_password }}"
+  API_USERNAME: "{{ infra_wazuh_api_user }}"
+  API_PASSWORD: "{{ infra_wazuh_api_password }}"
+  SERVER_HOST: 0.0.0.0
+  SERVER_PORT: 5601
+  OPENSEARCH_HOSTS: "https://{{ infra_wazuh_indexer_service_name }}:9200"
+  OPENSEARCH_SSL_VERIFICATIONMODE: certificate
+  OPENSEARCH_REQUESTHEADERSALLOWLIST: '["securitytenant","Authorization"]'
+  OPENSEARCH_SECURITY_MULTITENANCY_ENABLED: "false"
+  SERVER_SSL_ENABLED: "true"
+  OPENSEARCH_SECURITY_READONLY_MODE_ROLES: '["kibana_read_only"]'
+  SERVER_SSL_KEY: /usr/share/wazuh-dashboard/certs/wazuh-dashboard-key.pem
+  SERVER_SSL_CERTIFICATE: /usr/share/wazuh-dashboard/certs/wazuh-dashboard.pem
+  OPENSEARCH_SSL_CERTIFICATEAUTHORITIES: '["/usr/share/wazuh-dashboard/certs/root-ca.pem"]'
+  UISETTINGS_OVERRIDES_DEFAULTROUTE: /app/wz-home
+
+# Command used to run the securityadmin.sh script
+infra_wazuh_indexer_security_admin_sh_command: "/bin/bash {{ __wazuh_indexer_installation_dir }}/plugins/opensearch-security/tools/securityadmin.sh -cd {{ __wazuh_indexer_installation_dir }}/opensearch-security/ -nhnv -cacert {{ __wazuh_indexer_installation_dir }}/certs/root-ca.pem -cert {{ __wazuh_indexer_installation_dir }}/certs/admin.pem -key {{ __wazuh_indexer_installation_dir }}/certs/admin-key.pem -p 9200 -icl"
+
+# Environment variables for the wazuh indexer securityadmin.sh command
+wazuh_indexer_security_admin_sh_env_vars:
+  INSTALLATION_DIR: "{{ __wazuh_indexer_installation_dir }}"
+  CACERT: "{{ __wazuh_indexer_installation_dir }}/certs/root-ca.pem"
+  KEY: "{{ __wazuh_indexer_installation_dir }}/certs/admin-key.pem"
+  CERT: "{{ __wazuh_indexer_installation_dir }}/certs/admin.pem"
+  JAVA_HOME: "{{ __wazuh_indexer_installation_dir }}/jdk"
+
+## Certificate paths. See https://documentation.wazuh.com/current/user-manual/manager/wazuh-server-cluster.html#generating-wazuh-server-certificates
+# Certificate path for the wazuh manager root CA
+infra_wazuh_manager_cert_root_ca_public_key_path: "{{ infra_wazuh_certificates_directory_path }}/root-ca-manager.pem"
+# Certificate path for the wazuh manager public key
+infra_wazuh_manager_cert_public_key_path: "{{ infra_wazuh_certificates_directory_path }}/{{ infra_wazuh_manager_service_name }}.pem"
+# Certificate path for the wazuh manager private key
+infra_wazuh_manager_cert_private_key_path: "{{ infra_wazuh_certificates_directory_path }}/{{ infra_wazuh_manager_service_name }}-key.pem"
+# Certificate path for the wazuh root CA
+infra_wazuh_cert_root_ca_public_key_path: "{{ infra_wazuh_certificates_directory_path }}/root-ca.pem"
+# Certificate path for the wazuh indexer public key
+infra_wazuh_indexer_cert_public_key_path: "{{ infra_wazuh_certificates_directory_path }}/{{ infra_wazuh_indexer_service_name }}.pem"
+# Certificate path for the wazuh indexer private key
+infra_wazuh_indexer_cert_private_key_path: "{{ infra_wazuh_certificates_directory_path }}/{{ infra_wazuh_indexer_service_name }}-key.pem"
+# Certificate path for the wazuh indexer admin public key
+infra_wazuh_indexer_admin_cert_public_key_path: "{{ infra_wazuh_certificates_directory_path }}/admin.pem"
+# Certificate path for the wazuh indexer admin private key
+infra_wazuh_indexer_admin_cert_private_key_path: "{{ infra_wazuh_certificates_directory_path }}/admin-key.pem"
+# Certificate path for the wazuh dashboard public key
+infra_wazuh_dashboard_cert_public_key_path: "{{ infra_wazuh_certificates_directory_path }}/{{ infra_wazuh_dashboard_service_name }}.pem"
+# Certificate path for the wazuh indexer private key
+infra_wazuh_dashboard_cert_private_key_path: "{{ infra_wazuh_certificates_directory_path }}/{{ infra_wazuh_dashboard_service_name }}-key.pem"
+
+# Extended Access Control List entries for Wazuh
+infra_wazuh_acl_entries:
+  - path: "{{ infra_wazuh_config_directory_path }}"
+    entity: "{{ infra_user_name }}"
+    permissions: rwx
+    recursive: true
+    default: true
+  - path: "{{ infra_wazuh_config_directory_path }}"
+    entity: "{{ infra_user_name }}"
+    permissions: rwx
+    recursive: true
+  - path: "{{ infra_wazuh_config_directory_path }}"
+    entity: 1000
+    permissions: rwx
+    recursive: true
+
+# Placeholder for the wazuh volumes to include for docker-volume-backup
+infra_docker_volume_backup_services_wazuh: []
+...

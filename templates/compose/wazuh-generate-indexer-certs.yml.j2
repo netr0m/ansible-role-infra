@@ -1,0 +1,8 @@
+services:
+  {{ infra_wazuh_cert_tool_hostname }}:
+    image: {{ infra_wazuh_cert_tool_container_image }}
+    container_name: {{ infra_wazuh_cert_tool_hostname }}
+    hostname: {{ infra_wazuh_cert_tool_hostname }}
+    volumes:
+        - {{ infra_wazuh_certificates_directory_path }}/:/certificates/
+        - {{ infra_wazuh_certs_conf_file_path }}:/config/certs.yml

@@ -1,0 +1,20 @@
+---
+# {{ ansible_managed }}
+# This is the internal user database
+# The hash value is a bcrypt hash and can be generated with plugin/tools/hash.sh
+
+_meta:
+  type: "internalusers"
+  config_version: 2
+
+{{ infra_wazuh_indexer_admin_user }}:
+  hash: "{{ __infra_wazuh_indexer_admin_password_hash }}"
+  reserved: true
+  backend_roles:
+  - "admin"
+  description: "Admin user"
+
+{{ infra_wazuh_indexer_dashboard_user }}:
+  hash: "{{ __infra_wazuh_indexer_dashboard_password_hash }}"
+  reserved: true
+  description: "Dashboard user"

@@ -237,7 +237,7 @@
 - name: Run securityadmin.sh to apply indexer user changes
   when: _infra_wazuh_initial_setup
   block:
-    - name: Wait for indexer to initialize ({{ infra_wazuh_indexer_init_wait_time | default(120) }}s)
+    - name: Wait for indexer to initialize
       ansible.builtin.wait_for:
         timeout: "{{ infra_wazuh_indexer_init_wait_time | default(120) | int }}"
 
@@ -267,6 +267,7 @@
         path: "{{ infra_wazuh_init_file_path }}"
         owner: "{{ infra_wazuh_directory_owner }}"
         group: "{{ infra_wazuh_directory_group }}"
+        mode: "{{ infra_wazuh_file_mode }}"
         state: touch
 
 - name: Add docker-volume-backup entries

@@ -87,7 +87,7 @@ infra_wazuh_acl_entries:
   - path: "{{ infra_wazuh_config_directory_path }}"
     entity: 1000
     permissions: rwx
-    recursive: true 
+    recursive: true
 
 # Placeholder for the wazuh volumes to include for docker-volume-backup
 infra_docker_volume_backup_services_wazuh: []

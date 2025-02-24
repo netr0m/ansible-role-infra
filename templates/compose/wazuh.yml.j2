@@ -29,6 +29,7 @@ services:
       docker-volume-backup.stop-during-backup: "{{ infra_wazuh_service_name }}"
     networks:
       - default
+      - {{ svc_docker_network_name }}
     ports:
       - {{ infra_wazuh_manager_port_agentd }}:1514
       - {{ infra_wazuh_manager_port_auth }}:1515

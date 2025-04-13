@@ -80,7 +80,7 @@ services:
       traefik.http.services.{{ infra_graylog_service_name }}-svc.loadbalancer.server.scheme: http
       traefik.http.routers.{{ infra_graylog_service_name }}-rtr.service: {{ infra_graylog_service_name }}-svc
       traefik.http.middlewares.{{ infra_graylog_service_name }}-mwr.headers.customrequestheaders.X-Graylog-Server-URL: http://{{ infra_graylog_fqdn }}/
-      traefik.http.routers.{{ infra_graylog_service_name }}-rtr.middlewares: {{ infra_graylog_service_name }}-mwr,lan-mwr@file
+      traefik.http.routers.{{ infra_graylog_service_name }}-rtr.middlewares: {{ infra_graylog_service_name }}-mwr,{{ infra_graylog_traefik_middlewares | join(',') }}
       docker-volume-backup.stop-during-backup: "{{ infra_graylog_service_name }}"
     networks:
       - default

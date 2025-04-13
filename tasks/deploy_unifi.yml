@@ -7,6 +7,11 @@
     group: "{{ infra_unifi_directory_group }}"
     mode: "{{ infra_unifi_directory_mode }}"
 
+- name: Add Authentik auth middleware
+  when: infra_unifi_use_authentik
+  ansible.builtin.set_fact:
+    infra_unifi_traefik_middlewares: "{{ infra_unifi_traefik_middlewares + [infra_unifi_auth_mwr] }}"
+
 - name: Manage service files
   block:
     - name: Write unifi DB password secret to file

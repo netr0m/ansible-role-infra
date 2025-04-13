@@ -5,6 +5,12 @@ infra_wireguard_version: latest
 # Version of the wireguard-ui Docker image to use (see 'infra_wireguard_ui_container_image')
 infra_wireguard_ui_version: latest
 
+## authentik forward auth proxy
+# whether to use authentik as an auth proxy
+infra_wireguard_ui_use_authentik: false
+# which middleware to use. must exist in the traefik config.
+infra_wireguard_auth_mwr: "{{ infra_default_traefik_auth_mwr }}"
+
 ## Wireguard secrets
 # Session secret used to encrypt wireguard-ui session cookies
 infra_wireguard_ui_session_secret: ~
@@ -99,6 +105,9 @@ infra_wireguard_container_dns_servers:
   - 1.0.0.1
 # Whether to use Pihole for Wireguard DNS. Requires 'infra_use_pihole' to be true
 infra_wireguard_use_pihole_dns: "{{ infra_use_pihole }}"
+# Traefik middlewares for the wireguard-ui container
+infra_wireguard_ui_traefik_middlewares: "{{ infra_default_traefik_middlewares }}"
+
 
 ## Docker volume configs
 # Name of the config files' Docker volume

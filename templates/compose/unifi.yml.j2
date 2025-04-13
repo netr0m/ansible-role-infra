@@ -46,7 +46,7 @@ services:
       traefik.http.services.{{ infra_unifi_service_name }}-svc.loadbalancer.server.port: 8443
       traefik.http.services.{{ infra_unifi_service_name }}-svc.loadbalancer.server.scheme: https
       traefik.http.routers.{{ infra_unifi_service_name }}-rtr.service: {{ infra_unifi_service_name }}-svc
-      traefik.http.routers.{{ infra_unifi_service_name }}-rtr.middlewares: lan-mwr@file
+      traefik.http.routers.{{ infra_unifi_service_name }}-rtr.middlewares: {{ infra_unifi_traefik_middlewares | join(',') }}
       docker-volume-backup.stop-during-backup: "{{ infra_unifi_service_name }}"
     networks:
       - default

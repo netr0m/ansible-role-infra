@@ -3,6 +3,12 @@
 # Version of the uptime-kuma Docker image to use (see 'infra_uptimekuma_container_image')
 infra_uptimekuma_version: 1.23.11-alpine
 
+## authentik forward auth proxy
+# whether to use authentik as an auth proxy
+infra_uptimekuma_use_authentik: false
+# which middleware to use. must exist in the traefik config.
+infra_uptimekuma_auth_mwr: "{{ infra_default_traefik_auth_mwr }}"
+
 ## uptime-kuma settings. See https://github.com/louislam/uptime-kuma/wiki/Environment-Variables
 infra_uptimekuma_settings: {}
 
@@ -39,6 +45,8 @@ infra_uptimekuma_fqdn: "{{ infra_uptimekuma_container_hostname }}.{{ infra_domai
 infra_uptimekuma_restart_policy: "{{ infra_restart_policy }}"
 # Memory limit for the uptime-kuma container
 infra_uptimekuma_container_memory: 1g
+# Traefik middlewares for the uptime-kuma container
+infra_uptimekuma_traefik_middlewares: "{{ infra_default_traefik_middlewares }}"
 
 ## Docker volume configs
 # Name of the redis data Docker volume

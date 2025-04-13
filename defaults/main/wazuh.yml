@@ -5,6 +5,12 @@ infra_wazuh_version: 4.11.0
 # Version of the wazuh Docker image to use (see 'infra_wazuh_cert_tool_container_image')
 infra_wazuh_cert_tool_version: 0.0.2
 
+## authentik forward auth proxy
+# whether to use authentik as an auth proxy
+infra_wazuh_use_authentik: false
+# which middleware to use. must exist in the traefik config.
+infra_wazuh_auth_mwr: "{{ infra_default_traefik_auth_mwr }}"
+
 ## wazuh secrets
 # Password for the wazuh indexer 'admin' user (infra_wazuh_indexer_admin_user)
 infra_wazuh_indexer_admin_password: ~
@@ -145,6 +151,8 @@ infra_wazuh_ulimit_memlock_hard: -1
 infra_wazuh_ulimit_nofile_soft: 65536
 # hard ulimit for nofile
 infra_wazuh_ulimit_nofile_hard: 65536
+# Traefik middlewares for the wazuh container
+infra_wazuh_traefik_middlewares: "{{ infra_default_traefik_middlewares }}"
 
 ## Docker volume configs
 # Name of the manager api config Docker volume

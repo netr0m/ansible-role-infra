@@ -7,6 +7,11 @@
     group: "{{ infra_wireguard_directory_group }}"
     mode: "{{ infra_wireguard_directory_mode }}"
 
+- name: Add Authentik auth middleware
+  when: infra_wireguard_ui_use_authentik
+  ansible.builtin.set_fact:
+    infra_wireguard_ui_traefik_middlewares: "{{ infra_wireguard_ui_traefik_middlewares + [infra_wireguard_auth_mwr] }}"
+
 - name: Add Pihole as a DNS server for wireguard
   when: infra_wireguard_use_pihole_dns and infra_use_pihole
   block:

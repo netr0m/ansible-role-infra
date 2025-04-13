@@ -7,6 +7,12 @@ infra_graylog_db_version: 5.0
 # Version of the opensearch Docker image to use
 infra_graylog_opensearch_version: 2.4.0
 
+## authentik forward auth proxy
+# whether to use authentik as an auth proxy
+infra_graylog_use_authentik: false
+# which middleware to use. must exist in the traefik config.
+infra_graylog_auth_mwr: "{{ infra_default_traefik_auth_mwr }}"
+
 ## graylog secrets
 # Password for the graylog MongoDB user (infra_graylog_db_user)
 infra_graylog_db_password: ~
@@ -122,6 +128,8 @@ infra_graylog_log_options:
   max-size: 20m
   max-file: '5'
   compress: 'true'
+# Traefik middlewares for the graylog container
+infra_graylog_traefik_middlewares: "{{ infra_default_traefik_middlewares }}"
 
 ## Docker volume configs
 # Name of the graylog config Docker volume

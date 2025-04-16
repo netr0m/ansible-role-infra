@@ -5,6 +5,12 @@ infra_unifi_version: 9.0.114
 # Version of the MongoDB Docker image to use
 infra_unifi_db_version: 8.0
 
+## authentik forward auth proxy
+# whether to use authentik as an auth proxy
+infra_unifi_use_authentik: false
+# which middleware to use. must exist in the traefik config.
+infra_unifi_auth_mwr: "{{ infra_default_traefik_auth_mwr }}"
+
 ## Unifi secrets
 # Password for the unifi MongoDB user (infra_unifi_db_user)
 infra_unifi_db_password: ~
@@ -90,6 +96,8 @@ infra_unifi_port_discovery: 10001
 infra_unifi_port_l2_discovery: 1900
 # Syslog port for the unifi server
 infra_unifi_port_syslog: 5514
+# Traefik middlewares for the unifi container
+infra_unifi_traefik_middlewares: "{{ infra_default_traefik_middlewares }}"
 
 ## Docker volume configs
 # Name of the config Docker volume

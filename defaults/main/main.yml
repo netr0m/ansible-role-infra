@@ -73,4 +73,11 @@ infra_use_godns: false
 infra_use_uptimekuma: true
 # Configure wazuh
 infra_use_wazuh: false
+
+## Traefik (from netr0m.svc)
+# Default middlewares for services behind traefik
+infra_default_traefik_middlewares:
+  - infra-default-mwr@file
+# Default middleware for forward auth proxying
+infra_default_traefik_auth_mwr: authentik-auth-mwr@file
 ...

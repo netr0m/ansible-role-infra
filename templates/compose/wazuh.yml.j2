@@ -104,7 +104,7 @@ services:
       traefik.http.services.{{ infra_wazuh_service_name }}-svc.loadbalancer.server.port: 5601
       traefik.http.services.{{ infra_wazuh_service_name }}-svc.loadbalancer.server.scheme: https
       traefik.http.routers.{{ infra_wazuh_service_name }}-rtr.service: {{ infra_wazuh_service_name }}-svc
-      traefik.http.routers.{{ infra_wazuh_service_name }}-rtr.middlewares: lan-mwr@file
+      traefik.http.routers.{{ infra_wazuh_service_name }}-rtr.middlewares: {{ infra_wazuh_traefik_middlewares | join(',') }}
       docker-volume-backup.stop-during-backup: "{{ infra_wazuh_service_name }}"
     networks:
       - default

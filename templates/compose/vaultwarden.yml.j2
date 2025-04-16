@@ -20,7 +20,7 @@ services:
       traefik.http.services.{{ infra_vaultwarden_service_name }}-svc.loadbalancer.server.port: 80
       traefik.http.services.{{ infra_vaultwarden_service_name }}-svc.loadbalancer.server.scheme: http
       traefik.http.routers.{{ infra_vaultwarden_service_name }}-rtr.service: {{ infra_vaultwarden_service_name }}-svc
-      traefik.http.routers.{{ infra_vaultwarden_service_name }}-rtr.middlewares: lan-mwr@file
+      traefik.http.routers.{{ infra_vaultwarden_service_name }}-rtr.middlewares: {{ infra_uptimekuma_traefik_middlewares | join(',') }}
       docker-volume-backup.stop-during-backup: "{{ infra_vaultwarden_service_name }}"
     networks:
       {{ svc_docker_network_name }}:

@@ -3,6 +3,12 @@
 # Version of the vaultwarden Docker image to use (see 'infra_vaultwarden_container_image')
 infra_vaultwarden_version: 1.33.2
 
+## authentik forward auth proxy
+# whether to use authentik as an auth proxy
+infra_vaultwarden_use_authentik: false
+# which middleware to use. must exist in the traefik config.
+infra_vaultwarden_auth_mwr: "{{ infra_default_traefik_auth_mwr }}"
+
 ## Vaultwarden settings. See https://github.com/dani-garcia/vaultwarden/wiki
 infra_vaultwarden_settings:
   EXTENDED_LOGGING: 'true'
@@ -48,6 +54,8 @@ infra_vaultwarden_fqdn: "{{ infra_vaultwarden_container_hostname }}.{{ infra_dom
 infra_vaultwarden_restart_policy: "{{ infra_restart_policy }}"
 # Memory limit for the vaultwarden container
 infra_vaultwarden_container_memory: 1g
+# Traefik middlewares for the vaultwarden container
+infra_vaultwarden_traefik_middlewares: "{{ infra_default_traefik_middlewares }}"
 
 ## Docker volume configs
 # Name of the data Docker volume

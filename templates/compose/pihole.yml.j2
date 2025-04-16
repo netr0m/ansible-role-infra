@@ -44,7 +44,7 @@ services:
       traefik.http.services.{{ infra_pihole_service_name }}-web-svc.loadbalancer.server.port: 80
       traefik.http.services.{{ infra_pihole_service_name }}-web-svc.loadbalancer.server.scheme: http
       traefik.http.routers.{{ infra_pihole_service_name }}-web-rtr.service: {{ infra_pihole_service_name }}-web-svc
-      traefik.http.routers.{{ infra_pihole_service_name }}-web-rtr.middlewares: lan-mwr@file
+      traefik.http.routers.{{ infra_pihole_service_name }}-web-rtr.middlewares: {{ infra_pihole_traefik_middlewares | join(',') }}
       # DNS/tcp shared router
       traefik.tcp.services.pihole-dns-tcp-svc.loadbalancer.server.port: 53
       # DNS-TLS/tcp

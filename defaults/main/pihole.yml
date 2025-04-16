@@ -3,6 +3,12 @@
 # Version of the pihole Docker image to use (see 'infra_pihole_container_image')
 infra_pihole_version: 2024.07.0
 
+## authentik forward auth proxy
+# whether to use authentik as an auth proxy
+infra_pihole_use_authentik: false
+# which middleware to use. must exist in the traefik config.
+infra_pihole_auth_mwr: "{{ infra_default_traefik_auth_mwr }}"
+
 ## Pihole secrets
 # Password for the web UI
 infra_pihole_password: ~
@@ -76,6 +82,8 @@ infra_pihole_port_web: 8053
 infra_pihole_port_dns: 53
 # Max. wait time for pihole compose deployment
 infra_pihole_compose_wait_timeout: 300
+# Traefik middlewares for the pihole container
+infra_pihole_traefik_middlewares: "{{ infra_default_traefik_middlewares }}"
 
 ## Docker volume configs
 # Name of the data Docker volume

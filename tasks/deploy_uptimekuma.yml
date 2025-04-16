@@ -7,6 +7,11 @@
     group: "{{ infra_uptimekuma_directory_group }}"
     mode: "{{ infra_uptimekuma_directory_mode }}"
 
+- name: Add Authentik auth middleware
+  when: infra_uptimekuma_use_authentik
+  ansible.builtin.set_fact:
+    infra_uptimekuma_traefik_middlewares: "{{ infra_uptimekuma_traefik_middlewares + [infra_uptimekuma_auth_mwr] }}"
+
 - name: Manage service files
   block:
     - name: Write uptimekuma environment variables to file

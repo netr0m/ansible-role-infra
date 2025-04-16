@@ -7,6 +7,11 @@
     group: "{{ infra_vaultwarden_directory_group }}"
     mode: "{{ infra_vaultwarden_directory_mode }}"
 
+- name: Add Authentik auth middleware
+  when: infra_vaultwarden_use_authentik
+  ansible.builtin.set_fact:
+    infra_vaultwarden_traefik_middlewares: "{{ infra_vaultwarden_traefik_middlewares + [infra_vaultwarden_auth_mwr] }}"
+
 - name: Manage service files
   block:
     - name: Write vaultwarden environment variables to file

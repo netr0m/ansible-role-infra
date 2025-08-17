@@ -1,7 +1,7 @@
 ---
 ### uptime-kuma ###
 # Version of the uptime-kuma Docker image to use (see 'infra_uptimekuma_container_image')
-infra_uptimekuma_version: 1.23.11-alpine
+infra_uptimekuma_version: 1.23.16-alpine
 
 ## authentik forward auth proxy
 # whether to use authentik as an auth proxy

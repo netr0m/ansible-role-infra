@@ -85,8 +85,10 @@ services:
     dns: {{ infra_container_dns_servers }}
 {% endif %}
     depends_on:
-      - {{ infra_authentik_redis_service_name }}
-      - {{ infra_authentik_db_service_name }}
+      {{ infra_authentik_redis_service_name }}:
+        condition: service_healthy
+      {{ infra_authentik_db_service_name }}:
+        condition: service_healthy
     command: server
 
   {{ infra_authentik_worker_service_name }}:
@@ -111,8 +113,10 @@ services:
     dns: {{ infra_container_dns_servers }}
 {% endif %}
     depends_on:
-      - {{ infra_authentik_redis_service_name }}
-      - {{ infra_authentik_db_service_name }}
+      {{ infra_authentik_redis_service_name }}:
+        condition: service_healthy
+      {{ infra_authentik_db_service_name }}:
+        condition: service_healthy
     command: worker
 
 volumes:

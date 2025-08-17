@@ -73,6 +73,8 @@ services:
       - {{ infra_pihole_port_dns }}:53/tcp
       - {{ infra_pihole_port_dns }}:53/udp
       - {{ infra_pihole_port_web }}:80/tcp
+    cap_add:
+      - SYS_NICE
     extra_hosts: {{ infra_pihole_extra_hosts }}
     group_add:
       - {{ infra_group_gid }}

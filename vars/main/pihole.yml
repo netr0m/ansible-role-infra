@@ -8,6 +8,7 @@ infra_pihole_env_vars:
   FTLCONF_dns_listeningMode: "{{ infra_pihole_dnsmasq_listening }}"
   FTLCONF_LOCAL_IPV4: "{{ ansible_host }}"
   FTLCONF_misc_etc_dnsmasq_d: 'true'
+  FTLCONF_dns_upstreams: '1.1.1.1;1.0.0.1'  # overwritten if 'infra_use_unbound' is true
 
 # DNS environment variables placeholder for the Pihole container
 infra_pihole_env_vars_dns: {}

@@ -8,7 +8,9 @@
     mode: "{{ infra_wireguard_directory_mode }}"
 
 - name: Add Authentik auth middleware
-  when: infra_wireguard_ui_use_authentik
+  when:
+    - infra_wireguard_ui_use_authentik
+    - infra_use_wireguard_ui
   ansible.builtin.set_fact:
     infra_wireguard_ui_traefik_middlewares: "{{ infra_wireguard_ui_traefik_middlewares + [infra_wireguard_auth_mwr] }}"
 
@@ -34,6 +36,7 @@
 - name: Manage service files
   block:
     - name: Write session-secret secret to file
+      when: infra_use_wireguard_ui
       ansible.builtin.lineinfile:
         path: "{{ infra_wireguard_ui_session_secret_file_path }}"
         line: "{{ infra_wireguard_ui_session_secret }}"
@@ -44,6 +47,7 @@
       register: wgui_session_secret_file_output
 
     - name: Write admin-password secret to file
+      when: infra_use_wireguard_ui
       ansible.builtin.lineinfile:
         path: "{{ infra_wireguard_ui_admin_password_file_path }}"
         line: "{{ infra_wireguard_ui_password }}"
@@ -66,6 +70,7 @@
       register: wg_env_file_output
 
     - name: Write Wireguard-UI environment variables to file
+      when: infra_use_wireguard_ui
       ansible.builtin.template:
         src: template.env.j2
         dest: "{{ infra_wireguard_ui_env_file_path }}"
@@ -96,13 +101,16 @@
     remove_orphans: true
   when: compose_file_output.backup_file is defined
 
-- name: Pull container images
+- name: Pull wireguard container image
   community.docker.docker_image:
-    name: "{{ item }}"
+    name: "{{ infra_wireguard_container_image }}"
     source: pull
-  with_items:
-    - "{{ infra_wireguard_container_image }}"
-    - "{{ infra_wireguard_ui_container_image }}"
+
+- name: Pull wireguard-ui container image
+  when: infra_use_wireguard_ui
+  community.docker.docker_image:
+    name: "{{ infra_wireguard_ui_container_image }}"
+    source: pull
 
 - name: Deploy Wireguard services
   community.docker.docker_compose_v2:

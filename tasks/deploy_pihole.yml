@@ -76,7 +76,7 @@
     - name: Set DNS environment variable setting for pihole
       ansible.builtin.set_fact:
         infra_pihole_env_vars_dns:
-          PIHOLE_DNS_: "{{ infra_unbound_service_name }}#{{ infra_unbound_listening_port }}"
+          FTLCONF_dns_upstreams: "{{ infra_unbound_service_name }}#{{ infra_unbound_listening_port }}"
 
 - name: Manage service files
   block:

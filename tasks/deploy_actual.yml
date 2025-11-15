@@ -1,0 +1,67 @@
+---
+- name: Ensure actual directory is present
+  ansible.builtin.file:
+    path: "{{ infra_actual_directory_path }}"
+    state: directory
+    owner: "{{ infra_actual_directory_owner }}"
+    group: "{{ infra_actual_directory_group }}"
+    mode: "{{ infra_actual_directory_mode }}"
+
+- name: Manage service files
+  block:
+    - name: Write actual environment variables to file
+      ansible.builtin.template:
+        src: template.env.j2
+        dest: "{{ infra_actual_env_file_path }}"
+        owner: "{{ infra_actual_directory_owner }}"
+        group: "{{ infra_actual_directory_group }}"
+        mode: "{{ infra_actual_env_file_mode }}"
+        backup: true
+      vars:
+        _env_vars: "{{ infra_actual_env_vars | combine(infra_actual_settings) }}"
+      register: actual_env_file_output
+
+    - name: Copy compose services file into place
+      ansible.builtin.template:
+        src: compose/actual.yml.j2
+        dest: "{{ infra_actual_compose_path }}"
+        owner: "{{ infra_actual_directory_owner }}"
+        group: "{{ infra_actual_directory_group }}"
+        mode: "{{ infra_actual_file_mode }}"
+        backup: true
+        validate: docker compose -f %s config -q
+      register: compose_file_output
+
+- name: Take down services due to changed compose file
+  community.docker.docker_compose_v2:
+    project_src: "{{ infra_actual_directory_path }}"
+    files: "{{ compose_file_output.backup_file }}"
+    state: absent
+    remove_orphans: true
+  when: compose_file_output.backup_file is defined
+
+- name: Pull container image
+  community.docker.docker_image:
+    name: "{{ item }}"
+    source: pull
+  with_items:
+    - "{{ infra_actual_container_image }}"
+
+- name: Deploy actual services
+  community.docker.docker_compose_v2:
+    project_src: "{{ infra_actual_directory_path }}"
+    state: "{{ 'present' if infra_use_actual else 'absent' }}"
+    wait: true
+    wait_timeout: "{{ infra_compose_wait_timeout }}"
+  register: deploy_actual_services_output
+
+- name: Add docker-volume-backup entries
+  when: infra_backup_enabled
+  ansible.builtin.set_fact:
+    infra_docker_volume_backup_services_actual:
+      - service: "{{ infra_actual_service_name }}"
+        volumes:
+          - "{{ infra_actual_volume_name_data }}"
+        stop:
+          - "{{ infra_actual_service_name }}"
+...

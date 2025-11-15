@@ -1,0 +1,52 @@
+---
+### actual ###
+# Version of the actual Docker image to use (see 'infra_actual_container_image')
+infra_actual_version: 25.11.0
+
+## actual settings - see https://actualbudget.org/docs/config/
+infra_actual_settings: {}
+
+## Directories
+# Directory path
+infra_actual_directory_path: "{{ infra_directory_path }}/actual"
+# Directory user ownership
+infra_actual_directory_owner: "{{ infra_directory_owner }}"
+# Directory group ownership
+infra_actual_directory_group: "{{ infra_directory_group }}"
+# Directory mode
+infra_actual_directory_mode: "{{ infra_directory_mode }}"
+
+## File paths
+# File mode
+infra_actual_file_mode: "{{ infra_file_mode }}"
+# actual compose file path
+infra_actual_compose_path: "{{ infra_actual_directory_path }}/compose.yml"
+# actual env file path
+infra_actual_env_file_path: "{{ infra_actual_directory_path }}/actual.env"
+# Permissions (mode) for the env files (as an octal)
+infra_actual_env_file_mode: "0600"
+
+## Docker service configs
+# Name of the actual Docker service
+infra_actual_service_name: actual
+# Container image to use for the actual service
+infra_actual_container_image: "ghcr.io/actualbudget/actual:{{ infra_actual_version }}"
+# Hostname of the actual Docker container
+infra_actual_container_hostname: "{{ infra_actual_service_name }}"
+# FQDN of the actual Docker container
+infra_actual_fqdn: "{{ infra_actual_container_hostname }}.{{ infra_domain }}"
+# Restart policy for the actual Docker container
+infra_actual_restart_policy: "{{ infra_restart_policy }}"
+# Memory limit for the actual container
+infra_actual_container_memory: 2g
+# Traefik middlewares for the actual container
+infra_actual_traefik_middlewares: "{{ infra_default_traefik_middlewares }}"
+
+## Docker volume configs
+# Name of the config Docker volume
+infra_actual_volume_name_data: "{{ infra_actual_service_name }}_data"
+# Labels to attach to the Docker volumes for this service
+infra_actual_volume_labels:
+  netr0m.infra.service: actual
+
+...

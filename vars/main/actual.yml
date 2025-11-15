@@ -1,0 +1,8 @@
+---
+# Environment variables for the actual container
+infra_actual_env_vars:
+  TZ: "{{ infra_tz | default('Etc/UTC') | string }}"
+
+# Placeholder for the actual volumes to include for docker-volume-backup
+infra_docker_volume_backup_services_actual: []
+...

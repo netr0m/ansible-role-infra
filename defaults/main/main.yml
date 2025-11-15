@@ -71,6 +71,8 @@ infra_use_authentik: true
 infra_use_godns: false
 # Configure uptime-kuma
 infra_use_uptimekuma: true
+# Configure actual
+infra_use_actual: false
 # Configure wazuh
 infra_use_wazuh: false
 

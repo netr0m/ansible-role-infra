@@ -9,3 +9,5 @@
 */__pycache__
 *.pyc
 .cache
+.ansible/roles/*
+.vscode

@@ -48,6 +48,11 @@
   ansible.builtin.import_tasks: deploy_uptimekuma.yml
   when: infra_use_uptimekuma
 
+# Manage actual deployment
+- name: Include 'actual' tasks
+  ansible.builtin.import_tasks: deploy_actual.yml
+  when: infra_use_actual
+
 # Manage wazuh deployment
 - name: Include 'wazuh' tasks
   ansible.builtin.import_tasks: deploy_wazuh.yml

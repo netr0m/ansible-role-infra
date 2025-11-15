@@ -1,0 +1,44 @@
+# {{ ansible_managed }}
+services:
+  {{ infra_actual_service_name }}:
+    image: {{ infra_actual_container_image }}
+    container_name: {{ infra_actual_container_hostname }}
+    hostname: {{ infra_actual_container_hostname }}
+    restart: {{ infra_actual_restart_policy | default(infra_restart_policy) }}
+    logging:
+      driver: {{ svc_log_driver }}
+      options: {{ svc_log_options }}
+    env_file: {{ infra_actual_env_file_path }}
+    volumes:
+      - {{ infra_actual_volume_name_data }}:/data
+    mem_limit: {{ infra_actual_container_memory }}
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: {{ svc_docker_network_name }}
+      traefik.http.routers.{{ infra_actual_service_name }}-rtr.rule: "Host(\"{{ infra_actual_fqdn }}\")"
+      traefik.http.routers.{{ infra_actual_service_name }}-rtr.entrypoints: webSecure
+      traefik.http.services.{{ infra_actual_service_name }}-svc.loadbalancer.server.port: 5006
+      traefik.http.services.{{ infra_actual_service_name }}-svc.loadbalancer.server.scheme: http
+      traefik.http.routers.{{ infra_actual_service_name }}-rtr.service: {{ infra_actual_service_name }}-svc
+      traefik.http.routers.{{ infra_actual_service_name }}-rtr.middlewares: {{ infra_actual_traefik_middlewares | join(',') }}
+      docker-volume-backup.stop-during-backup: "{{ infra_actual_service_name }}"
+    networks:
+      - {{ svc_docker_network_name }}
+{% if infra_containers_override_dns %}
+    dns: {{ infra_container_dns_servers }}
+{% endif %}
+    healthcheck:
+      test: ['CMD-SHELL', 'node src/scripts/health-check.js']
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  {{ infra_actual_volume_name_data }}:
+    name: {{ infra_actual_volume_name_data }}
+    labels: {{ infra_actual_volume_labels | combine(infra_docker_volume_shared_labels) }}
+
+networks:
+  {{ svc_docker_network_name }}:
+    external: 'true'

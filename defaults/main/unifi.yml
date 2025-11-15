@@ -1,7 +1,7 @@
 ---
 ### Unifi ###
 # Version of the unifi Docker image to use (see 'infra_unifi_container_image')
-infra_unifi_version: 9.4.19
+infra_unifi_version: 9.5.21
 # Version of the MongoDB Docker image to use
 infra_unifi_db_version: 8.0
 

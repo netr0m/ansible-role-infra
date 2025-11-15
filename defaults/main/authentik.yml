@@ -1,9 +1,7 @@
 ---
 ### Authentik ###
 # Version of the authentik Docker image to use (see 'infra_authentik_container_image')
-infra_authentik_version: 2025.6.4
-# Version of the redis Docker image to use (see 'infra_authentik_redis_container_image')
-infra_authentik_redis_version: alpine
+infra_authentik_version: 2025.10.1
 # Version of the posgresql Docker image to use (see 'infra_authentik_db_container_image')
 infra_authentik_db_version: 16-alpine
 
@@ -87,22 +85,16 @@ infra_authentik_secret_file_mode: "0600"
 infra_authentik_service_name: authentik
 # Name of the authentik worker Docker service
 infra_authentik_worker_service_name: "{{ infra_authentik_service_name }}-worker"
-# Name of the authentik redis Docker service
-infra_authentik_redis_service_name: "{{ infra_authentik_service_name }}-redis"
 # Name of the authentik postgres (DB) Docker service
 infra_authentik_db_service_name: "{{ infra_authentik_service_name }}-db"
 # Container image to use for the authentik service
 infra_authentik_container_image: "ghcr.io/goauthentik/server:{{ infra_authentik_version }}"
-# Container image to use for the redis service
-infra_authentik_redis_container_image: "docker.io/redis:{{ infra_authentik_redis_version }}"
 # Container image to use for the postgres (DB) service
 infra_authentik_db_container_image: "docker.io/postgres:{{ infra_authentik_db_version }}"
 # Hostname of the authentik server Docker container
 infra_authentik_container_hostname: "{{ infra_authentik_service_name }}"
 # Hostname of the authentik worker Docker container
 infra_authentik_worker_container_hostname: "{{ infra_authentik_worker_service_name }}"
-# Hostname of the authentik redis Docker container
-infra_authentik_redis_container_hostname: "{{ infra_authentik_redis_service_name }}"
 # Hostname of the authentik postgres (DB) Docker container
 infra_authentik_db_container_hostname: "{{ infra_authentik_db_service_name }}"
 # FQDN of the authentik server Docker container
@@ -113,14 +105,10 @@ infra_authentik_restart_policy: "{{ infra_restart_policy }}"
 infra_authentik_container_memory: 2g
 # Memory limit for the authentik worker container
 infra_authentik_worker_container_memory: 2g
-# Memory limit for the authentik redis container
-infra_authentik_redis_container_memory: 1g
-# Memory limit for the authentik redis container
+# Memory limit for the authentik db container
 infra_authentik_db_container_memory: 1g
 
 ## Docker volume configs
-# Name of the redis data Docker volume
-infra_authentik_redis_volume_name_data: "{{ infra_authentik_redis_service_name }}_data"
 # Name of the postgres (DB) data Docker volume
 infra_authentik_db_volume_name_data: "{{ infra_authentik_db_service_name }}_data"
 # Labels to attach to the Docker volumes for this service

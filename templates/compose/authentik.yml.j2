@@ -1,29 +1,5 @@
 # {{ ansible_managed }}
 services:
-  {{ infra_authentik_redis_service_name }}:
-    image: {{ infra_authentik_redis_container_image }}
-    container_name: {{ infra_authentik_redis_container_hostname }}
-    hostname: {{ infra_authentik_redis_container_hostname }}
-    restart: {{ infra_authentik_restart_policy | default(infra_restart_policy) }}
-    logging:
-      driver: {{ svc_log_driver }}
-      options: {{ svc_log_options }}
-    volumes:
-      - {{ infra_authentik_redis_volume_name_data }}:/data
-    mem_limit: {{ infra_authentik_redis_container_memory }}
-    networks:
-      - default
-{% if infra_containers_override_dns %}
-    dns: {{ infra_container_dns_servers }}
-{% endif %}
-    command: --save 60 1 --loglevel warning
-    healthcheck:
-      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
-      start_period: 20s
-      interval: 30s
-      retries: 5
-      timeout: 3s
-
   {{ infra_authentik_db_service_name }}:
     image: {{ infra_authentik_db_container_image }}
     container_name: {{ infra_authentik_db_container_hostname }}
@@ -85,8 +61,6 @@ services:
     dns: {{ infra_container_dns_servers }}
 {% endif %}
     depends_on:
-      {{ infra_authentik_redis_service_name }}:
-        condition: service_healthy
       {{ infra_authentik_db_service_name }}:
         condition: service_healthy
     command: server
@@ -113,8 +87,6 @@ services:
     dns: {{ infra_container_dns_servers }}
 {% endif %}
     depends_on:
-      {{ infra_authentik_redis_service_name }}:
-        condition: service_healthy
       {{ infra_authentik_db_service_name }}:
         condition: service_healthy
     command: worker
@@ -122,9 +94,6 @@ services:
 volumes:
   {{ infra_authentik_db_volume_name_data }}:
     name: {{ infra_authentik_db_volume_name_data }}
-    labels: {{ infra_authentik_volume_labels | combine(infra_docker_volume_shared_labels) }}
-  {{ infra_authentik_redis_volume_name_data }}:
-    name: {{ infra_authentik_redis_volume_name_data }}
     labels: {{ infra_authentik_volume_labels | combine(infra_docker_volume_shared_labels) }}
 
 networks:

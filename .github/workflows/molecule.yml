@@ -30,8 +30,8 @@ jobs:
     strategy:
       matrix:
         distro:
-          - debian11
-          - ubuntu2204
+          - debian13
+          - ubuntu2404
     steps:
       - name: Delete unnecessary tools folder (disk space constraint)
         run: rm -rf /opt/hostedtoolcache

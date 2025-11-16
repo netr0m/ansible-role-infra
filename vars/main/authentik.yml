@@ -14,7 +14,6 @@ infra_authentik_db_env_vars:
 # Environment variables for the Authentik server
 infra_authentik_server_env_vars:
   AUTHENTIK_SECRET_KEY: "{{ infra_authentik_secret_key | string }}"
-  AUTHENTIK_REDIS__HOST: "{{ infra_authentik_redis_container_hostname | string }}"
   AUTHENTIK_POSTGRESQL__HOST: "{{ infra_authentik_db_container_hostname | string }}"
   AUTHENTIK_POSTGRESQL__NAME: "{{ infra_authentik_db_name | string }}"
   AUTHENTIK_POSTGRESQL__USER: "{{ infra_authentik_db_user | string }}"

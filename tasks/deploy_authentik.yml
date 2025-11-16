@@ -79,7 +79,6 @@
     source: pull
   with_items:
     - "{{ infra_authentik_container_image }}"
-    - "{{ infra_authentik_redis_container_image }}"
     - "{{ infra_authentik_db_container_image }}"
 
 - name: Deploy authentik services

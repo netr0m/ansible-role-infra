@@ -1,7 +1,7 @@
 ---
 ### godns ###
 # Version of the godns Docker image to use (see 'infra_godns_container_image')
-infra_godns_version: 3.2.5
+infra_godns_version: v3.3.4
 
 # Settings for the godns container. See https://github.com/TimothyYe/godns#configuration-properties
 # DNS provider to use

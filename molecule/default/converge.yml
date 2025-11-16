@@ -44,8 +44,19 @@
       failed_when: systemctl_status.rc > 1
 
     - name: Install Python dependencies
-      ansible.builtin.pip:
-        name: requests
+      block:
+        - name: Install from apt
+          ansible.builtin.apt:
+            name: python3-requests
+            state: present
+            install_recommends: false
+          when: ansible_os_family == 'Debian'
+
+        - name: Install from pacman
+          community.general.pacman:
+            name: "{{ svc_packages }}"
+            state: python-requests
+          when: ansible_os_family == 'Archlinux'
 
   roles:
     - role: geerlingguy.docker

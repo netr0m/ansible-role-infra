@@ -1,7 +1,7 @@
 ---
 ### uptime-kuma ###
 # Version of the uptime-kuma Docker image to use (see 'infra_uptimekuma_container_image')
-infra_uptimekuma_version: 1.23.16-alpine
+infra_uptimekuma_version: 2.0.2
 
 ## authentik forward auth proxy
 # whether to use authentik as an auth proxy
@@ -36,7 +36,7 @@ infra_uptimekuma_env_file_mode: "0600"
 # Name of the uptime-kuma Docker service
 infra_uptimekuma_service_name: uptime
 # Container image to use for the uptime-kuma service
-infra_uptimekuma_container_image: "louislam/uptime-kuma:{{ infra_uptimekuma_version }}"
+infra_uptimekuma_container_image: "ghcr.io/louislam/uptime-kuma:{{ infra_uptimekuma_version }}"
 # Hostname of the uptime-kuma Docker container
 infra_uptimekuma_container_hostname: "{{ infra_uptimekuma_service_name }}"
 # FQDN of the uptime-kuma Docker container

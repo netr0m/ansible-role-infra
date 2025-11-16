@@ -14,6 +14,7 @@ services:
     mem_limit: {{ infra_godns_container_memory }}
     networks:
       {{ svc_docker_network_name }}:
+    user: {{ infra_user_uid }}:{{ infra_group_gid }}
 {% if infra_containers_override_dns %}
     dns: {{ infra_container_dns_servers }}
 {% endif %}

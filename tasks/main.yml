@@ -58,6 +58,11 @@
   ansible.builtin.import_tasks: deploy_wazuh.yml
   when: infra_use_wazuh
 
+# Manage homarr deployment
+- name: Include 'homarr' tasks
+  ansible.builtin.import_tasks: deploy_homarr.yml
+  when: infra_use_homarr
+
 # Manage docker-volume-backup deployment
 - name: Include 'deploy_docker-volume-backup' from 'netr0m.svc'
   ansible.builtin.include_role:

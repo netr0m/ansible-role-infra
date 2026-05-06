@@ -1,0 +1,10 @@
+---
+# Environment variables for the homarr container
+infra_homarr_env_vars:
+  TZ: "{{ infra_tz | default('Etc/UTC') | string }}"
+  BASE_URL: https://{{ infra_homarr_fqdn }}
+  NEXTAUTH_URL: https://{{ infra_homarr_fqdn }}
+
+# Placeholder for the homarr volumes to include for docker-volume-backup
+infra_docker_volume_backup_services_homarr: []
+...

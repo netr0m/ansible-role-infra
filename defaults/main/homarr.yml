@@ -1,0 +1,54 @@
+---
+### homarr ###
+# Version of the homarr Docker image to use (see 'infra_homarr_container_image')
+infra_homarr_version: v1.59.2
+# Secret encryption key for Homarr. Generate with `openssl rand -hex 32`.
+infra_homarr_secret_encryption_key: ~
+
+## homarr settings - see https://homarrbudget.org/docs/config/
+infra_homarr_settings: {}
+
+## Directories
+# Directory path
+infra_homarr_directory_path: "{{ infra_directory_path }}/homarr"
+# Directory user ownership
+infra_homarr_directory_owner: "{{ infra_directory_owner }}"
+# Directory group ownership
+infra_homarr_directory_group: "{{ infra_directory_group }}"
+# Directory mode
+infra_homarr_directory_mode: "{{ infra_directory_mode }}"
+
+## File paths
+# File mode
+infra_homarr_file_mode: "{{ infra_file_mode }}"
+# homarr compose file path
+infra_homarr_compose_path: "{{ infra_homarr_directory_path }}/compose.yml"
+# homarr env file path
+infra_homarr_env_file_path: "{{ infra_homarr_directory_path }}/homarr.env"
+# Permissions (mode) for the env files (as an octal)
+infra_homarr_env_file_mode: "0600"
+
+## Docker service configs
+# Name of the homarr Docker service
+infra_homarr_service_name: homarr
+# Container image to use for the homarr service
+infra_homarr_container_image: "ghcr.io/homarr-labs/homarr:{{ infra_homarr_version }}"
+# Hostname of the homarr Docker container
+infra_homarr_container_hostname: "{{ infra_homarr_service_name }}"
+# FQDN of the homarr Docker container
+infra_homarr_fqdn: "{{ infra_homarr_container_hostname }}.{{ infra_domain }}"
+# Restart policy for the homarr Docker container
+infra_homarr_restart_policy: "{{ infra_restart_policy }}"
+# Memory limit for the homarr container
+infra_homarr_container_memory: 2g
+# Traefik middlewares for the homarr container
+infra_homarr_traefik_middlewares: "{{ infra_default_traefik_middlewares }}"
+
+## Docker volume configs
+# Name of the config Docker volume
+infra_homarr_volume_name_data: "{{ infra_homarr_service_name }}_data"
+# Labels to attach to the Docker volumes for this service
+infra_homarr_volume_labels:
+  netr0m.infra.service: homarr
+
+...

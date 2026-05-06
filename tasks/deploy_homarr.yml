@@ -1,0 +1,67 @@
+---
+- name: Ensure homarr directory is present
+  ansible.builtin.file:
+    path: "{{ infra_homarr_directory_path }}"
+    state: directory
+    owner: "{{ infra_homarr_directory_owner }}"
+    group: "{{ infra_homarr_directory_group }}"
+    mode: "{{ infra_homarr_directory_mode }}"
+
+- name: Manage service files
+  block:
+    - name: Write homarr environment variables to file
+      ansible.builtin.template:
+        src: template.env.j2
+        dest: "{{ infra_homarr_env_file_path }}"
+        owner: "{{ infra_homarr_directory_owner }}"
+        group: "{{ infra_homarr_directory_group }}"
+        mode: "{{ infra_homarr_env_file_mode }}"
+        backup: true
+      vars:
+        _env_vars: "{{ infra_homarr_env_vars | combine(infra_homarr_settings) | combine({'SECRET_ENCRYPTION_KEY': _secret_encryption_key}) }}"
+      register: homarr_env_file_output
+
+    - name: Copy compose services file into place
+      ansible.builtin.template:
+        src: compose/homarr.yml.j2
+        dest: "{{ infra_homarr_compose_path }}"
+        owner: "{{ infra_homarr_directory_owner }}"
+        group: "{{ infra_homarr_directory_group }}"
+        mode: "{{ infra_homarr_file_mode }}"
+        backup: true
+        validate: docker compose -f %s config -q
+      register: compose_file_output
+
+- name: Take down services due to changed compose file
+  community.docker.docker_compose_v2:
+    project_src: "{{ infra_homarr_directory_path }}"
+    files: "{{ compose_file_output.backup_file }}"
+    state: absent
+    remove_orphans: true
+  when: compose_file_output.backup_file is defined
+
+- name: Pull container image
+  community.docker.docker_image:
+    name: "{{ item }}"
+    source: pull
+  with_items:
+    - "{{ infra_homarr_container_image }}"
+
+- name: Deploy homarr services
+  community.docker.docker_compose_v2:
+    project_src: "{{ infra_homarr_directory_path }}"
+    state: "{{ 'present' if infra_use_homarr else 'absent' }}"
+    wait: true
+    wait_timeout: "{{ infra_compose_wait_timeout }}"
+  register: deploy_homarr_services_output
+
+- name: Add docker-volume-backup entries
+  when: infra_backup_enabled
+  ansible.builtin.set_fact:
+    infra_docker_volume_backup_services_homarr:
+      - service: "{{ infra_homarr_service_name }}"
+        volumes:
+          - "{{ infra_homarr_volume_name_data }}"
+        stop:
+          - "{{ infra_homarr_service_name }}"
+...

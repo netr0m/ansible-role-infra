@@ -75,6 +75,8 @@ infra_use_uptimekuma: true
 infra_use_actual: false
 # Configure wazuh
 infra_use_wazuh: false
+# Configure homarr
+infra_use_homarr: true
 
 ## Traefik (from netr0m.svc)
 # Default middlewares for services behind traefik

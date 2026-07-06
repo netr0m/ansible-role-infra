@@ -204,7 +204,7 @@
 
     - name: Pull container image
       community.docker.docker_image:
-        name: "{{ infra_wazuh_cert_tool_container_image }}"
+        name: "{{ infra_wazuh_certtool_container_image }}"
         source: pull
 
     - name: Run wazuh certs generator
@@ -214,7 +214,7 @@
           - "{{ infra_wazuh_generate_certs_compose_path }}"
         state: present
         services:
-          - "{{ infra_wazuh_cert_tool_hostname }}"
+          - "{{ infra_wazuh_certtool_hostname }}"
         wait: true
         wait_timeout: "{{ infra_wazuh_compose_wait_timeout | default(infra_compose_wait_timeout) }}"
       register: deploy_wazuh_cert_gen_output
@@ -262,7 +262,7 @@
           - "{{ infra_wazuh_generate_certs_compose_path }}"
         state: absent
         services:
-          - "{{ infra_wazuh_cert_tool_hostname }}"
+          - "{{ infra_wazuh_certtool_hostname }}"
         wait: true
         wait_timeout: "{{ infra_wazuh_compose_wait_timeout | default(infra_compose_wait_timeout) }}"
       register: remove_wazuh_cert_gen_output

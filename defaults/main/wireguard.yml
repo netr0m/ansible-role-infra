@@ -81,7 +81,7 @@ infra_wireguard_ui_service_name: "{{ infra_wireguard_service_name }}-ui"
 # Container image to use for the wireguard service
 infra_wireguard_container_image: "ghcr.io/linuxserver/wireguard:{{ infra_wireguard_version }}"
 # Container image to use for the wireguard-ui service
-infra_wireguard_ui_container_image: "ngoduykhanh/wireguard-ui:{{ infra_wireguard_ui_version }}"
+infra_wireguard_ui_container_image: "docker.io/ngoduykhanh/wireguard-ui:{{ infra_wireguard_ui_version }}"
 # Hostname of the wireguard Docker container
 infra_wireguard_container_hostname: "{{ infra_wireguard_service_name }}"
 # Hostname of the wireguard-ui Docker container

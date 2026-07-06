@@ -1,7 +1,7 @@
 ---
 ### Authentik ###
 # Version of the authentik Docker image to use (see 'infra_authentik_container_image')
-infra_authentik_version: 2025.10.1
+infra_authentik_version: 2025.12.5
 # Version of the posgresql Docker image to use (see 'infra_authentik_db_container_image')
 infra_authentik_db_version: 16-alpine
 

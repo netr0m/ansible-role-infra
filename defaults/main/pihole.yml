@@ -1,7 +1,7 @@
 ---
 ### Pihole ###
 # Version of the pihole Docker image to use (see 'infra_pihole_container_image')
-infra_pihole_version: 2026.04.1
+infra_pihole_version: "2026.06.0"
 
 ## authentik forward auth proxy
 # whether to use authentik as an auth proxy

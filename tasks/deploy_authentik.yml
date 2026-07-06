@@ -16,6 +16,20 @@
     mode: "{{ infra_authentik_subdirectory_mode }}"
   with_items: "{{ infra_authentik_subdirectories }}"
 
+- name: Move existing 'media' subdirectory to 'data/media'
+  block:
+    - name: Stat old media subdirectory
+      ansible.builtin.stat:
+        path: "{{ infra_authentik_directory_path }}/media"
+      register: infra_authentik_media_subdir_stat_output
+
+    - name: Move 'media' to 'data/media'
+      when: infra_authentik_media_subdir_stat_output.stat.isdir is defined and infra_authentik_media_subdir_stat_output.stat.isdir
+      ansible.builtin.command:
+        cmd: mv "{{ infra_authentik_directory_path }}/media" "{{ infra_authentik_directory_path }}/data/"
+        creates: "{{ infra_authentik_directory_path }}/data/media"
+        removes: "{{ infra_authentik_directory_path }}/media"
+
 - name: Manage service files
   block:
     - name: Write authentik DB password secret to file

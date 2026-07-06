@@ -1,7 +1,7 @@
 ---
 ### actual ###
 # Version of the actual Docker image to use (see 'infra_actual_container_image')
-infra_actual_version: 26.5.0
+infra_actual_version: "26.7.0"
 
 ## actual settings - see https://actualbudget.org/docs/config/
 infra_actual_settings: {}

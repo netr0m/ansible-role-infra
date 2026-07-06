@@ -1,9 +1,9 @@
 ---
 ### wazuh ###
 # Version of the wazuh Docker image to use (see 'infra_wazuh_manager_container_image', 'infra_wazuh_indexer_container_image', 'infra_wazuh_dashboard_container_image')
-infra_wazuh_version: 4.11.0
+infra_wazuh_version: "4.14.6"
 # Version of the wazuh Docker image to use (see 'infra_wazuh_certtool_container_image')
-infra_wazuh_certtool_version: 0.0.2
+infra_wazuh_certtool_version: "0.0.4"
 
 ## authentik forward auth proxy
 # whether to use authentik as an auth proxy

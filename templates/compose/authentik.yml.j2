@@ -38,7 +38,7 @@ services:
       options: {{ svc_log_options }}
     env_file: {{ infra_authentik_env_file_path }}
     volumes:
-      - {{ infra_authentik_directory_path }}/media:/media
+      - {{ infra_authentik_directory_path }}/data:/data
       - {{ infra_authentik_directory_path }}/templates:/templates
     mem_limit: {{ infra_authentik_container_memory }}
     labels:
@@ -64,6 +64,7 @@ services:
       {{ infra_authentik_db_service_name }}:
         condition: service_healthy
     command: server
+    shm_size: 512mb
 
   {{ infra_authentik_worker_service_name }}:
     image: {{ infra_authentik_container_image }}
@@ -75,7 +76,7 @@ services:
       options: {{ svc_log_options }}
     env_file: {{ infra_authentik_env_file_path }}
     volumes:
-      - {{ infra_authentik_directory_path }}/media:/media
+      - {{ infra_authentik_directory_path }}/data:/data
       - {{ infra_authentik_directory_path }}/templates:/templates
       - {{ infra_authentik_directory_path }}/certs:/certs
     mem_limit: {{ infra_authentik_worker_container_memory }}
@@ -90,6 +91,7 @@ services:
       {{ infra_authentik_db_service_name }}:
         condition: service_healthy
     command: worker
+    shm_size: 512mb
 
 volumes:
   {{ infra_authentik_db_volume_name_data }}:

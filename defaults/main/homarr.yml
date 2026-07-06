@@ -1,7 +1,7 @@
 ---
 ### homarr ###
 # Version of the homarr Docker image to use (see 'infra_homarr_container_image')
-infra_homarr_version: v1.59.2
+infra_homarr_version: "v1.69.2"
 # Secret encryption key for Homarr. Generate with `openssl rand -hex 32`.
 infra_homarr_secret_encryption_key: ~
 

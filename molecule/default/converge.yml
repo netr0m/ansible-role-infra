@@ -23,12 +23,12 @@
           ansible.builtin.apt:
             update_cache: true
             cache_valid_time: 600
-          when: ansible_os_family == 'Debian'
+          when: ansible_facts["os_family"] == 'Debian'
         - name: Update pacman cache
           community.general.pacman:
             update_cache: true
             cache_valid_time: 600
-          when: ansible_os_family == 'Archlinux'
+          when: ansible_facts["os_family"] == 'Archlinux'
 
     - name: Wait for systemd to complete initialization   # noqa command-instead-of-module
       ansible.builtin.command:
@@ -39,7 +39,7 @@
         'degraded' in systemctl_status.stdout
       retries: 30
       delay: 5
-      when: ansible_service_mgr == 'systemd'
+      when: ansible_facts["service_mgr"] == 'systemd'
       changed_when: false
       failed_when: systemctl_status.rc > 1
 
@@ -50,13 +50,13 @@
             name: python3-requests
             state: present
             install_recommends: false
-          when: ansible_os_family == 'Debian'
+          when: ansible_facts["os_family"] == 'Debian'
 
         - name: Install from pacman
           community.general.pacman:
             name: "{{ svc_packages }}"
             state: python-requests
-          when: ansible_os_family == 'Archlinux'
+          when: ansible_facts["os_family"] == 'Archlinux'
 
   roles:
     - role: geerlingguy.docker

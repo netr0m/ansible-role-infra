@@ -1,7 +1,7 @@
 ---
 ### Vaultwarden ###
 # Version of the vaultwarden Docker image to use (see 'infra_vaultwarden_container_image')
-infra_vaultwarden_version: 1.36.0
+infra_vaultwarden_version: "1.37.5"
 
 ## authentik forward auth proxy
 # whether to use authentik as an auth proxy

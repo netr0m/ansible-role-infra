@@ -10,7 +10,7 @@ NON_SERVICE_FILES=("main.yml")
 
 SERVICES_TO_UPDATE=()
 SERVICES_TO_SKIP=(graylog)
-SUBSERVICES_TO_SKIP=(authentik_db unifi_db)
+SUBSERVICES_TO_SKIP=(authentik_db)
 
 NON_INTERACTIVE=false
 

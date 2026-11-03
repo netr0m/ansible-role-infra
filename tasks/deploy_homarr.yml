@@ -18,7 +18,7 @@
         mode: "{{ infra_homarr_env_file_mode }}"
         backup: true
       vars:
-        _env_vars: "{{ infra_homarr_env_vars | combine(infra_homarr_settings) | combine({'SECRET_ENCRYPTION_KEY': _secret_encryption_key}) }}"
+        _env_vars: "{{ infra_homarr_env_vars | combine(infra_homarr_settings) | combine({'SECRET_ENCRYPTION_KEY': infra_homarr_secret_encryption_key}) }}"
       register: homarr_env_file_output
 
     - name: Copy compose services file into place

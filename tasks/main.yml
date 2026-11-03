@@ -18,11 +18,6 @@
   ansible.builtin.import_tasks: deploy_graylog.yml
   when: infra_use_graylog
 
-# Manage unifi deployment
-- name: Include 'unifi' tasks
-  ansible.builtin.import_tasks: deploy_unifi.yml
-  when: infra_use_unifi
-
 # Manage wireguard deployment
 - name: Include 'wireguard' tasks
   ansible.builtin.import_tasks: deploy_wireguard.yml

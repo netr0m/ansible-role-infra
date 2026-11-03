@@ -51,7 +51,7 @@ services:
       traefik.http.routers.{{ infra_authentik_service_name }}-rtr.service: {{ infra_authentik_service_name }}-svc
       traefik.http.routers.{{ infra_authentik_service_name }}-rtr.middlewares: lan-mwr@file
       # ForwardAuth regex
-      traefik.http.routers.{{ infra_authentik_service_name }}-outpost-rtr.rule: "HostRegexp(`{subdomain:[a-z0-9-]+}.{{ infra_domain }}`) && PathPrefix(`/outpost.goauthentik.io/`)"
+      traefik.http.routers.{{ infra_authentik_service_name }}-outpost-rtr.rule: 'HostRegexp(`^[a-z0-9-]+\.{{ infra_domain | regex_escape }}$`) && PathPrefix(`/outpost.goauthentik.io/`)'
       traefik.http.routers.{{ infra_authentik_service_name }}-outpost-rtr.entrypoints: webSecure
       docker-volume-backup.stop-during-backup: "{{ infra_authentik_service_name }}"
     networks:

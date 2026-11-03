@@ -144,7 +144,11 @@
     - "{{ infra_unbound_container_image }}"
     - "{{ infra_pihole_container_image }}"
 
+- name: Gather service facts
+  ansible.builtin.service_facts:
+
 - name: Ensure systemd-resolved service is stopped
+  when: "'systemd-resolved.service' in ansible_facts.services"
   ansible.builtin.systemd:
     name: systemd-resolved
     state: stopped

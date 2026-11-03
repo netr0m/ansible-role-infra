@@ -12,7 +12,6 @@ An Ansible role for infrastructure components as Docker containers. Handles task
 | [Authentik](https://github.com/goauthentik/authentik) | Identity management | Yes |
 | [godns](https://github.com/TimothyYe/godns) | Dynamic DNS | No |
 | [Wireguard](https://github.com/linuxserver/docker-wireguard) | Remote access VPN | No |
-| [Unifi](https://github.com/linuxserver/docker-unifi-controller) | Unifi network management | No |
 | [Wazuh](https://github.com/wazuh/wazuh) | Wazuh Security Platform | No |
 | [Actual](https://github.com/actualbudget/actual) | Personal finance | No |
 | [Homarr](https://github.com/homarr-labs/homarr) | Dashboard | No |
@@ -79,7 +78,6 @@ infra_use_authentik: true
 # Enable for the various services
 infra_graylog_use_authentik: true
 infra_pihole_use_authentik: true
-infra_unifi_use_authentik: true
 infra_uptimekuma_use_authentik: true
 infra_vaultwarden_use_authentik: true
 infra_wazuh_use_authentik: true

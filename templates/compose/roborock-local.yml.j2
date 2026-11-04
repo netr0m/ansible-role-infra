@@ -10,7 +10,7 @@ services:
       options: {{ svc_log_options }}
     env_file: {{ infra_roborock_local_env_file_path }}
     volumes:
-      - {{ infra_roborock_local_config_file_path }}:/app/config.toml:ro
+      - {{ infra_roborock_local_config_file_path }}:/app/config.toml
       - {{ infra_roborock_local_volume_name_data }}:/data
     mem_limit: {{ infra_roborock_local_container_memory }}
     labels:

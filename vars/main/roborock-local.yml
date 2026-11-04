@@ -39,4 +39,18 @@ __infra_roborock_local_actalis_certresolver:
           - 1.1.1.1:53
           - 1.0.0.1:53
 
+# Additional TLS options to include in the traefik config (only when legacy TLS is requested)
+svc_traefik_extra_tls_options_roborock_local: "{{ __infra_roborock_local_legacy_tls_options if infra_use_roborock_local and infra_roborock_local_mqtt_legacy_tls else {} }}"
+__infra_roborock_local_legacy_tls_options:
+  roborock-local-legacy:
+    minVersion: VersionTLS10
+    cipherSuites:
+      - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+      - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+      - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+      - TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA
+      - TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA
+      - TLS_RSA_WITH_AES_128_CBC_SHA
+      - TLS_RSA_WITH_AES_256_CBC_SHA
+
 ...

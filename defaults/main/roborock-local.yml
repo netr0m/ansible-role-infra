@@ -24,6 +24,8 @@ infra_roborock_local_actalis_email: ~
 infra_roborock_local_actalis_kid: ~
 # HMAC used for the Actalis certificate (from your Actalis ACME account)
 infra_roborock_local_actalis_hmac_encoded: ~
+# Whether to accept TLS 1.0/1.1 on the MQTT entrypoint, for vacuums with legacy firmware
+infra_roborock_local_mqtt_legacy_tls: false
 
 ## Directories
 # Directory path

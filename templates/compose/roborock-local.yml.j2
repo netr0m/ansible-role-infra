@@ -36,6 +36,9 @@ services:
       # Reuses the wildcard certificate from the webSecure entrypoint
       traefik.tcp.routers.{{ infra_roborock_local_service_name }}-mqtt-rtr.tls: 'true'
 {% endif %}
+{% if infra_roborock_local_mqtt_legacy_tls %}
+      traefik.tcp.routers.{{ infra_roborock_local_service_name }}-mqtt-rtr.tls.options: roborock-local-legacy@file
+{% endif %}
       traefik.tcp.services.{{ infra_roborock_local_service_name }}-mqtt-svc.loadbalancer.server.port: {{ infra_roborock_local_mqtt_tls_port }}
       docker-volume-backup.stop-during-backup: "{{ infra_roborock_local_service_name }}"
     networks:

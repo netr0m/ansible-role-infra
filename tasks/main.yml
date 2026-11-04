@@ -58,6 +58,11 @@
   ansible.builtin.import_tasks: deploy_homarr.yml
   when: infra_use_homarr
 
+# Manage roborock-local deployment
+- name: Include 'roborock-local' tasks
+  ansible.builtin.import_tasks: deploy_roborock-local.yml
+  when: infra_use_roborock_local
+
 # Manage docker-volume-backup deployment
 - name: Include 'deploy_docker-volume-backup' from 'netr0m.svc'
   ansible.builtin.include_role:

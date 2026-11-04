@@ -1,0 +1,42 @@
+---
+# Environment variables for the roborock-local container
+infra_roborock_local_env_vars:
+  TZ: "{{ infra_tz | default('Etc/UTC') | string }}"
+
+# Placeholder for the roborock-local volumes to include for docker-volume-backup
+infra_docker_volume_backup_services_roborock_local: []
+
+# Additional entrypoints to include in the traefik config
+svc_traefik_extra_entrypoints_roborock_local:
+  - name: "{{ infra_roborock_local_traefik_mqtt_entrypoint }}"
+    port: "{{ infra_roborock_local_advertised_mqtt_tls_port }}"
+    publish: "{{ infra_use_roborock_local }}"
+
+# Additional certResolver to include in the traefik config (only when Actalis is requested)
+svc_traefik_extra_certresolvers_roborock_local: "{{ __infra_roborock_local_actalis_certresolver if infra_use_roborock_local and infra_roborock_local_use_actalis else {} }}"
+# Actalis certResolver for the traefik config
+# Uses undef() for required variables, to fail while 'netr0m.svc' collects the certResolvers,
+__infra_roborock_local_actalis_certresolver:
+  actalis:
+    acme:
+      caServer: https://acme-api.actalis.com/acme/directory
+      email: >-
+        {{ infra_roborock_local_actalis_email if infra_roborock_local_actalis_email is not none
+        else undef(hint='infra_roborock_local_actalis_email is required when infra_roborock_local_use_actalis is true') }}
+      keyType: RSA2048
+      eab:
+        kid: >-
+          {{ infra_roborock_local_actalis_kid if infra_roborock_local_actalis_kid is not none
+          else undef(hint='infra_roborock_local_actalis_kid is required when infra_roborock_local_use_actalis is true') }}
+        hmacEncoded: >-
+          {{ infra_roborock_local_actalis_hmac_encoded if infra_roborock_local_actalis_hmac_encoded is not none
+          else undef(hint='infra_roborock_local_actalis_hmac_encoded is required when infra_roborock_local_use_actalis is true') }}
+      storage: /etc/traefik/letsencrypt/acme.json
+      dnsChallenge:
+        provider: "{{ svc_traefik_dns_challenge_provider | default('cloudflare') }}"
+        delayBeforeCheck: 30
+        resolvers:
+          - 1.1.1.1:53
+          - 1.0.0.1:53
+
+...

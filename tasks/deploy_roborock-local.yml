@@ -1,0 +1,96 @@
+---
+- name: Validate roborock-local settings
+  ansible.builtin.assert:
+    that:
+      - infra_roborock_local_fqdn is match('api-')
+      - (infra_roborock_local_fqdn | regex_replace('^api-', '') ~ '/') | length <= 32
+      - infra_roborock_local_admin_password_hash is not none
+      - infra_roborock_local_session_secret | default('', true) | length >= 24
+      - infra_roborock_local_protocol_login_email is not none
+      - infra_roborock_local_protocol_login_pin_hash is not none
+    quiet: true
+
+- name: Ensure roborock-local directory is present
+  ansible.builtin.file:
+    path: "{{ infra_roborock_local_directory_path }}"
+    state: directory
+    owner: "{{ infra_roborock_local_directory_owner }}"
+    group: "{{ infra_roborock_local_directory_group }}"
+    mode: "{{ infra_roborock_local_directory_mode }}"
+
+- name: Get Traefik network info
+  community.docker.docker_network_info:
+    name: "{{ svc_docker_network_name }}"
+  register: roborock_local_network_info
+
+- name: Manage service files
+  block:
+    - name: Write roborock-local config to file
+      ansible.builtin.template:
+        src: roborock-local.toml.j2
+        dest: "{{ infra_roborock_local_config_file_path }}"
+        owner: "{{ infra_roborock_local_directory_owner }}"
+        group: "{{ infra_roborock_local_directory_group }}"
+        mode: "{{ infra_roborock_local_config_file_mode }}"
+        backup: true
+      vars:
+        _trusted_proxies: "{{ roborock_local_network_info.network.IPAM.Config | map(attribute='Subnet') | list }}"
+      register: roborock_local_config_file_output
+
+    - name: Write roborock-local environment variables to file
+      ansible.builtin.template:
+        src: template.env.j2
+        dest: "{{ infra_roborock_local_env_file_path }}"
+        owner: "{{ infra_roborock_local_directory_owner }}"
+        group: "{{ infra_roborock_local_directory_group }}"
+        mode: "{{ infra_roborock_local_env_file_mode }}"
+        backup: true
+      vars:
+        _env_vars: "{{ infra_roborock_local_env_vars }}"
+      register: roborock_local_env_file_output
+
+    - name: Copy compose services file into place
+      ansible.builtin.template:
+        src: compose/roborock-local.yml.j2
+        dest: "{{ infra_roborock_local_compose_path }}"
+        owner: "{{ infra_roborock_local_directory_owner }}"
+        group: "{{ infra_roborock_local_directory_group }}"
+        mode: "{{ infra_roborock_local_file_mode }}"
+        backup: true
+        validate: docker compose -f %s config -q
+      register: compose_file_output
+
+- name: Take down services due to changed compose file
+  community.docker.docker_compose_v2:
+    project_src: "{{ infra_roborock_local_directory_path }}"
+    files: "{{ compose_file_output.backup_file }}"
+    state: absent
+    remove_orphans: true
+  when: compose_file_output.backup_file is defined
+
+- name: Pull container image
+  community.docker.docker_image:
+    name: "{{ item }}"
+    source: pull
+  with_items:
+    - "{{ infra_roborock_local_container_image }}"
+
+- name: Deploy roborock-local services
+  community.docker.docker_compose_v2:
+    project_src: "{{ infra_roborock_local_directory_path }}"
+    state: "{{ 'present' if infra_use_roborock_local else 'absent' }}"
+    recreate: "{{ 'always' if roborock_local_config_file_output is changed else 'auto' }}"
+    wait: true
+    wait_timeout: "{{ infra_compose_wait_timeout }}"
+  register: deploy_roborock_local_services_output
+
+- name: Add docker-volume-backup entries
+  when: infra_backup_enabled
+  ansible.builtin.set_fact:
+    infra_docker_volume_backup_services_roborock_local:
+      - service: "{{ infra_roborock_local_service_name }}"
+        volumes:
+          - "{{ infra_roborock_local_volume_name_data }}"
+        stop:
+          - "{{ infra_roborock_local_service_name }}"
+...

@@ -1,0 +1,86 @@
+---
+### roborock-local ###
+# Version of the roborock-local Docker image to use (see 'infra_roborock_local_container_image')
+infra_roborock_local_version: "1.2.1"
+
+## roborock-local settings
+# Admin dashboard password hash. Generate with
+# `docker run --rm -it ghcr.io/python-roborock/local_roborock_server python -c 'import getpass; from roborock_local_server.security import hash_password; print(hash_password(getpass.getpass()))'`
+infra_roborock_local_admin_password_hash: ~
+# Admin session secret (at least 24 characters). Generate with `openssl rand -hex 32`.
+infra_roborock_local_session_secret: ~
+# Email used by Home Assistant/the Roborock app to log in to the local server
+infra_roborock_local_protocol_login_email: ~
+# Hash of the 6-digit PIN used by Home Assistant/the Roborock app to log in. Generate as for 'infra_roborock_local_admin_password_hash'
+infra_roborock_local_protocol_login_pin_hash: ~
+# Roborock region (us, eu, cn, ru)
+infra_roborock_local_region: eu
+
+# Whether to use Actalis for TLS certificates for the roborock-local service. If false, Traefik will use the default ACME provider (e.g., Cloudflare)
+infra_roborock_local_use_actalis: false
+# Email used for the Actalis certificate (from your Actalis ACME account)
+infra_roborock_local_actalis_email: ~
+# Key ID used for the Actalis certificate (from your Actalis ACME account)
+infra_roborock_local_actalis_kid: ~
+# HMAC used for the Actalis certificate (from your Actalis ACME account)
+infra_roborock_local_actalis_hmac_encoded: ~
+
+## Directories
+# Directory path
+infra_roborock_local_directory_path: "{{ infra_directory_path }}/roborock-local"
+# Directory user ownership
+infra_roborock_local_directory_owner: "{{ infra_directory_owner }}"
+# Directory group ownership
+infra_roborock_local_directory_group: "{{ infra_directory_group }}"
+# Directory mode
+infra_roborock_local_directory_mode: "{{ infra_directory_mode }}"
+
+## File paths
+# File mode
+infra_roborock_local_file_mode: "{{ infra_file_mode }}"
+# roborock-local compose file path
+infra_roborock_local_compose_path: "{{ infra_roborock_local_directory_path }}/compose.yml"
+# roborock-local env file path
+infra_roborock_local_env_file_path: "{{ infra_roborock_local_directory_path }}/roborock-local.env"
+# Permissions (mode) for the env files (as an octal)
+infra_roborock_local_env_file_mode: "0600"
+# roborock-local config file path
+infra_roborock_local_config_file_path: "{{ infra_roborock_local_directory_path }}/config.toml"
+# Permissions (mode) for the config file (as an octal)
+infra_roborock_local_config_file_mode: "0600"
+
+## Docker service configs
+# Name of the roborock-local Docker service
+infra_roborock_local_service_name: roborock-local
+# Container image to use for the roborock-local service
+infra_roborock_local_container_image: "ghcr.io/python-roborock/local_roborock_server:{{ infra_roborock_local_version }}"
+# Hostname of the roborock-local Docker container
+infra_roborock_local_container_hostname: "{{ infra_roborock_local_service_name }}"
+# FQDN of the roborock-local service. Must start with 'api-', and be at most 32 characters
+# (including any port and a trailing '/') once the 'api-' prefix is removed
+# With infra_roborock_local_use_actalis, the FQDN must not be covered by an existing (wildcard) certificate,
+# or Traefik skips the Actalis request and serves that certificate instead (e.g. use 'api-rr.rr.<domain>')
+infra_roborock_local_fqdn: "api-rr.{{ infra_domain }}"
+# Restart policy for the roborock-local Docker container
+infra_roborock_local_restart_policy: "{{ infra_restart_policy }}"
+# Memory limit for the roborock-local container
+infra_roborock_local_container_memory: 1g
+# Traefik middlewares for the roborock-local container
+infra_roborock_local_traefik_middlewares: "{{ infra_default_traefik_middlewares }}"
+# Traefik entrypoint terminating MQTT TLS for the roborock-local container
+infra_roborock_local_traefik_mqtt_entrypoint: mqttTls
+# HTTP port of the roborock-local container (TLS is terminated by Traefik)
+infra_roborock_local_https_port: 555
+# MQTT port of the roborock-local container (TLS is terminated by Traefik)
+infra_roborock_local_mqtt_tls_port: 8881
+# MQTT TLS port published by Traefik and advertised to clients
+infra_roborock_local_advertised_mqtt_tls_port: 8883
+
+## Docker volume configs
+# Name of the data Docker volume
+infra_roborock_local_volume_name_data: "{{ infra_roborock_local_service_name }}_data"
+# Labels to attach to the Docker volumes for this service
+infra_roborock_local_volume_labels:
+  netr0m.infra.service: roborock-local
+
+...

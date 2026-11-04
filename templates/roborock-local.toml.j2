@@ -1,0 +1,21 @@
+# {{ ansible_managed }}
+[network]
+stack_fqdn = {{ infra_roborock_local_fqdn | to_json }}
+bind_host = "0.0.0.0"
+https_port = {{ infra_roborock_local_https_port }}
+mqtt_tls_port = {{ infra_roborock_local_mqtt_tls_port }}
+advertised_https_port = 443
+advertised_mqtt_tls_port = {{ infra_roborock_local_advertised_mqtt_tls_port }}
+listener_mode = "external_tls"
+trusted_proxies = {{ _trusted_proxies | to_json }}
+region = {{ infra_roborock_local_region | to_json }}
+timezone = {{ infra_tz | default('Etc/UTC') | to_json }}
+
+[tls]
+mode = "provided"
+
+[admin]
+password_hash = {{ infra_roborock_local_admin_password_hash | to_json }}
+session_secret = {{ infra_roborock_local_session_secret | to_json }}
+protocol_login_email = {{ infra_roborock_local_protocol_login_email | to_json }}
+protocol_login_pin_hash = {{ infra_roborock_local_protocol_login_pin_hash | to_json }}

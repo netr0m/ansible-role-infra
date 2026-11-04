@@ -73,6 +73,8 @@ infra_use_actual: false
 infra_use_wazuh: false
 # Configure homarr
 infra_use_homarr: false
+# Configure roborock-local-server
+infra_use_roborock_local: false
 
 ## Traefik (from netr0m.svc)
 # Default middlewares for services behind traefik

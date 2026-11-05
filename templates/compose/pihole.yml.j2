@@ -11,13 +11,19 @@ services:
       options: {{ svc_log_options }}
     env_file: {{ infra_unbound_env_file_path }}
     volumes:
-      - {{ infra_unbound_conf_file_path }}:/opt/unbound/etc/unbound/unbound.conf
-      - {{ infra_unbound_conf_d_directory_path }}:/opt/unbound/etc/unbound/unbound.conf.d
+      - {{ infra_unbound_conf_file_path }}:/usr/local/unbound/unbound.conf:ro
+      - {{ infra_unbound_conf_d_directory_path }}:/usr/local/unbound/conf.d:ro
     mem_limit: {{ infra_unbound_container_memory }}
     networks:
       - {{ svc_docker_network_name }}
-    cap_add:
-      - NET_ADMIN
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: /usr/local/unbound/sbin/healthcheck.sh
+      interval: 60s
+      retries: 5
+      start_period: 15s
+      timeout: 30s
 
 {% endif %}
   {{ infra_pihole_service_name }}:
@@ -80,7 +86,8 @@ services:
       - {{ infra_group_gid }}
 {% if infra_use_unbound %}
     depends_on:
-      - {{ infra_unbound_service_name }}
+      {{ infra_unbound_service_name }}:
+        condition: service_healthy
 {% endif %}
 
 volumes:

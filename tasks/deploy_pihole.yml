@@ -45,13 +45,19 @@
         group: "{{ infra_unbound_directory_group }}"
         mode: "{{ infra_unbound_directory_mode }}"
 
-    - name: Ensure unbound.conf.d subdirectory is present
+    - name: Ensure unbound conf.d subdirectory is present
       ansible.builtin.file:
         path: "{{ infra_unbound_conf_d_directory_path }}"
         state: directory
         owner: "{{ infra_unbound_directory_owner }}"
         group: "{{ infra_unbound_directory_group }}"
         mode: "{{ infra_unbound_conf_d_directory_mode }}"
+
+    # TODO: remove once all hosts have migrated from the mvance/unbound image
+    - name: Remove legacy unbound.conf.d subdirectory
+      ansible.builtin.file:
+        path: "{{ infra_unbound_directory_path }}/unbound.conf.d"
+        state: absent
 
     - name: Write unbound config to file
       ansible.builtin.template:
@@ -62,16 +68,6 @@
         mode: "{{ infra_unbound_file_mode }}"
         backup: true
       register: unbound_config_file_output
-
-    - name: Write unbound pi-hole.conf to file
-      ansible.builtin.template:
-        src: etc/unbound/unbound.conf.d/pi-hole.conf.j2
-        dest: "{{ infra_unbound_pihole_conf_file_path }}"
-        owner: "{{ infra_unbound_directory_owner }}"
-        group: "{{ infra_unbound_directory_group }}"
-        mode: "{{ infra_unbound_file_mode }}"
-        backup: true
-      register: unbound_pihole_conf_file_output
 
     - name: Set DNS environment variable setting for pihole
       ansible.builtin.set_fact:

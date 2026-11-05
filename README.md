@@ -15,6 +15,7 @@ An Ansible role for infrastructure components as Docker containers. Handles task
 | [Wazuh](https://github.com/wazuh/wazuh) | Wazuh Security Platform | No |
 | [Actual](https://github.com/actualbudget/actual) | Personal finance | No |
 | [Homarr](https://github.com/homarr-labs/homarr) | Dashboard | No |
+| [Roborock Local Server](https://github.com/Python-roborock/local_roborock_server) | Local Roborock cloud | No |
 
 ## Installation
 
